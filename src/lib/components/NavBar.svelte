@@ -11,6 +11,7 @@
 
   import { createCollapsible, createDropdownMenu, melt } from "@melt-ui/svelte";
   import { slide, fly } from "svelte/transition";
+  import { env } from "$env/dynamic/public";
 
   onMount(() => {
     const nav_dropdown = document.getElementById("nav-dropdown") as Element;
@@ -75,7 +76,7 @@
         <li id="file-text">
           File: {$readerModel.name}
         </li>
-        {#if $readerModel.indexPath || $readerModel.rawSrc}
+        {#if !env.PUBLIC_VENDORED && ($readerModel.indexPath || $readerModel.rawSrc)}
           <li>
             <button title="Unload File" id="close-button" on:click={() => {
                 readerModel.clear();

@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
+    "vendor": "PUBLIC_VENDORED=true vite build --config vendored.vite.config.ts",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",

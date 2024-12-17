@@ -40,6 +40,7 @@
     } else if (files.length > 1) {
       alert("Please only provide a single file.");
     } else {
+      console.log(files[0]);
       readerModel.readData(files[0]);
     }
   }
