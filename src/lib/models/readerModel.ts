@@ -49,7 +49,7 @@ class ReaderModel {
   inCollection = new Set();
 
   // Search JSON
-  search = new JsSearch.Search("uuid");
+  search = new JsSearch.Search("_uuid");
 
   //***************************************************************************
   // Start boilerplate to make this a subscribable svelte store
@@ -111,7 +111,7 @@ class ReaderModel {
     this.collectionMapping = {};
     this.inCollection = new Set();
 
-    this.search = new JsSearch.Search("uuid");
+    this.search = new JsSearch.Search("_uuid");
 
     this._dirty();
   }
