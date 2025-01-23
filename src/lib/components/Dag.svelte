@@ -78,7 +78,7 @@
   async function setResultSelection(uuid: string) {
     readerModel.provTitle = "Result Details";
     const selectionData = await readerModel.getProvenanceArtifact(uuid);
-
+    console.log(selectionData);
     _setSelection(selectionData);
   }
 
