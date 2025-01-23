@@ -6,6 +6,7 @@
 // *****************************************************************************
 import yaml from "js-yaml";
 import JSZip from "jszip";
+import * as JsSearch from "js-search";
 
 import { handleError, readBlobAsText } from "$lib/scripts/util";
 import extmap from "$lib/scripts/extmap";
@@ -46,6 +47,9 @@ class ReaderModel {
   // <output-action>:<input-action>:<output-name>: [{key: ,uuid: }, ...]
   collectionMapping = {};
   inCollection = new Set();
+
+  // Search JSON
+  search = new JsSearch.Search("uuid");
 
   //***************************************************************************
   // Start boilerplate to make this a subscribable svelte store
@@ -106,6 +110,8 @@ class ReaderModel {
 
     this.collectionMapping = {};
     this.inCollection = new Set();
+
+    this.search = new JsSearch.Search("uuid");
 
     this._dirty();
   }
