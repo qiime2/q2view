@@ -6,9 +6,9 @@
 // *****************************************************************************
 import yaml from "js-yaml";
 import JSZip from "jszip";
-import * as JsSearch from "js-search";
+import Fuse from "fuse.js";
 
-import { handleError, readBlobAsText } from "$lib/scripts/util";
+import { getAllObjectKeysRecursively, handleError, readBlobAsText } from "$lib/scripts/util";
 import extmap from "$lib/scripts/extmap";
 import schema from "$lib/scripts/yaml-schema";
 import loading from "$lib/scripts/loading";
@@ -49,7 +49,8 @@ class ReaderModel {
   inCollection = new Set();
 
   // Search JSON
-  search = new JsSearch.Search("_uuid");
+  search: Fuse;
+  jsonMap = {};
 
   //***************************************************************************
   // Start boilerplate to make this a subscribable svelte store
@@ -111,7 +112,8 @@ class ReaderModel {
     this.collectionMapping = {};
     this.inCollection = new Set();
 
-    this.search = new JsSearch.Search("_uuid");
+    this.search = null;
+    this.jsonMap = {};
 
     this._dirty();
   }
@@ -566,7 +568,11 @@ class ReaderModel {
     let height = findMaxDepth(this.uuid);
     let nodes = [];
     let edges = [];
+    let json = {};
+    let keySet: Set<string> = new Set();
+
     const actionNodes = [];
+    const seenActions = new Set();
 
     // Add all edges for single Results and collate collections
     for (const actionUUID of Object.keys(this.actionsToInputs)) {
@@ -615,23 +621,31 @@ class ReaderModel {
       }
     }
 
-    // Add all action nodes
-    for (const actionUUID of Object.values(this.artifactsToActions)) {
-      // These don't need to be sorted.
-      if (actionUUID !== null) {
+    for (const uuidPair of Object.entries(this.artifactsToActions)) {
+      const artifactUUID = uuidPair[0];
+      const actionUUID = uuidPair[1];
+
+      if (!seenActions.has(actionUUID)) {
+        json = await this.getProvenanceAction(artifactUUID);
+        getAllObjectKeysRecursively(json, '', keySet);
+        this.jsonMap[actionUUID] = json;
+
         actionNodes.push({
           data: { id: actionUUID },
         });
-      }
-    }
 
-    // Add all nodes for individual Results
-    for (const artifactUUID of Object.keys(this.artifactsToActions)) {
+        seenActions.add(actionUUID);
+      }
+
       if (!this.inCollection.has(artifactUUID)) {
+        json = await this.getProvenanceArtifact(artifactUUID);
+        getAllObjectKeysRecursively(json, '', keySet);
+        this.jsonMap[artifactUUID] = json;
+
         nodes.push({
           data: {
             id: artifactUUID,
-            parent: this.artifactsToActions[artifactUUID],
+            parent: actionUUID,
             row: findMaxDepth(artifactUUID),
           },
         });
@@ -650,6 +664,9 @@ class ReaderModel {
       // Use the uuid of the first artifact in the collection to represent the
       // collection here
       if (this.collectionMapping[collectionID].length === 1) {
+        json = await this.getProvenanceArtifact(representative);
+        this.jsonMap[representative] = json;
+
         nodes.push({
           data: {
             id: representative,
@@ -667,6 +684,9 @@ class ReaderModel {
           },
         });
       } else {
+        json = await this.getProvenanceArtifact(collectionID);
+        this.jsonMap[collectionID] = json;
+
         nodes.push({
           data: {
             id: collectionID,
@@ -684,7 +704,11 @@ class ReaderModel {
           },
         });
       }
+
+      getAllObjectKeysRecursively(json, '', keySet);
     }
+
+    this.search = new Fuse([...Object.values(this.jsonMap)], {keys: [...keySet]});
 
     for (let i = 0; i < height; i += 1) {
       const currNodes = nodes.filter((v) => v.data.row === i);
