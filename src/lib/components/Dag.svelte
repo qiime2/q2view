@@ -62,31 +62,24 @@
     ]
   };
 
-  async function setActionSelection(uuid: string) {
-    if (uuid in readerModel.collectionMapping) {
-      // If our uuid is a collectionID we get the uuid of the first element of
-      // the collection to actually get the provenance action.
-      uuid = readerModel.collectionMapping[uuid][0]['uuid'];
-    }
-
+  function setActionSelection(uuid: string) {
     readerModel.provTitle = "Action Details";
-    const selectionData = await readerModel.getProvenanceAction(uuid);
-
+    const selectionData = readerModel.jsonMap[uuid];
     _setSelection(selectionData);
   }
 
-  async function setResultSelection(uuid: string) {
+  function setResultSelection(uuid: string) {
     readerModel.provTitle = "Result Details";
-    const selectionData = await readerModel.getProvenanceArtifact(uuid);
+    const selectionData = readerModel.jsonMap[uuid];
     _setSelection(selectionData);
   }
 
-  async function setCollectionSelection(uuid: string) {
+  function setCollectionSelection(uuid: string) {
     const selectionData = {};
     readerModel.provTitle = "Collection Details";
 
     for (const artifact of readerModel.collectionMapping[uuid]) {
-      selectionData[artifact['key']] = await readerModel.getProvenanceArtifact(artifact['uuid']);
+      selectionData[artifact['key']] = readerModel.jsonMap[artifact['uuid']];
     }
 
     _setSelection(selectionData);
@@ -135,7 +128,7 @@
           // nodes as its children. We get the action provenance from whichever
           // of its children happens to be first. It doesn't matter which because
           // the data for the action itself won't change regardless.
-          setActionSelection(node.children()[0].data("id"));
+          setActionSelection(node.data("id"));
         } else {
           const uuid = node.data("id");
 

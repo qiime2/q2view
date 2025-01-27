@@ -13,7 +13,7 @@
   {#if $readerModel.provData !== undefined}
     <div class="JSONTree">
       <JSONTree
-        value={readerModel.provData}
+        value={$readerModel.provData}
         defaultExpandedLevel={100}
         shouldShowPreview={false}
       />
