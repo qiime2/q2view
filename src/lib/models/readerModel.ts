@@ -32,20 +32,6 @@ class ReaderModel {
 
   session: string;
 
-  height: number | undefined = undefined;
-  elements: Array<Object> | undefined = undefined;
-
-  provData: Object | undefined = undefined;
-  provTitle: string = "Details";
-
-  actionsToInputs = {};
-  artifactsToActions = {};
-
-  // Takes a collection and maps
-  // <output-action>:<input-action>:<output-name>: [{key: ,uuid: }, ...]
-  collectionMapping = {};
-  inCollection = new Set();
-
   //***************************************************************************
   // Start boilerplate to make this a subscribable svelte store
   //***************************************************************************
@@ -92,18 +78,6 @@ class ReaderModel {
     this.port = null;
 
     this.metadata = {};
-
-    this.height = undefined;
-    this.elements = undefined;
-
-    this.provData = undefined;
-    this.provTitle = "Details";
-
-    this.actionsToInputs = {};
-    this.artifactsToActions = {};
-
-    this.collectionMapping = {};
-    this.inCollection = new Set();
 
     this._dirty();
   }
@@ -333,10 +307,6 @@ class ReaderModel {
         return; // This message is meant for another tab.
       }
       switch (event.data.type) {
-        // TODO: There is currently a bug where when you switch between URL sources
-        // GET_DATA is triggered for files that were in the previous index.html but with
-        // the current uuid. No idea why. It doesn't cause real problems just outputs
-        // errors to the console
         case "GET_DATA":
           // decode should go in the SW, but that'd require an upgrade
           this._getFile(decodeURI(event.data.filename))

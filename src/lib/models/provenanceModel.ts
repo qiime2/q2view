@@ -1,4 +1,18 @@
 class ProvenanceModel {
+  height: number | undefined = undefined;
+  elements: Array<Object> | undefined = undefined;
+
+  provData: Object | undefined = undefined;
+  provTitle: string = "Details";
+
+  actionsToInputs = {};
+  artifactsToActions = {};
+
+  // Takes a collection and maps
+  // <output-action>:<input-action>:<output-name>: [{key: ,uuid: }, ...]
+  collectionMapping = {};
+  inCollection = new Set();
+
   async _inputMap(uuid, action) {
     // Recurse up the prov tree and get mappings of execution id to the inputs
     // that execution took
