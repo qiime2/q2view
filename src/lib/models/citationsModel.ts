@@ -108,7 +108,6 @@ class CitationsModel {
     this._getCitations().then((citations) => {
       // If citations === null then we don't have citaions for this result
       // which is fine
-      console.log(citations)
       if (citations !== null) {
         this.citations = this._dedup(citations);
         this.formatter = new Cite(this.citations);
