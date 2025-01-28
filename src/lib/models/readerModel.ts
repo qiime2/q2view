@@ -332,12 +332,14 @@ class ReaderModel {
     const ext = relpath.split(".").pop();
     const fp = `${this.uuid}/${relpath}`;
     const filehandle = this.zipReader.file(fp);
+
     let filepromise = null;
     if (filehandle === null) {
       filepromise = () => Promise.reject(`No such file: ${fp}`);
     } else {
       filepromise = () => filehandle.async("uint8array");
     }
+
     return filepromise().then((byteArray) => ({
       byteArray,
       type: extmap[ext] || "",
