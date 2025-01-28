@@ -1,6 +1,7 @@
 // ****************************************************************************
 // This model is responsible for taking the result supplied by the user,
-// ensuring we have a file if the result is remote, and unzipping the result
+// ensuring we have a file if the result is remote, unzipping the result, and
+// middle manning file requests as needed
 // ****************************************************************************
 import yaml from "js-yaml";
 import JSZip from "jszip";
