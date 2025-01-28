@@ -9,16 +9,18 @@
 {#key $readerModel.uuid}
   <Dag />
 {/key}
-<Panel header={$readerModel.provTitle}>
-  {#if $readerModel.provData !== undefined}
-    <div class="JSONTree">
-      <JSONTree
-        value={$readerModel.provData}
-        defaultExpandedLevel={100}
-        shouldShowPreview={false}
-      />
-    </div>
-  {:else}
-    <p>Click on an element of the Provenance Graph to learn more</p>
-  {/if}
-</Panel>
+{#key $readerModel.provData}
+  <Panel header={$readerModel.provTitle}>
+    {#if readerModel.provData !== undefined}
+      <div class="JSONTree">
+        <JSONTree
+          value={readerModel.provData}
+          defaultExpandedLevel={100}
+          shouldShowPreview={false}
+        />
+      </div>
+    {:else}
+      <p>Click on an element of the Provenance Graph to learn more</p>
+    {/if}
+  </Panel>
+{/key}
