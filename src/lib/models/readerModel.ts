@@ -653,59 +653,39 @@ class ReaderModel {
     }
 
     // Add all nodes and edges for collections
-    for (const collectionID of Object.keys(this.collectionMapping)) {
-      const representative = this.collectionMapping[collectionID][0]["uuid"];
+     for (const collectionID of Object.keys(this.collectionMapping)) {
+      // Get the uuid of the first element of this collection to represent the
+      // entire collection in some metrics
+      const collection = this.collectionMapping[collectionID];
+      const representative = collection[0]["uuid"];
 
       const split = collectionID.split(":");
       const source = split[0];
       const target = split[1];
       const param = split[2];
 
-      // Use the uuid of the first artifact in the collection to represent the
-      // collection here
-      if (this.collectionMapping[collectionID].length === 1) {
-        json = await this.getProvenanceArtifact(representative);
-        this.jsonMap[representative] = json;
-
-        nodes.push({
-          data: {
-            id: representative,
-            parent: this.artifactsToActions[representative],
-            row: findMaxDepth(representative),
-          },
-        });
-
-        edges.push({
-          data: {
-            id: `${param}_${source}to${target}`,
-            param: param,
-            source: representative,
-            target: target,
-          },
-        });
-      } else {
-        json = await this.getProvenanceArtifact(collectionID);
-        this.jsonMap[collectionID] = json;
-
-        nodes.push({
-          data: {
-            id: collectionID,
-            parent: this.artifactsToActions[representative],
-            row: findMaxDepth(representative),
-          },
-        });
-
-        edges.push({
-          data: {
-            id: `${param}_${source}to${target}`,
-            param: param,
-            source: collectionID,
-            target: target,
-          },
-        });
+      for (const elem of collection) {
+        json = await this.getProvenanceArtifact(elem.uuid);
+        this.jsonMap[elem.uuid] = json;
+        getAllObjectKeysRecursively(json, '', keySet);
       }
 
-      getAllObjectKeysRecursively(json, '', keySet);
+      nodes.push({
+        data: {
+          id: collectionID,
+          parent: this.artifactsToActions[representative],
+          row: findMaxDepth(representative),
+        },
+      });
+
+      edges.push({
+        data: {
+          id: `${param}_${source}to${target}`,
+          param: param,
+          source: collectionID,
+          target: target,
+        },
+      });
     }
 
     this.search = new Fuse([...Object.values(this.jsonMap)], {keys: [...keySet]});
