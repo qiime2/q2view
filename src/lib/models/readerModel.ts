@@ -27,7 +27,6 @@ class ReaderModel {
   zipReader: JSZip | null = null;
   port: string | null = null;
 
-  citations: string | undefined = undefined;
   metadata: object = {};
 
   session: string;
@@ -91,7 +90,6 @@ class ReaderModel {
     this.zipReader = null;
     this.port = null;
 
-    this.citations = undefined;
     this.metadata = {};
 
     this.height = undefined;
