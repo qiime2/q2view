@@ -133,7 +133,6 @@ class CitationsModel {
         }
       });
 
-    console.log(promises)
     return Promise.all(promises).then((array) => array.join(""));
   }
 
