@@ -457,9 +457,9 @@ class ReaderModel {
     return `/_/${this.session}/${this.uuid}/${relpath}`;
   }
 
+  // Recurse up the prov tree and get mappings of execution id to the inputs
+  // that execution took
   async _inputMap(uuid, action) {
-    // Recurse up the prov tree and get mappings of execution id to the inputs
-    // that execution took
     // eslint-disable-line no-unused-vars
     if (action === undefined) {
       await this.getProvenanceAction(uuid)
@@ -621,6 +621,8 @@ class ReaderModel {
       }
     }
 
+    console.log(this.artifactsToActions)
+    console.log(this.inCollection)
     for (const uuidPair of Object.entries(this.artifactsToActions)) {
       const artifactUUID = uuidPair[0];
       const actionUUID = uuidPair[1];
@@ -638,6 +640,7 @@ class ReaderModel {
       }
 
       if (!this.inCollection.has(artifactUUID)) {
+        console.log(artifactUUID)
         json = await this.getProvenanceArtifact(artifactUUID);
         getAllObjectKeysRecursively(json, '', keySet);
         this.jsonMap[artifactUUID] = json;
@@ -654,6 +657,7 @@ class ReaderModel {
 
     // Add all nodes and edges for collections
      for (const collectionID of Object.keys(this.collectionMapping)) {
+      console.log(this.collectionMapping)
       // Get the uuid of the first element of this collection to represent the
       // entire collection in some metrics
       const collection = this.collectionMapping[collectionID];
