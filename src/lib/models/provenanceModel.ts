@@ -1,6 +1,7 @@
-class ProvenanceModel
-  // Recurse up the provenance tree from the result we were proveded
+class ProvenanceModel {
   async _inputMap(uuid, action) {
+    // Recurse up the prov tree and get mappings of execution id to the inputs
+    // that execution took
     // eslint-disable-line no-unused-vars
     if (action === undefined) {
       await this.getProvenanceAction(uuid)
@@ -109,11 +110,7 @@ class ProvenanceModel
     let height = findMaxDepth(this.uuid);
     let nodes = [];
     let edges = [];
-    let json = {};
-    let keySet: Set<string> = new Set();
-
     const actionNodes = [];
-    const seenActions = new Set();
 
     // Add all edges for single Results and collate collections
     for (const actionUUID of Object.keys(this.actionsToInputs)) {
@@ -162,34 +159,23 @@ class ProvenanceModel
       }
     }
 
-    console.log(this.artifactsToActions)
-    console.log(this.inCollection)
-    for (const uuidPair of Object.entries(this.artifactsToActions)) {
-      const artifactUUID = uuidPair[0];
-      const actionUUID = uuidPair[1];
-
-      if (!seenActions.has(actionUUID)) {
-        json = await this.getProvenanceAction(artifactUUID);
-        getAllObjectKeysRecursively(json, '', keySet);
-        this.jsonMap[actionUUID] = json;
-
+    // Add all action nodes
+    for (const actionUUID of Object.values(this.artifactsToActions)) {
+      // These don't need to be sorted.
+      if (actionUUID !== null) {
         actionNodes.push({
           data: { id: actionUUID },
         });
-
-        seenActions.add(actionUUID);
       }
+    }
 
+    // Add all nodes for individual Results
+    for (const artifactUUID of Object.keys(this.artifactsToActions)) {
       if (!this.inCollection.has(artifactUUID)) {
-        console.log(artifactUUID)
-        json = await this.getProvenanceArtifact(artifactUUID);
-        getAllObjectKeysRecursively(json, '', keySet);
-        this.jsonMap[artifactUUID] = json;
-
         nodes.push({
           data: {
             id: artifactUUID,
-            parent: actionUUID,
+            parent: this.artifactsToActions[artifactUUID],
             row: findMaxDepth(artifactUUID),
           },
         });
@@ -197,43 +183,52 @@ class ProvenanceModel
     }
 
     // Add all nodes and edges for collections
-     for (const collectionID of Object.keys(this.collectionMapping)) {
-      console.log(this.collectionMapping)
-      // Get the uuid of the first element of this collection to represent the
-      // entire collection in some metrics
-      const collection = this.collectionMapping[collectionID];
-      const representative = collection[0]["uuid"];
+    for (const collectionID of Object.keys(this.collectionMapping)) {
+      const representative = this.collectionMapping[collectionID][0]["uuid"];
 
       const split = collectionID.split(":");
       const source = split[0];
       const target = split[1];
       const param = split[2];
 
-      for (const elem of collection) {
-        json = await this.getProvenanceArtifact(elem.uuid);
-        this.jsonMap[elem.uuid] = json;
-        getAllObjectKeysRecursively(json, '', keySet);
+      // Use the uuid of the first artifact in the collection to represent the
+      // collection here
+      if (this.collectionMapping[collectionID].length === 1) {
+        nodes.push({
+          data: {
+            id: representative,
+            parent: this.artifactsToActions[representative],
+            row: findMaxDepth(representative),
+          },
+        });
+
+        edges.push({
+          data: {
+            id: `${param}_${source}to${target}`,
+            param: param,
+            source: representative,
+            target: target,
+          },
+        });
+      } else {
+        nodes.push({
+          data: {
+            id: collectionID,
+            parent: this.artifactsToActions[representative],
+            row: findMaxDepth(representative),
+          },
+        });
+
+        edges.push({
+          data: {
+            id: `${param}_${source}to${target}`,
+            param: param,
+            source: collectionID,
+            target: target,
+          },
+        });
       }
-
-      nodes.push({
-        data: {
-          id: collectionID,
-          parent: this.artifactsToActions[representative],
-          row: findMaxDepth(representative),
-        },
-      });
-
-      edges.push({
-        data: {
-          id: `${param}_${source}to${target}`,
-          param: param,
-          source: collectionID,
-          target: target,
-        },
-      });
     }
-
-    this.search = new Fuse([...Object.values(this.jsonMap)], {keys: [...keySet]});
 
     for (let i = 0; i < height; i += 1) {
       const currNodes = nodes.filter((v) => v.data.row === i);
