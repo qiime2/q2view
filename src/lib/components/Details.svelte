@@ -43,7 +43,7 @@
     <select bind:value={citationsModel.citationStyle} id="citation-style" on:change={() => citationsModel.formatCitations()}>
       <option value="apa">APA</option>
       <option value="asm">ASM</option>
-      <option selected={true} value="bib">BibTex</option>
+      <option value="bib">BibTex</option>
       <option value="cell">Cell</option>
       <option value="chicago">Chicago</option>
       <option value="mla">MLA</option>

@@ -13,9 +13,9 @@ class CitationsModel {
   fileExt = "";
   citations = "";
   fileContents = "";
+  citationStyle = "";
   downloadableFile = "";
   formattedCitations = "";
-  citationStyle = "bib";
 
   // Class attributes used to format the citations
   formatter = new Cite();
@@ -62,6 +62,9 @@ class CitationsModel {
   // This state is set by the readerModel when it comes time to read the
   // citations
   setState(uuid: string, zipReader: JSZip) {
+    // Default citation style
+    this.citationStyle = "bib";
+
     this.uuid = uuid;
     this.zipReader = zipReader;
   }
