@@ -1,19 +1,19 @@
 <script lang="ts">
   import Panel from "$lib/components/Panel.svelte";
-  import readerModel from "$lib/models/readerModel";
 
   import JSONTree from "svelte-json-tree";
   import Dag from "./Dag.svelte";
+  import provenanceModel from "$lib/models/provenanceModel";
 </script>
 
-{#key $readerModel.uuid}
+{#key $provenanceModel.uuid}
   <Dag />
 {/key}
-<Panel header={$readerModel.provTitle}>
-  {#if $readerModel.provData !== undefined}
+<Panel header={$provenanceModel.provTitle}>
+  {#if $provenanceModel.provData !== undefined}
     <div class="JSONTree">
       <JSONTree
-        value={readerModel.provData}
+        value={provenanceModel.provData}
         defaultExpandedLevel={100}
         shouldShowPreview={false}
       />

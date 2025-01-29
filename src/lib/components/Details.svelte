@@ -1,11 +1,10 @@
 <script lang="ts">
   import Panel from "$lib/components/Panel.svelte";
   import readerModel from "$lib/models/readerModel";
-  import FormatterModel from "$lib/models/formatterModel";
+  import citationsModel from "$lib/models/citationsModel";
   import ResultDetails from "$lib/components/ResultDetails.svelte";
 
   let citations: HTMLElement;
-  const formatterModel = new FormatterModel();
 
   // If the user refreshes then we need to react to the citations being set
   // when we are already on this page
@@ -13,20 +12,20 @@
   // They will be undefined for a sec and it will flash "No Citations" then
   // when they are actually loaded by the ReaderModel this will react to that
   $: {
-    if ($readerModel.citations !== undefined) {
-      formatterModel.setState($readerModel.citations);
-      formatterModel.formatCitations();
+    if ($citationsModel.citations !== undefined) {
+      citationsModel.formatCitations();
     }
   }
 
+  // If the citation style is changed we need to update the DOM
   $: {
     if (citations !== undefined) {
       let newInnerHTML = "";
 
-      if ($formatterModel.citationStyle === 'bib' || $formatterModel.citationStyle === 'ris') {
-        newInnerHTML = "<pre>" + formatterModel.formattedCitations + "</pre>";
+      if ($citationsModel.citationStyle === 'bib' || $citationsModel.citationStyle === 'ris') {
+        newInnerHTML = "<pre>" + citationsModel.formattedCitations + "</pre>";
       } else {
-        newInnerHTML = formatterModel.formattedCitations;
+        newInnerHTML = citationsModel.formattedCitations;
       }
 
       citations.innerHTML = newInnerHTML;
@@ -41,10 +40,10 @@
   <label for="citation-style">
     Citation Format:
     <!-- TODO: It takes a bit of time to react to changing this style. Feels a bit jank need some feedback -->
-    <select bind:value={formatterModel.citationStyle} id="citation-style" on:change={() => formatterModel.formatCitations()}>
+    <select bind:value={citationsModel.citationStyle} id="citation-style" on:change={() => citationsModel.formatCitations()}>
       <option value="apa">APA</option>
       <option value="asm">ASM</option>
-      <option selected={true} value="bib">BibTex</option>
+      <option value="bib">BibTex</option>
       <option value="cell">Cell</option>
       <option value="chicago">Chicago</option>
       <option value="mla">MLA</option>
@@ -52,8 +51,8 @@
       <option value="ris">RIS</option>
     </select>
   </label>
-  {#if $readerModel.citations !== undefined}
-    <a href={$formatterModel.downloadableFile} download={`${$readerModel.metadata.uuid}.${$formatterModel.fileExt}`} style="float: right">Download</a>
+  {#if $citationsModel.citations !== undefined}
+    <a href={$citationsModel.downloadableFile} download={`${$citationsModel.uuid}.${$citationsModel.fileExt}`} style="float: right">Download</a>
     <div id="citations" bind:this={citations}></div>
   {:else}
     <pre id="citations">No Citations</pre>
