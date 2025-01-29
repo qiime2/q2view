@@ -115,14 +115,22 @@ export function getScrollBarWidth() {
   return withoutScrollWidth - withScrollWidth;
 }
 
-export function getAllObjectKeysRecursively(targetObject: object, keyAccumulator: string, keySet: Set<string>) {
+export function getAllObjectKeysRecursively(
+  targetObject: object,
+  keyAccumulator: string,
+  keySet: Set<string>,
+) {
   if (targetObject !== null && targetObject !== undefined) {
     for (const key of Object.keys(targetObject)) {
       let newKeyAccumulator = keyAccumulator + key;
 
-      if (typeof targetObject[key as keyof object] === 'object') {
-        newKeyAccumulator += '.';
-        getAllObjectKeysRecursively(targetObject[key as keyof object], newKeyAccumulator, keySet);
+      if (typeof targetObject[key as keyof object] === "object") {
+        newKeyAccumulator += ".";
+        getAllObjectKeysRecursively(
+          targetObject[key as keyof object],
+          newKeyAccumulator,
+          keySet,
+        );
       } else {
         keySet.add(newKeyAccumulator);
       }

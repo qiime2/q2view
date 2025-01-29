@@ -82,7 +82,7 @@ class ProvenanceModel {
     this._dirty();
   }
 
-    // Recurse up the prov tree and get mappings of execution id to the inputs
+  // Recurse up the prov tree and get mappings of execution id to the inputs
   // that execution took
   async _inputMap(uuid, action) {
     // eslint-disable-line no-unused-vars
@@ -246,15 +246,15 @@ class ProvenanceModel {
       }
     }
 
-    console.log(this.artifactsToActions)
-    console.log(this.inCollection)
+    console.log(this.artifactsToActions);
+    console.log(this.inCollection);
     for (const uuidPair of Object.entries(this.artifactsToActions)) {
       const artifactUUID = uuidPair[0];
       const actionUUID = uuidPair[1];
 
       if (!seenActions.has(actionUUID)) {
         json = await this.getProvenanceAction(artifactUUID);
-        getAllObjectKeysRecursively(json, '', keySet);
+        getAllObjectKeysRecursively(json, "", keySet);
         this.jsonMap[actionUUID] = json;
 
         actionNodes.push({
@@ -265,9 +265,9 @@ class ProvenanceModel {
       }
 
       if (!this.inCollection.has(artifactUUID)) {
-        console.log(artifactUUID)
+        console.log(artifactUUID);
         json = await this.getProvenanceArtifact(artifactUUID);
-        getAllObjectKeysRecursively(json, '', keySet);
+        getAllObjectKeysRecursively(json, "", keySet);
         this.jsonMap[artifactUUID] = json;
 
         nodes.push({
@@ -281,8 +281,8 @@ class ProvenanceModel {
     }
 
     // Add all nodes and edges for collections
-     for (const collectionID of Object.keys(this.collectionMapping)) {
-      console.log(this.collectionMapping)
+    for (const collectionID of Object.keys(this.collectionMapping)) {
+      console.log(this.collectionMapping);
       // Get the uuid of the first element of this collection to represent the
       // entire collection in some metrics
       const collection = this.collectionMapping[collectionID];
@@ -296,7 +296,7 @@ class ProvenanceModel {
       for (const elem of collection) {
         json = await this.getProvenanceArtifact(elem.uuid);
         this.jsonMap[elem.uuid] = json;
-        getAllObjectKeysRecursively(json, '', keySet);
+        getAllObjectKeysRecursively(json, "", keySet);
       }
 
       nodes.push({
@@ -317,7 +317,9 @@ class ProvenanceModel {
       });
     }
 
-    this.search = new Fuse([...Object.values(this.jsonMap)], {keys: [...keySet]});
+    this.search = new Fuse([...Object.values(this.jsonMap)], {
+      keys: [...keySet],
+    });
 
     for (let i = 0; i < this.height; i += 1) {
       const currNodes = nodes.filter((v) => v.data.row === i);
