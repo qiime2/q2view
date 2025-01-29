@@ -1,3 +1,11 @@
+// ****************************************************************************
+// This model is responsible for parsing and storing the provenance of the
+// result
+// ****************************************************************************
+import JSZip from "jszip";
+
+import { getYAML } from "$lib/scripts/fileutils";
+
 class ProvenanceModel {
   height: number | undefined = undefined;
   elements: Array<Object> | undefined = undefined;
@@ -12,6 +20,58 @@ class ProvenanceModel {
   // <output-action>:<input-action>:<output-name>: [{key: ,uuid: }, ...]
   collectionMapping = {};
   inCollection = new Set();
+
+  // Class attributes passed in by readerModel pertaining to currently loaded
+  // result
+  uuid = "";
+  zipReader: JSZip = new JSZip();
+
+  //***************************************************************************
+  // Start boilerplate to make this a subscribable svelte store
+  //***************************************************************************
+  _subscription: Record<number, (arg0: ProvenanceModel) => void> = {};
+  _subscriptionNum = 0;
+
+  _dirty() {
+    for (const subscription of Object.values(this._subscription)) {
+      subscription(this);
+    }
+  }
+
+  subscribe(subscription: (value: ProvenanceModel) => void): () => void {
+    this._subscription[this._subscriptionNum] = subscription;
+    subscription(this);
+    return ((index) => {
+      return () => {
+        delete this._subscription[index];
+      };
+    })(this._subscriptionNum++);
+  }
+  //***************************************************************************
+  // End boilerplate to make this a subscribable svelte store
+  //***************************************************************************
+
+  // This state is set by the readerModel when it comes time to read the
+  // provenance
+  setState(uuid: string, zipReader: JSZip) {
+    // Reset class attributes
+    this.height = undefined;
+    this.elements = undefined;
+
+    this.provData = undefined;
+    this.provTitle = "Details";
+
+    this.actionsToInputs = {};
+    this.artifactsToActions = {};
+
+    this.collectionMapping = {}
+    this.inCollection = new Set();
+
+    this.uuid = uuid;
+    this.zipReader = zipReader;
+
+    this._dirty()
+  }
 
   async _inputMap(uuid, action) {
     // Recurse up the prov tree and get mappings of execution id to the inputs
@@ -96,7 +156,10 @@ class ProvenanceModel {
           this.artifactsToActions[uuid] = innerAction.execution.uuid;
         }
       })
-      .catch(() => (this.artifactsToActions[uuid] = null));
+      .catch(() => {
+        console.log(uuid)
+        this.artifactsToActions[uuid] = null;
+      });
   }
 
   async getProvenanceTree() {
@@ -261,22 +324,26 @@ class ProvenanceModel {
     }
 
     nodes = [...actionNodes, ...nodes];
-    let elements = nodes.concat(edges);
 
-    return [height, elements];
+    this.height = height;
+    this.elements = nodes.concat(edges);
+    this._dirty();
   }
 
   getProvenanceAction(uuid) {
     if (this.uuid === uuid) {
-      return this._getYAML("provenance/action/action.yaml");
+      return getYAML("provenance/action/action.yaml", this.uuid, this.zipReader);
     }
-    return this._getYAML(`provenance/artifacts/${uuid}/action/action.yaml`);
+    return getYAML(`provenance/artifacts/${uuid}/action/action.yaml`, this.uuid, this.zipReader);
   }
 
   getProvenanceArtifact(uuid) {
     if (this.uuid === uuid) {
-      return this._getYAML("provenance/metadata.yaml");
+      return getYAML("provenance/metadata.yaml", this.uuid, this.zipReader);
     }
-    return this._getYAML(`provenance/artifacts/${uuid}/metadata.yaml`);
+    return getYAML(`provenance/artifacts/${uuid}/metadata.yaml`, this.uuid, this.zipReader);
   }
 }
+
+const provenanceModel = new ProvenanceModel();
+export default provenanceModel;

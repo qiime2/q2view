@@ -3,7 +3,7 @@
 
   import { onMount } from "svelte";
 
-  import readerModel from "$lib/models/readerModel";
+  import provenanceModel from "$lib/models/provenanceModel";
   import cytoscape from "cytoscape";
 
   let self: HTMLDivElement;
@@ -63,53 +63,53 @@
   };
 
   async function setActionSelection(uuid: string) {
-    if (uuid in readerModel.collectionMapping) {
+    if (uuid in provenanceModel.collectionMapping) {
       // If our uuid is a collectionID we get the uuid of the first element of
       // the collection to actually get the provenance action.
-      uuid = readerModel.collectionMapping[uuid][0]['uuid'];
+      uuid = provenanceModel.collectionMapping[uuid][0]['uuid'];
     }
 
-    readerModel.provTitle = "Action Details";
-    const selectionData = await readerModel.getProvenanceAction(uuid);
+    provenanceModel.provTitle = "Action Details";
+    const selectionData = await provenanceModel.getProvenanceAction(uuid);
 
     _setSelection(selectionData);
   }
 
   async function setResultSelection(uuid: string) {
-    readerModel.provTitle = "Result Details";
-    const selectionData = await readerModel.getProvenanceArtifact(uuid);
+    provenanceModel.provTitle = "Result Details";
+    const selectionData = await provenanceModel.getProvenanceArtifact(uuid);
 
     _setSelection(selectionData);
   }
 
   async function setCollectionSelection(uuid: string) {
     const selectionData = {};
-    readerModel.provTitle = "Collection Details";
+    provenanceModel.provTitle = "Collection Details";
 
-    for (const artifact of readerModel.collectionMapping[uuid]) {
-      selectionData[artifact['key']] = await readerModel.getProvenanceArtifact(artifact['uuid']);
+    for (const artifact of provenanceModel.collectionMapping[uuid]) {
+      selectionData[artifact['key']] = await provenanceModel.getProvenanceArtifact(artifact['uuid']);
     }
 
     _setSelection(selectionData);
   }
 
   function _setSelection(data) {
-    readerModel.provData = data;
-    readerModel._dirty();
+    provenanceModel.provData = data;
+    provenanceModel._dirty();
   }
 
-  // TODO: The way this works causes the $readerModel.provData to flicker undefined
+  // TODO: The way this works causes the $provenanceModel.provData to flicker undefined
   // briefly when clicking between nodes which looks bad. Additionally, something
   // is causing the dag and info columns to jitter around in Chrome
   function clearSelection() {
-    readerModel.provTitle = "Details";
-    readerModel.provData = undefined;
-    readerModel._dirty();
+    provenanceModel.provTitle = "Details";
+    provenanceModel.provData = undefined;
+    provenanceModel._dirty();
   }
 
   onMount(() => {
     // Set this height so we center the DAG based on this height
-    let displayHeight = (readerModel.height + 1) * 105;
+    let displayHeight = (provenanceModel.height + 1) * 105;
     self.style.setProperty("height", `${displayHeight}px`);
 
     let lock = false; // used to prevent recursive event storms
@@ -117,7 +117,7 @@
     let cy = cytoscape({
       ...cytoscapeConfig,
       container: document.getElementById("cy"),
-      elements: readerModel.elements
+      elements: provenanceModel.elements
     });
 
     cy.on("select", "node, edge", (event) => {
@@ -140,7 +140,7 @@
         } else {
           const uuid = node.data("id");
 
-          if (uuid in readerModel.collectionMapping) {
+          if (uuid in provenanceModel.collectionMapping) {
             setCollectionSelection(uuid);
           } else {
             setResultSelection(uuid);

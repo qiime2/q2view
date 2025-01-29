@@ -3,14 +3,13 @@
 // ensuring we have a file if the result is remote, unzipping the result, and
 // middle manning file requests as needed
 // ****************************************************************************
-import yaml from "js-yaml";
 import JSZip from "jszip";
 
-import { handleError, readBlobAsText } from "$lib/scripts/util";
-import extmap from "$lib/scripts/extmap";
-import schema from "$lib/scripts/yaml-schema";
+import { handleError } from "$lib/scripts/util";
 import loading from "$lib/scripts/loading";
 import citationsModel from "$lib/models/citationsModel";
+import provenanceModel from "$lib/models/provenanceModel";
+import { getFile, getYAML } from "$lib/scripts/fileutils";
 
 class ReaderModel {
   error = "";
@@ -275,7 +274,7 @@ class ReaderModel {
     this.zipReader = zip;
 
     // Set Metadata
-    this.metadata = await this._getYAML("metadata.yaml");
+    this.metadata = await getYAML("metadata.yaml", this.uuid, this.zipReader);
 
     // Determine if we have a visualization or an artifact
     if (this.metadata["type"] === "Visualization") {
@@ -288,17 +287,11 @@ class ReaderModel {
     loading.setMessage("Loading Citations");
     citationsModel.setState(this.uuid, zip);
     await citationsModel.getCitations();
-    // this._dirty();
-    // const citations = await this._getCitations();
-    // if (citations !== null) {
-    //   this.citations = this._dedup(citations);
-    // }
 
-    // // Set Provenance
-    // loading.setMessage("Loading Provenance");
-    // const provData = await this.getProvenanceTree();
-    // this.height = provData[0];
-    // this.elements = provData[1];
+    // Set Provenance
+    loading.setMessage("Loading Provenance");
+    provenanceModel.setState(this.uuid, zip);
+    await provenanceModel.getProvenanceTree();
   }
 
   attachToServiceWorker() {
@@ -309,7 +302,7 @@ class ReaderModel {
       switch (event.data.type) {
         case "GET_DATA":
           // decode should go in the SW, but that'd require an upgrade
-          this._getFile(decodeURI(event.data.filename))
+          getFile(decodeURI(event.data.filename), this.uuid, this.zipReader)
             .then((data) => {
               // the request should provide a port for later response
               event.ports[0].postMessage(data);
@@ -326,31 +319,6 @@ class ReaderModel {
           break;
       }
     };
-  }
-
-  _getFile(relpath) {
-    const ext = relpath.split(".").pop();
-    const fp = `${this.uuid}/${relpath}`;
-    const filehandle = this.zipReader.file(fp);
-
-    let filepromise = null;
-    if (filehandle === null) {
-      filepromise = () => Promise.reject(`No such file: ${fp}`);
-    } else {
-      filepromise = () => filehandle.async("uint8array");
-    }
-
-    return filepromise().then((byteArray) => ({
-      byteArray,
-      type: extmap[ext] || "",
-    }));
-  }
-
-  _getYAML(relpath) {
-    return this._getFile(relpath)
-      .then((data) => new Blob([data.byteArray], { type: data.type }))
-      .then(readBlobAsText)
-      .then((text) => yaml.safeLoad(text, { schema }));
   }
 
   getURLOfPath(relpath) {

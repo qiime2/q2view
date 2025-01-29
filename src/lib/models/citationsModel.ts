@@ -1,3 +1,7 @@
+// ****************************************************************************
+// This model is responsible for parsing, formatting, and storing the citations
+// for the given result
+// ****************************************************************************
 import Cite from "citation-js";
 
 import JSZip, { JSZipObject } from "jszip";
