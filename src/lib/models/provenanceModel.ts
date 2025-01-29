@@ -64,13 +64,13 @@ class ProvenanceModel {
     this.actionsToInputs = {};
     this.artifactsToActions = {};
 
-    this.collectionMapping = {}
+    this.collectionMapping = {};
     this.inCollection = new Set();
 
     this.uuid = uuid;
     this.zipReader = zipReader;
 
-    this._dirty()
+    this._dirty();
   }
 
   async _inputMap(uuid, action) {
@@ -157,7 +157,6 @@ class ProvenanceModel {
         }
       })
       .catch(() => {
-        console.log(uuid)
         this.artifactsToActions[uuid] = null;
       });
   }
@@ -332,16 +331,28 @@ class ProvenanceModel {
 
   getProvenanceAction(uuid) {
     if (this.uuid === uuid) {
-      return getYAML("provenance/action/action.yaml", this.uuid, this.zipReader);
+      return getYAML(
+        "provenance/action/action.yaml",
+        this.uuid,
+        this.zipReader,
+      );
     }
-    return getYAML(`provenance/artifacts/${uuid}/action/action.yaml`, this.uuid, this.zipReader);
+    return getYAML(
+      `provenance/artifacts/${uuid}/action/action.yaml`,
+      this.uuid,
+      this.zipReader,
+    );
   }
 
   getProvenanceArtifact(uuid) {
     if (this.uuid === uuid) {
       return getYAML("provenance/metadata.yaml", this.uuid, this.zipReader);
     }
-    return getYAML(`provenance/artifacts/${uuid}/metadata.yaml`, this.uuid, this.zipReader);
+    return getYAML(
+      `provenance/artifacts/${uuid}/metadata.yaml`,
+      this.uuid,
+      this.zipReader,
+    );
   }
 }
 

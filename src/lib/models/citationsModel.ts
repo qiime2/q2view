@@ -130,14 +130,16 @@ class CitationsModel {
     const folder = this.zipReader.folder(`${this.uuid}/provenance`);
 
     if (folder === null) {
-      throw new Error(`No folder found in Result matching ${this.uuid}/provenance`);
+      throw new Error(
+        `No folder found in Result matching ${this.uuid}/provenance`,
+      );
     }
 
     folder.forEach((relPath: string, file: JSZipObject) => {
-        if (relPath.endsWith("citations.bib")) {
-          promises.push(file.async("text"));
-        }
-      });
+      if (relPath.endsWith("citations.bib")) {
+        promises.push(file.async("text"));
+      }
+    });
 
     return Promise.all(promises).then((array) => array.join(""));
   }
