@@ -24,7 +24,7 @@ class ProvenanceModel {
   // Takes a collection and maps
   // <output-action>:<input-action>:<output-name>: [{key: ,uuid: }, ...]
   collectionMapping = {};
-  inCollection = new Set();
+  seenCollection = new Set();
 
   // Class attributes passed in by readerModel pertaining to currently loaded
   // result
@@ -75,7 +75,7 @@ class ProvenanceModel {
     this.seenActions = new Set();
 
     this.collectionMapping = {};
-    this.inCollection = new Set();
+    this.seenCollection = new Set();
 
     this.uuid = uuid;
     this.zipReader = zipReader;
@@ -96,22 +96,9 @@ class ProvenanceModel {
   ): Promise<number> {
     const sourceAction = await this.getProvenanceAction(resultUUID);
     const sourceActionUUID = sourceAction.execution.uuid;
+    let node = undefined;
 
     let depths: Array<number> = [1];
-
-    // destinationAction will be undefined if we call this with our root Result
-    // because the root result was not used as an input to any other action in
-    // this provenance
-    if (destinationActionUUID !== "") {
-      this.elements.push({
-        data: {
-          id: `${paramName}_${resultUUID}_to_${destinationActionUUID}`,
-          param: paramName,
-          source: resultUUID,
-          target: destinationActionUUID,
-        },
-      });
-    }
 
     // Push the action node if we haven't yet
     if (!this.seenActions.has(sourceActionUUID)) {
@@ -120,6 +107,62 @@ class ProvenanceModel {
       this.elements.push({
         data: { id: sourceActionUUID },
       });
+    }
+
+    // destinationAction will be undefined if we call this with our root Result
+    // because the root result was not used as an input to any other action in
+    // this provenance
+    if (destinationActionUUID !== "") {
+      if (paramName.includes(":")) {
+        const split = paramName.split(":");
+        const name = split[0];
+        const key = split[1];
+
+        const collectionID = `${name}:${sourceActionUUID}`;
+
+        console.log(collectionID);
+        if (!this.seenCollection.has(collectionID)) {
+          this.seenCollection.add(collectionID);
+          this.collectionMapping[collectionID] = [];
+
+          node = {
+                data: {
+                  id: resultUUID,
+                  parent: sourceActionUUID,
+                },
+            };
+
+          this.elements.push({
+            data: {
+              id: `${name}_${resultUUID}_to_${destinationActionUUID}`,
+              param: name,
+              source: resultUUID,
+              target: destinationActionUUID,
+            },
+          });
+
+          this.collectionMapping[collectionID].push(resultUUID);
+          return 1;
+        }
+
+        this.collectionMapping[collectionID].push(resultUUID);
+      } else {
+        node = {
+              data: {
+                id: resultUUID,
+                parent: sourceActionUUID,
+              },
+          };
+
+        this.elements.push({
+          data: {
+            id: `${paramName}_${resultUUID}_to_${destinationActionUUID}`,
+            param: paramName,
+            source: resultUUID,
+            target: destinationActionUUID,
+          },
+        });
+      }
     }
 
     // Some actions, most notably import, cannot have any steps upstream of
@@ -191,13 +234,10 @@ class ProvenanceModel {
 
     // Push the result node
     // We do this here because we don't have our maxDepth until now
-    this.elements.push({
-      data: {
-        id: resultUUID,
-        parent: sourceActionUUID,
-        row: maxDepth,
-      },
-    });
+    if (node !== undefined) {
+      node['data']['row'] = maxDepth;
+      this.elements.push(node);
+    }
 
     return maxDepth;
   }
