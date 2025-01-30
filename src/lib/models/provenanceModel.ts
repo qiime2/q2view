@@ -133,7 +133,8 @@ class ProvenanceModel {
         if (typeof inputValue == "string") {
           // We have a single input artifact
           depths.push(
-            (await this._getInputMap(inputValue, inputName, sourceAction)) + 1,
+            (await this._getInputMap(inputValue, inputName, sourceActionUUID)) +
+              1,
           );
         } else if (inputValue !== null) {
           // We have an input collection
@@ -142,14 +143,18 @@ class ProvenanceModel {
             // and {} if this was a Collection
             if (typeof element === "string") {
               depths.push(
-                (await this._getInputMap(element, inputName, sourceAction)) + 1,
+                (await this._getInputMap(
+                  element,
+                  inputName,
+                  sourceActionUUID,
+                )) + 1,
               );
             } else {
               depths.push(
                 (await this._getInputMap(
                   Object.values(element)[0],
                   `${inputName}:${Object.keys(element)[0]}`,
-                  sourceAction,
+                  sourceActionUUID,
                 )) + 1,
               );
             }
@@ -169,8 +174,11 @@ class ProvenanceModel {
         ) {
           for (const artifactUUID of paramValue.artifacts) {
             depths.push(
-              (await this._getInputMap(artifactUUID, paramName, sourceAction)) +
-                1,
+              (await this._getInputMap(
+                artifactUUID,
+                paramName,
+                sourceActionUUID,
+              )) + 1,
             );
           }
         }
