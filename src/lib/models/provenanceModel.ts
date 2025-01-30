@@ -102,6 +102,7 @@ class ProvenanceModel {
   ): Promise<number> {
     const sourceAction = await this.getProvenanceAction(resultUUID);
     const sourceActionUUID = sourceAction.execution.uuid;
+    let collectionID = "";
 
     let depths: Array<number> = [1];
 
@@ -111,7 +112,9 @@ class ProvenanceModel {
       const name = split[0];
       const key = split[1];
 
-      const collectionID = `${name}:${destinationActionUUID}:${sourceActionUUID}`;
+      paramName = name;
+
+      collectionID = `${name}:${destinationActionUUID}:${sourceActionUUID}`;
 
       // We map this collectionID to every element of the collection
       if (!this.seenCollection.has(collectionID)) {
@@ -213,6 +216,9 @@ class ProvenanceModel {
       let result = await this.getProvenanceArtifact(resultUUID);
       this.jsonMap[resultUUID] = result;
 
+      if (collectionID !== "") {
+        resultUUID = collectionID;
+      }
       this.resultNodes.push({
         data: {
           id: resultUUID,
