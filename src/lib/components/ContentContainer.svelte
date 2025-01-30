@@ -8,7 +8,7 @@
 
   import Iframe from "$lib/components/Iframe.svelte";
   import Gallery from "$lib/components/Gallery.svelte";
-  import Details from "$lib/components/Details.svelte";
+  import Citations from "$lib/components/Citations.svelte";
   import DropZone from "$lib/components/DropZone.svelte";
   import UrlInput from "$lib/components/UrlInput.svelte";
   import Provenance from "$lib/components/Provenance.svelte";
@@ -68,11 +68,11 @@
     {/if}
     {#if $readerModel.rawSrc}
       <div
-        class={$url.pathname.replaceAll("/", "") === "details" && $loading.status !== "LOADING"
+        class={$url.pathname.replaceAll("/", "") === "citations" && $loading.status !== "LOADING"
           ? "tab"
           : "hidden-tab"}
       >
-        <Details />
+        <Citations />
       </div>
       <!-- Extra class baggage to make this tab fullscreen -->
       <div

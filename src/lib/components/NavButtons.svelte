@@ -17,10 +17,10 @@
 {#if $readerModel.rawSrc}
   <li>
     <button
-        class={$url.pathname.replaceAll("/", "") === "details" ? "selected-nav-button nav-button" : "nav-button"}
-        on:click={() => (history.pushState({}, "", "/details/"+window.location.search))}
+        class={$url.pathname.replaceAll("/", "") === "citations" ? "selected-nav-button nav-button" : "nav-button"}
+        on:click={() => (history.pushState({}, "", "/citations/"+window.location.search))}
     >
-      Details
+      Citations
     </button>
   </li>
   <li>
