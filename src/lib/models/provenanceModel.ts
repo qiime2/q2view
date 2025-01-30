@@ -13,13 +13,16 @@ const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
 class ProvenanceModel {
   height: number = 1;
   elements: Array<Object> = [];
+  actionNodes: Array<Object> = [];
+  resultNodes: Array<Object> = [];
+  edges: Array<Object> = [];
 
   provData: Object | undefined = undefined;
   provTitle: string = "Details";
 
   actionsToInputs = {};
   resultsToActions = {};
-  seenActions = new Set();
+  seenUUIDs = new Set();
 
   // Takes a collection and maps
   // <output-action>:<input-action>:<output-name>: [{key: ,uuid: }, ...]
@@ -66,13 +69,16 @@ class ProvenanceModel {
     // Reset class attributes
     this.height = 1;
     this.elements = [];
+    this.actionNodes = [];
+    this.resultNodes = [];
+    this.edges = [];
 
     this.provData = undefined;
     this.provTitle = "Details";
 
     this.actionsToInputs = {};
     this.resultsToActions = {};
-    this.seenActions = new Set();
+    this.seenUUIDs = new Set();
 
     this.collectionMapping = {};
     this.seenCollection = new Set();
@@ -96,72 +102,26 @@ class ProvenanceModel {
   ): Promise<number> {
     const sourceAction = await this.getProvenanceAction(resultUUID);
     const sourceActionUUID = sourceAction.execution.uuid;
-    let node = undefined;
 
     let depths: Array<number> = [1];
 
-    // Push the action node if we haven't yet
-    if (!this.seenActions.has(sourceActionUUID)) {
-      this.seenActions.add(sourceActionUUID);
+    // If the paramName includes a : then this is a collction;
+    if (paramName.includes(":")) {
+      const split = paramName.split(":");
+      const name = split[0];
+      const key = split[1];
 
-      this.elements.push({
-        data: { id: sourceActionUUID },
-      });
-    }
+      const collectionID = `${name}:${destinationActionUUID}:${sourceActionUUID}`;
 
-    // destinationAction will be undefined if we call this with our root Result
-    // because the root result was not used as an input to any other action in
-    // this provenance
-    if (destinationActionUUID !== "") {
-      if (paramName.includes(":")) {
-        const split = paramName.split(":");
-        const name = split[0];
-        const key = split[1];
-
-        const collectionID = `${name}:${sourceActionUUID}`;
-
-        console.log(collectionID);
-        if (!this.seenCollection.has(collectionID)) {
-          this.seenCollection.add(collectionID);
-          this.collectionMapping[collectionID] = [];
-
-          node = {
-                data: {
-                  id: resultUUID,
-                  parent: sourceActionUUID,
-                },
-            };
-
-          this.elements.push({
-            data: {
-              id: `${name}_${resultUUID}_to_${destinationActionUUID}`,
-              param: name,
-              source: resultUUID,
-              target: destinationActionUUID,
-            },
-          });
-
-          this.collectionMapping[collectionID].push(resultUUID);
-          return 1;
-        }
-
-        this.collectionMapping[collectionID].push(resultUUID);
+      // We map this collectionID to every element of the collection
+      if (!this.seenCollection.has(collectionID)) {
+        this.seenCollection.add(collectionID);
+        this.collectionMapping[collectionID] = [{'key': key, 'uuid': resultUUID}];
       } else {
-        node = {
-              data: {
-                id: resultUUID,
-                parent: sourceActionUUID,
-              },
-          };
-
-        this.elements.push({
-          data: {
-            id: `${paramName}_${resultUUID}_to_${destinationActionUUID}`,
-            param: paramName,
-            source: resultUUID,
-            target: destinationActionUUID,
-          },
-        });
+        // Short circuit out here if this is part of a collection we have
+        // already seen because there is no node to create for it.
+        this.collectionMapping[collectionID].push({'key': key, 'uuid': resultUUID});
+        return 1;
       }
     }
 
@@ -232,11 +192,37 @@ class ProvenanceModel {
     // by the recursive calls
     const maxDepth = Math.max(...depths);
 
-    // Push the result node
-    // We do this here because we don't have our maxDepth until now
-    if (node !== undefined) {
-      node['data']['row'] = maxDepth;
-      this.elements.push(node);
+    // Push the action node if we haven't yet
+    if (!this.seenUUIDs.has(sourceActionUUID)) {
+      this.seenUUIDs.add(sourceActionUUID);
+
+      this.actionNodes.push({
+        data: { id: sourceActionUUID },
+      });
+    }
+
+    // Push this result node and edge if we haven't yet
+    if (!this.seenUUIDs.has(resultUUID)) {
+      this.seenUUIDs.add(resultUUID);
+
+      this.resultNodes.push({
+        data: {
+          id: resultUUID,
+          parent: sourceActionUUID,
+          row: maxDepth,
+        },
+      });
+
+      if (destinationActionUUID !== "") {
+        this.edges.push({
+          data: {
+            id: `${paramName}_${resultUUID}_to_${destinationActionUUID}`,
+            param: paramName,
+            source: resultUUID,
+            target: destinationActionUUID,
+          },
+        });
+      }
     }
 
     return maxDepth;
@@ -348,7 +334,6 @@ class ProvenanceModel {
 
   async getProvenanceTree() {
     this.height = await this._getInputMap(this.uuid, "", "");
-    console.log(this.elements);
 
     // const findMaxDepth = (uuid) => {
     //   if (
@@ -500,24 +485,25 @@ class ProvenanceModel {
     //   keys: [...keySet],
     // });
 
-    // for (let i = 0; i < this.height; i += 1) {
-    //   const currNodes = this.nodes.filter((v) => v.data.row === i);
-    //   const sorted = currNodes.sort((a, b) => {
-    //     if (a.data.parent < b.data.parent) {
-    //       return -1;
-    //     } else if (a.data.parent > b.data.parent) {
-    //       return 1;
-    //     }
-    //     return 0;
-    //   });
+    console.log(this.resultNodes);
+    console.log(this.actionNodes);
+    for (let i = 1; i <= this.height; i += 1) {
+      const currNodes = this.resultNodes.filter((v) => v.data.row === i);
+      const sorted = currNodes.sort((a, b) => {
+        if (a.data.parent < b.data.parent) {
+          return -1;
+        } else if (a.data.parent > b.data.parent) {
+          return 1;
+        }
+        return 0;
+      });
 
-    //   for (const n of currNodes) {
-    //     n.data.col = sorted.indexOf(n);
-    //   }
-    // }
+      for (const n of currNodes) {
+        n.data.col = sorted.indexOf(n);
+      }
+    }
 
-    // nodes = [...actionNodes, ...nodes];
-    // this.elements = [...this.elements, ...this.nodes];
+    this.elements = [...this.actionNodes, ...this.resultNodes, ...this.edges];
   }
 
   getProvenanceAction(uuid) {
