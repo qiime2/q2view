@@ -116,11 +116,16 @@ class ProvenanceModel {
       // We map this collectionID to every element of the collection
       if (!this.seenCollection.has(collectionID)) {
         this.seenCollection.add(collectionID);
-        this.collectionMapping[collectionID] = [{'key': key, 'uuid': resultUUID}];
+        this.collectionMapping[collectionID] = [{ key: key, uuid: resultUUID }];
       } else {
         // Short circuit out here if this is part of a collection we have
         // already seen because there is no node to create for it.
-        this.collectionMapping[collectionID].push({'key': key, 'uuid': resultUUID});
+        this.collectionMapping[collectionID].push({
+          key: key,
+          uuid: resultUUID,
+        });
+        let result = await this.getProvenanceArtifact(resultUUID);
+        this.jsonMap[resultUUID] = result;
         return 1;
       }
     }
@@ -195,6 +200,7 @@ class ProvenanceModel {
     // Push the action node if we haven't yet
     if (!this.seenUUIDs.has(sourceActionUUID)) {
       this.seenUUIDs.add(sourceActionUUID);
+      this.jsonMap[sourceActionUUID] = sourceAction;
 
       this.actionNodes.push({
         data: { id: sourceActionUUID },
@@ -204,6 +210,8 @@ class ProvenanceModel {
     // Push this result node and edge if we haven't yet
     if (!this.seenUUIDs.has(resultUUID)) {
       this.seenUUIDs.add(resultUUID);
+      let result = await this.getProvenanceArtifact(resultUUID);
+      this.jsonMap[resultUUID] = result;
 
       this.resultNodes.push({
         data: {
