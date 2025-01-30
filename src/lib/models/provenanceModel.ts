@@ -86,60 +86,65 @@ class ProvenanceModel {
     this._dirty();
   }
 
-  async _getInputMap(uuid: string, depth: number, action: any) {
-    const actionUUID = action.execution.uuid;
+  // resultUUID is the uuid of the result we are currently parsing
+  //
+  // destinationAction is the action this result was an input to
+  async _getInputMap(resultUUID: string, paramName: string, destinationActionUUID: string): Promise<number> {
+    const sourceAction = await this.getProvenanceAction(resultUUID);
+    const sourceActionUUID = sourceAction.execution.uuid;
 
-    // Push the action node if we haven't yet
-    if (!this.seenActions.has(actionUUID)) {
-      this.seenActions.add(actionUUID);
+    let depths: Array<number> = [1];
 
+    // destinationAction will be undefined if we call this with our root Result
+    // because the root result was not used as an input to any other action in
+    // this provenance
+    if (destinationActionUUID !== "") {
       this.elements.push({
-        data: { id: actionUUID }
+        data: {
+          id: `${paramName}_${resultUUID}_to_${destinationActionUUID}`,
+          param: paramName,
+          source: resultUUID,
+          target: destinationActionUUID
+        }
       });
     }
 
-    // Push the result node
-    this.elements.push({
-      data: {
-        id: uuid,
-        parent: actionUUID,
-        row: depth,
-      }
-    });
+    // Push the action node if we haven't yet
+    if (!this.seenActions.has(sourceActionUUID)) {
+      this.seenActions.add(sourceActionUUID);
+
+      this.elements.push({
+        data: { id: sourceActionUUID }
+      });
+    }
 
     // Some actions, most notably import, cannot have any steps upstream of
     // them. We don't need to run these steps trying to recurse up the tree on
     // those actions, because they can't have anything above them.
-    if (ACTION_TYPES_WITH_HISTORY.includes(action.action.type)) {
-      for (const inputMap of action.action.inputs) {
+    if (ACTION_TYPES_WITH_HISTORY.includes(sourceAction.action.type)) {
+      for (const inputMap of sourceAction.action.inputs) {
         const inputName = Object.keys(inputMap)[0];
         const inputValue = Object.values(inputMap)[0];
 
         if (typeof inputValue == "string") {
           // We have a single input artifact
-          await this._getMappings(inputName, inputValue, actionUUID, depth)
+          depths.push(await this._getInputMap(inputValue, inputName, sourceAction) + 1);
         } else if (inputValue !== null) {
           // We have an input collection
-          for (const e of inputValue) {
-            if (typeof e !== "string") {
-              // If we are here, this was a collection and each e is a
-              // key, value pair. This collection could have been an output
-              // from another action, and it could be going multiple different
-              // places
-              await this._getMappings(
-                `${Object.keys(e)[0]}:${inputName}`,
-                Object.values(e)[0],
-                action,
-              );
+          for (const element of inputValue) {
+            // Every element will be the same type, string if this was a List
+            // and {} if this was a Collection
+            if (typeof element === "string") {
+              depths.push(await this._getInputMap(element, inputName, sourceAction) + 1);
             } else {
-              await this._getMappings(inputName, e, action);
+              depths.push(await this._getInputMap(Object.values(element)[0], `${inputName}:${Object.keys(element)[0]}`, sourceAction) + 1);
             }
           }
         } // If we hit neither above condition, this was an optional input not provided
       }
 
       // We may have received artifacts as parameters
-      for (const paramMap of action.action.parameters) {
+      for (const paramMap of sourceAction.action.parameters) {
         const paramName = Object.keys(paramMap)[0];
         const paramValue = Object.values(paramMap)[0];
 
@@ -149,11 +154,27 @@ class ProvenanceModel {
           Object.prototype.hasOwnProperty.call(paramValue, "artifacts")
         ) {
           for (const artifactUUID of paramValue.artifacts) {
-            await this._getMappings(paramName, paramValue, actionUUID, depth);
+            depths.push(await this._getInputMap(artifactUUID, paramName, sourceAction) + 1);
           }
         }
       }
     }
+
+    // Get the maxDepth of this node by taking the max of the depths returned
+    // by the recursive calls
+    const maxDepth = Math.max(...depths);
+
+    // Push the result node
+    // We do this here because we don't have our maxDepth until now
+    this.elements.push({
+      data: {
+        id: resultUUID,
+        parent: sourceActionUUID,
+        row: maxDepth,
+      }
+    });
+
+    return maxDepth;
   }
 
   // // Recurse up the prov tree and get mappings of execution id to the inputs
@@ -228,24 +249,40 @@ class ProvenanceModel {
   //   }
   // }
 
-  async _getMappings(key, uuid, actionUUID, depth) {
-    // this.actionsToInputs[actionUUID].add({ [key]: uuid });
+  // async _getMappings(uuid, depth) {
+  //   // this.actionsToInputs[actionUUID].add({ [key]: uuid });
+  //   const sourceAction = await this.getProvenanceAction(uuid);
 
-    await this.getProvenanceAction(uuid)
-      .then(async (innerAction) => {
-        if (!(innerAction.execution.uuid in this.actionsToInputs)) {
-          await this._getInputMap(uuid, depth + 1, innerAction);
-        } else {
-          this.resultsToActions[uuid] = innerAction.execution.uuid;
-        }
-      })
-      .catch(() => (this.resultsToActions[uuid] = null));
-  }
+  //   if (!this.seenActions.has(sourceAction.execution.uuid)) {
+  //     await this._getInputMap(uuid, depth + 1, sourceAction);
+  //   } else {
+  //       // Push the result node
+  //       this.elements.push({
+  //         data: {
+  //           id: uuid,
+  //           parent: sourceAction.execution.uuid,
+  //           row: depth,
+  //         }
+  //       });
+  //   }
+
+  //   // return sourceAction;
+
+  // //   await this.getProvenanceAction(uuid)
+  // //     .then(async (innerAction) => {
+  // //       if (!this.seenActions.has(innerAction.execution.uuid)) {
+  // //         await this._getInputMap(uuid, depth + 1, innerAction);
+  // //       } else {
+  // //         this.resultsToActions[uuid] = innerAction.execution.uuid;
+  // //       }
+
+  // //       return innerAction;
+  // //     })
+  // //     .catch(() => (this.resultsToActions[uuid] = null));
+  // }
 
   async getProvenanceTree() {
-    const baseAction = await this.getProvenanceAction(this.uuid);
-    console.log(baseAction);
-    await this._getInputMap(this.uuid, 1, baseAction);
+    this.height = await this._getInputMap(this.uuid, "", "");
     console.log(this.elements);
 
     // const findMaxDepth = (uuid) => {
@@ -399,7 +436,7 @@ class ProvenanceModel {
     // });
 
     // for (let i = 0; i < this.height; i += 1) {
-    //   const currNodes = nodes.filter((v) => v.data.row === i);
+    //   const currNodes = this.nodes.filter((v) => v.data.row === i);
     //   const sorted = currNodes.sort((a, b) => {
     //     if (a.data.parent < b.data.parent) {
     //       return -1;
@@ -415,7 +452,7 @@ class ProvenanceModel {
     // }
 
     // nodes = [...actionNodes, ...nodes];
-    // this.elements = nodes.concat(edges);
+    // this.elements = [...this.elements, ...this.nodes];
   }
 
   getProvenanceAction(uuid) {
