@@ -89,7 +89,11 @@ class ProvenanceModel {
   // resultUUID is the uuid of the result we are currently parsing
   //
   // destinationAction is the action this result was an input to
-  async _getInputMap(resultUUID: string, paramName: string, destinationActionUUID: string): Promise<number> {
+  async _getInputMap(
+    resultUUID: string,
+    paramName: string,
+    destinationActionUUID: string,
+  ): Promise<number> {
     const sourceAction = await this.getProvenanceAction(resultUUID);
     const sourceActionUUID = sourceAction.execution.uuid;
 
@@ -104,8 +108,8 @@ class ProvenanceModel {
           id: `${paramName}_${resultUUID}_to_${destinationActionUUID}`,
           param: paramName,
           source: resultUUID,
-          target: destinationActionUUID
-        }
+          target: destinationActionUUID,
+        },
       });
     }
 
@@ -114,7 +118,7 @@ class ProvenanceModel {
       this.seenActions.add(sourceActionUUID);
 
       this.elements.push({
-        data: { id: sourceActionUUID }
+        data: { id: sourceActionUUID },
       });
     }
 
@@ -128,16 +132,26 @@ class ProvenanceModel {
 
         if (typeof inputValue == "string") {
           // We have a single input artifact
-          depths.push(await this._getInputMap(inputValue, inputName, sourceAction) + 1);
+          depths.push(
+            (await this._getInputMap(inputValue, inputName, sourceAction)) + 1,
+          );
         } else if (inputValue !== null) {
           // We have an input collection
           for (const element of inputValue) {
             // Every element will be the same type, string if this was a List
             // and {} if this was a Collection
             if (typeof element === "string") {
-              depths.push(await this._getInputMap(element, inputName, sourceAction) + 1);
+              depths.push(
+                (await this._getInputMap(element, inputName, sourceAction)) + 1,
+              );
             } else {
-              depths.push(await this._getInputMap(Object.values(element)[0], `${inputName}:${Object.keys(element)[0]}`, sourceAction) + 1);
+              depths.push(
+                (await this._getInputMap(
+                  Object.values(element)[0],
+                  `${inputName}:${Object.keys(element)[0]}`,
+                  sourceAction,
+                )) + 1,
+              );
             }
           }
         } // If we hit neither above condition, this was an optional input not provided
@@ -154,7 +168,10 @@ class ProvenanceModel {
           Object.prototype.hasOwnProperty.call(paramValue, "artifacts")
         ) {
           for (const artifactUUID of paramValue.artifacts) {
-            depths.push(await this._getInputMap(artifactUUID, paramName, sourceAction) + 1);
+            depths.push(
+              (await this._getInputMap(artifactUUID, paramName, sourceAction)) +
+                1,
+            );
           }
         }
       }
@@ -171,7 +188,7 @@ class ProvenanceModel {
         id: resultUUID,
         parent: sourceActionUUID,
         row: maxDepth,
-      }
+      },
     });
 
     return maxDepth;
