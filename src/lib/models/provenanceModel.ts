@@ -10,32 +10,43 @@ import { getAllObjectKeysRecursively } from "$lib/scripts/util";
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
 
+/**
+ * This class is a subscribable svelte store that manages parsing and storing provenance
+ * information for the provided Result.
+ */
 class ProvenanceModel {
+  // The height of the provenance tree
   height: number = 1;
-  heightMap = {};
+  // Maps the UUIDs of each action to that actions depth in the tree
+  heightMap: Object = {};
 
-  // We keep result nodes separate until the end so we can sort them out
-  // horizontally
+  // Every Action node, Result node, and edge in the provenance tree
   elements: Array<Object> = [];
+  // We keep result nodes separate until the end so we can sort them out
+  // horizontally before adding them to elements
   resultNodes: Array<Object> = [];
 
-  provData: Object | undefined = undefined;
+  // The type of provenance we are looking at based on the selected node in the
+  // tree
   provTitle: string = "Details";
+  // Json representing the provenance of the selected node in the tree
+  provData: Object | undefined = undefined;
 
+  // Keep track of Action, Result, and Collection IDs we have already seen.
   seenIDs = new Set();
 
-  // Takes a collection and maps
-  // <output-action>:<input-action>:<output-name>: [{key: ,uuid: }, ...]
+  // Map a unique ID for a Collection to each element of the Collection
+  // <paramName>:<destinationActionUUID>:<sourceActionUUID>: [{key: ,uuid: }, ...]
   collectionMapping = {};
-
-  // Class attributes passed in by readerModel pertaining to currently loaded
-  // result
-  uuid = "";
-  zipReader: JSZip = new JSZip();
 
   // Search JSON
   search: Fuse<unknown> | null = null;
   jsonMap = {};
+
+  // Class attributes passed in by readerModel pertaining to currently loaded
+  // Result
+  uuid = "";
+  zipReader: JSZip = new JSZip();
 
   //***************************************************************************
   // Start boilerplate to make this a subscribable svelte store
@@ -62,8 +73,14 @@ class ProvenanceModel {
   // End boilerplate to make this a subscribable svelte store
   //***************************************************************************
 
-  // This state is set by the readerModel when it comes time to read the
-  // provenance
+  /**
+   * Receive state from ReaderModel pertaining to the currently loaded Result and
+   * reset all other class state.
+   *
+   * @param {string} uuid - The UUID of the currently loaded Result
+   * @param {JSZip} zipReader - An object that can read files contained within
+   * the currently loaded Result's zip
+   */
   setState(uuid: string, zipReader: JSZip) {
     // Reset class attributes
     this.height = 1;
@@ -72,25 +89,40 @@ class ProvenanceModel {
     this.elements = [];
     this.resultNodes = [];
 
-    this.provData = undefined;
     this.provTitle = "Details";
+    this.provData = undefined;
 
     this.seenIDs = new Set();
 
     this.collectionMapping = {};
 
-    this.uuid = uuid;
-    this.zipReader = zipReader;
-
     this.search = null;
     this.jsonMap = {};
+
+    this.uuid = uuid;
+    this.zipReader = zipReader;
 
     this._dirty();
   }
 
-  // resultUUID is the uuid of the result we are currently parsing
-  //
-  // destinationAction is the action this result was an input to
+  /**
+   * Recurses up the provenance tree from the Result provided to view exhausting
+   * all Results and Actions involved in creating this Result
+   *
+   * @param {string} resultUUID - The UUID of the Result we are currently parsing
+   * @param {string | undefined} paramName - The name of the parameter this Result
+   * was passed into in the Action that received it. This will be undefined if
+   * we are the root Result
+   * @param {string | undefined} destinationActionUUID - The execution UUID of
+   * the Action this Result was passed into. This will be undefined if we are the
+   * root Result
+   * @param {string | undefined} collectionKey - The key of this Result in the
+   * Collection it is part of. This will be undefined if the Result is not part
+   * of a Collection
+   *
+   * @returns {Promise<number>} The maximum depth of the tree above the Result
+   * we are currently parsing
+   */
   async _recurseUpTree(
     resultUUID: string,
     paramName: string | undefined,
@@ -132,14 +164,14 @@ class ProvenanceModel {
       return this.heightMap[sourceActionUUID];
     }
 
-    // If we have already seen this action then short circuit
+    // If we have already seen this Action then short circuit
     if (await this._handleAction(resultUUID, sourceActionUUID)) {
       return this.heightMap[sourceActionUUID];
     }
 
-    // Some actions, most notably import, cannot have any steps upstream of
+    // Some Actions, most notably import, cannot have any steps upstream of
     // them. We don't need to run these steps trying to recurse up the tree on
-    // those actions, because they can't have anything above them.
+    // those Actions, because they can't have anything above them.
     const depths = [1];
 
     if (ACTION_TYPES_WITH_HISTORY.includes(sourceAction.action.type)) {
@@ -159,7 +191,7 @@ class ProvenanceModel {
     // recursive calls generated by the above handlers
     const maxDepth = Math.max(...depths);
 
-    // Push this action node
+    // Push this Action node
     this.seenIDs.add(sourceActionUUID);
     this.jsonMap[sourceActionUUID] = sourceAction;
 
@@ -167,7 +199,7 @@ class ProvenanceModel {
       data: { id: sourceActionUUID },
     });
 
-    // Add this action height to the map
+    // Add this Action height to the map
     this.heightMap[sourceActionUUID] = maxDepth;
 
     // Push this result node
@@ -186,13 +218,25 @@ class ProvenanceModel {
     return maxDepth;
   }
 
-  // Determines if we have seen this collection already or not.
-  //
-  // If we have not, we create the mapping for this collection and return false
-  // so we can continue recusring up the tree.
-  //
-  // If we have, we add this element to the existing mapping and return true
-  // indicating we can short circuit
+  /**
+   * This function is called by _recurseUpTree if the Result it is parsing is a
+   * member of a collection. It determines if we have seen the Collection this
+   * Result  is part of yet or not and either adds this Result to the existing
+   * Collection map or creates a new entry in the map for this Collection
+   *
+   * @param {string} resultUUID - The UUID of the Result we are currently parsing
+   * @param {string } paramName - The name of the parameter this Result was passed
+   * into in the Action that received it
+   * @param {string} destinationActionUUID - The execution UUID of the Action this
+   * Result was passed into.
+   * @param {string} sourceActionUUID - The execution UUID of the Action this Result
+   * was created by
+   * @param {string} collectionKey - The key of this Result in the Collection it
+   * is part of
+   *
+   * @returns {Promise<boolean>} Whether we have seen this Collection yet or not.
+   * If we have, we can short circuit in _recurseUpTree
+   */
   async _handleCollection(
     resultUUID: string,
     paramName: string,
@@ -228,7 +272,19 @@ class ProvenanceModel {
     return false;
   }
 
-  // Determines if we have already seen this result and can short circuit
+  /**
+   * This function is called by _recurseUpTree to determine if we have seen the
+   * Result we are currently parsing yet or not.
+   *
+   * @note This method will not be called if it has already been determined the
+   * currenty parsed Result is part of a previously seen Collection because
+   * _recurseUpTree will already have short circuited
+   *
+   * @param {string} resultUUID - The UUID of the Result we are currently parsing
+   *
+   * @returns {Promise<boolean>} Whether we have seen this Result yet or not. If
+   * we have, we can short circuit in _recurseUpTree
+   */
   _handleResult(resultUUID: string): boolean {
     if (this.seenIDs.has(resultUUID)) {
       return true;
@@ -237,7 +293,21 @@ class ProvenanceModel {
     return false;
   }
 
-  // Determines if we have already seen this action and can short circui
+  /**
+   * This function is called by _recurseUpTree to determine if we have seen the
+   * Action that produced the Result we are currently parsing yet or not.
+   *
+   * @note This method will not be called if it has already been determined the
+   * currently parsed Result is part of a Collection we have already seen or has
+   * itself already been seen because _recurseUpTree will already have short circuited
+   *
+   * @param {string} resultUUID - The UUID of the rResult we are currently parsing
+   * @param {string} sourceActionUUID - The UUID of the Action we are currently
+   * handling
+   *
+   * @returns {Promise<boolean>} Whether we have seen this Action yet or not. If
+   * we have, we can short circuit in _recuseUpTree
+   */
   async _handleAction(
     resultUUID: string,
     sourceActionUUID: string,
@@ -262,6 +332,27 @@ class ProvenanceModel {
     return false;
   }
 
+  /**
+   * Iterate over and recurse up from all Results that were provided as QIIME 2
+   * inputs to the Action that produced the Result we are currently parsing.
+   *
+   * @note This method will not be called if it has already been determined the
+   * currently parsed Result is part of a Collection we have already seen or has
+   * itself already been seen or if it has already been determined that the Action
+   * that produced the currently parsed Result has already been seen because _recurseUpTree
+   * will already have short circuited
+   *
+   * @param {Array<object>} inputs - An array of all QIIME 2 inputs passed into
+   * this Action of the form {inputName: inputValue}
+   * @param {string} sourceActionUUID - The UUID of the action whose QIIME 2 inputs
+   * we are handling
+   * @param {Array<number>} depths - See returns
+   *
+   * @returns {Promise<undefined>} Modifies the depths array in place to contain
+   * the depths of this Action in the tree for each path above the tree. The max
+   * of this array will be taken to determine the depth of the currently parsed
+   * Result in the tree
+   */
   async _handleInputArtifacts(
     inputs: Array<object>,
     sourceActionUUID: string,
@@ -310,6 +401,27 @@ class ProvenanceModel {
     }
   }
 
+  /**
+   * Iterate over and recurse up from all Results that were provided as QIIME 2
+   * parameters to the Action that produced the Result we are currently parsing.
+   *
+   * @note This method will not be called if it has already been determined the
+   * currently parsed Result is part of a Collection we have already seen or has
+   * itself already been seen or if it has already been determined that the Action
+   * that produced the currently parsed Result has already been seen because _recurseUpTree
+   * will already have short circuited
+   *
+   * @param {Array<object>} inputs - An array of all QIIME 2parameters passed into
+   * this Action of the form {paramName: paramValue}
+   * @param {string} sourceActionUUID - The UUID of the action whose QIIME 2 parameters
+   * we are handling
+   * @param {Array<number>} depths - See returns
+   *
+   * @returns {Promise<undefined>} Modifies the depths array in place to contain
+   * the depths of this Action in the tree for each path above the tree. The max
+   * of this array will be taken to determine the depth of the currently parsed
+   * Result in the tree
+   */
   async _handleParameterArtifacts(
     parameters: Array<object>,
     sourceActionUUID: string,
@@ -339,6 +451,10 @@ class ProvenanceModel {
     }
   }
 
+  /**
+   * Generate the provenance tree above the Result we were given recursively. Sets
+   * class state to represent the tree.
+   */
   async getProvenanceTree() {
     this.height = await this._recurseUpTree(
       this.uuid,
@@ -367,7 +483,17 @@ class ProvenanceModel {
     this.elements = [...this.elements, ...this.resultNodes];
   }
 
-  getProvenanceAction(uuid) {
+  /**
+   * Loads the ation.yaml file of the specified Result and returns it as JSON
+   *
+   * @param {string} uuid - The UUID of the Result we want to load the action.yaml
+   * for
+   *
+   * @returns {JSON} JSON representing the .yaml file that was loaded
+   */
+  getProvenanceAction(uuid: string) {
+    // If we requested the uuid of the currently loaded Result, then we load our
+    // own action.yaml
     if (this.uuid === uuid) {
       return getYAML(
         "provenance/action/action.yaml",
@@ -375,6 +501,8 @@ class ProvenanceModel {
         this.zipReader,
       );
     }
+
+    // Otherwise we need to go through the Artifacts in our provenance
     return getYAML(
       `provenance/artifacts/${uuid}/action/action.yaml`,
       this.uuid,
@@ -382,10 +510,22 @@ class ProvenanceModel {
     );
   }
 
-  getProvenanceArtifact(uuid) {
+  /**
+   * Loads the metadata.yaml file of the specified Result and returns it as JSON
+   *
+   * @param {string} uuid - The UUID of the Result we want to load the metadata.yaml
+   * for
+   *
+   * @returns {JSON} JSON representing the .yaml file that was loaded
+   */
+  getProvenanceArtifact(uuid: string) {
+    // If we requested the uuid of the currently loaded Result, then we load our
+    // own action.yaml
     if (this.uuid === uuid) {
       return getYAML("provenance/metadata.yaml", this.uuid, this.zipReader);
     }
+
+    // Otherwise we need to go through the Artifacts in our provenance
     return getYAML(
       `provenance/artifacts/${uuid}/metadata.yaml`,
       this.uuid,
@@ -394,5 +534,6 @@ class ProvenanceModel {
   }
 }
 
+// Create and export a singleton ProvenanceModel for the session
 const provenanceModel = new ProvenanceModel();
 export default provenanceModel;
