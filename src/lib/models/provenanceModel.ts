@@ -472,7 +472,7 @@ class ProvenanceModel {
     this.search = new Fuse(Array.from(Object.values(this.jsonMap)), {
       keys: Array.from(this.keys),
     });
-    this.elements = [...this.elements, ...this.resultNodes];
+    this.elements.push(...this.resultNodes);
   }
 
   /**
