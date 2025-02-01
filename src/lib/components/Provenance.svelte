@@ -12,7 +12,6 @@
   function searchProvenance() {
     return provenanceModel.search?.search(value);
   }
-
 </script>
 
 {#key $provenanceModel.uuid}
