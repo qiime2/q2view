@@ -42,6 +42,7 @@ class ProvenanceModel {
   // Search JSON
   search: Fuse<unknown> | null = null;
   jsonMap = {};
+  keys = new Set();
 
   // Class attributes passed in by readerModel pertaining to currently loaded
   // Result
@@ -98,6 +99,7 @@ class ProvenanceModel {
 
     this.search = null;
     this.jsonMap = {};
+    this.keys = new Set();
 
     this.uuid = uuid;
     this.zipReader = zipReader;
@@ -130,6 +132,7 @@ class ProvenanceModel {
     collectionKey: string | undefined,
   ): Promise<number> {
     const sourceAction = await this.getProvenanceAction(resultUUID);
+    getAllObjectKeysRecursively(sourceAction, "", this.keys);
     const sourceActionUUID = sourceAction.execution.uuid;
 
     // If this Result is in a Collection, we need to set this to
@@ -227,6 +230,7 @@ class ProvenanceModel {
     collectionID: string,
   ): Promise<boolean> {
     const result = await this.getProvenanceArtifact(resultUUID);
+    getAllObjectKeysRecursively(result, "", this.keys);
 
     // We map this collectionID to every element of the collection
     if (!this.seenIDs.has(collectionID)) {
@@ -265,6 +269,7 @@ class ProvenanceModel {
 
     this.seenIDs.add(resultUUID);
     let result = await this.getProvenanceArtifact(resultUUID);
+    getAllObjectKeysRecursively(result, "", this.keys);
     this.jsonMap[resultUUID] = result;
 
     return false;
@@ -464,6 +469,9 @@ class ProvenanceModel {
       }
     }
 
+    this.search = new Fuse(Array.from(Object.values(this.jsonMap)), {
+      keys: Array.from(this.keys),
+    });
     this.elements = [...this.elements, ...this.resultNodes];
   }
 
