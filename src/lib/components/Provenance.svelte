@@ -1,17 +1,18 @@
 <script lang="ts">
+  import "../../app.css";
   import Panel from "$lib/components/Panel.svelte";
 
   import JSONTree from "svelte-json-tree";
   import Dag from "./Dag.svelte";
   import provenanceModel from "$lib/models/provenanceModel";
 
-  const searchElement = document.getElementById("search") as HTMLInputElement;
-  searchElement?.addEventListener("keypress", (event) => {
-    console.log(event.key)
-    if (event.key === "Enter") {
-      alert(searchElement.value);
-    }
-  })
+  let value: string = '';
+  let submittedValue: string | undefined = undefined;
+
+  function searchProvenance() {
+    return provenanceModel.search?.search(value);
+  }
+
 </script>
 
 {#key $provenanceModel.uuid}
@@ -19,7 +20,14 @@
 {/key}
 {#key $provenanceModel.provData}
   <div>
-    <input id="search" type="text"/>
+    <form on:submit|preventDefault={() => submittedValue = value}>
+      <label>
+          Search Provenance:
+          <input bind:value />
+      </label>
+
+      <button on:click={() => console.log(searchProvenance())}>GO</button>
+    </form>
     <Panel header={$provenanceModel.provTitle}>
       {#if provenanceModel.provData !== undefined}
         <div class="JSONTree">
@@ -37,7 +45,7 @@
 {/key}
 
 <style lang="postcss">
-  #search {
+  input {
     @apply border
     mb-4;
   }
