@@ -10,7 +10,16 @@
   let submittedValue: string | undefined = undefined;
 
   function searchProvenance() {
-    return provenanceModel.search?.search(value);
+    const hits = provenanceModel.search?.search(value);
+    const keys = []
+    console.log(hits)
+
+    for (const hit of hits) {
+      console.log(hit)
+      keys.push(provenanceModel.jsonMap.getKey(hit.item));
+    }
+
+    return keys
   }
 </script>
 
