@@ -227,6 +227,16 @@ class ProvenanceModel {
     const result = await this.getProvenanceArtifact(resultUUID);
     getAllObjectKeysRecursively(result, "", this.keys);
 
+    // STUPID HACK: JS returns object keys in insertion order UNLESS it can parse
+    // the key into a non-negative integer. It puts all those non-negative integer
+    // keys in numerical order ABOVE all the other keys. We want the order of collection
+    // elements to be maintained in the final JSON tree we render. If we use a
+    // map to maintain this order, the formatting of the tree becomes highly undesirable.
+    // The best solution I could come up with was slapping this space in front
+    // of the key to insure the key CANNOT be parsed into a number. This space
+    // does not show up in the final JSONTree.
+    collectionKey = ` ${collectionKey}`;
+
     // We map this collectionID to every element of the collection
     if (!this.seenIDs.has(collectionID)) {
       // This an as yet untracked collection, so we need to begin tracking it
