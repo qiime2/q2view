@@ -5,6 +5,7 @@
 import JSZip from "jszip";
 import Fuse from "fuse.js";
 
+import BiMap from "$lib/scripts/biMap";
 import { getYAML } from "$lib/scripts/fileutils";
 import { getAllObjectKeysRecursively } from "$lib/scripts/util";
 
@@ -37,7 +38,7 @@ class ProvenanceModel {
 
   // Search JSON
   search: Fuse<unknown> | null = null;
-  jsonMap: Map<string, object> = new Map();
+  jsonMap = new BiMap();
   keys: Set<string> = new Set();
 
   // Class attributes passed in by readerModel pertaining to currently loaded
@@ -128,7 +129,6 @@ class ProvenanceModel {
     const sourceAction = await this.getProvenanceAction(resultUUID);
     getAllObjectKeysRecursively(sourceAction, "", this.keys);
     const sourceActionUUID = sourceAction.execution.uuid;
-
 
     // If this Result is in a Collection, we need to set this to
     // paramName:destinationActionUUID:sourceActionUUID in place of resultUUID
@@ -474,7 +474,7 @@ class ProvenanceModel {
       }
     }
 
-    this.search = new Fuse(Array.from(this.jsonMap.keys()), {
+    this.search = new Fuse(Array.from(this.jsonMap.values()), {
       keys: Array.from(this.keys),
     });
     this.elements.push(...this.resultNodes);
