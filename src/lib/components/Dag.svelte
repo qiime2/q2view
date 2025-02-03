@@ -64,24 +64,13 @@
 
   function setActionSelection(uuid: string) {
     provenanceModel.provTitle = "Action Details";
-    const selectionData = provenanceModel.jsonMap[uuid];
+    const selectionData = provenanceModel.jsonMap.get(uuid);
     _setSelection(selectionData);
   }
 
   function setResultSelection(uuid: string) {
     provenanceModel.provTitle = "Result Details";
-    const selectionData = provenanceModel.jsonMap[uuid];
-    _setSelection(selectionData);
-  }
-
-  function setCollectionSelection(uuid: string) {
-    const selectionData = {};
-    provenanceModel.provTitle = "Collection Details";
-
-    for (const artifact of provenanceModel.collectionMapping[uuid]) {
-      selectionData[artifact['key']] = provenanceModel.jsonMap[artifact['uuid']];
-    }
-
+    let selectionData = provenanceModel.jsonMap.get(uuid);
     _setSelection(selectionData);
   }
 
@@ -130,13 +119,7 @@
           // the data for the action itself won't change regardless.
           setActionSelection(node.data("id"));
         } else {
-          const uuid = node.data("id");
-
-          if (uuid in provenanceModel.collectionMapping) {
-            setCollectionSelection(uuid);
-          } else {
-            setResultSelection(uuid);
-          }
+          setResultSelection(node.data("id"));
         }
 
         const edges = node.edgesTo("node");

@@ -18,7 +18,7 @@ class ProvenanceModel {
   // The height of the provenance tree
   height: number = 1;
   // Maps the UUIDs of each action to that actions depth in the tree
-  heightMap: Object = {};
+  heightMap: Map<string, number> = new Map();
 
   // Every Action node, Result node, and edge in the provenance tree
   elements: Array<Object> = [];
@@ -33,20 +33,16 @@ class ProvenanceModel {
   provData: Object | undefined = undefined;
 
   // Keep track of Action, Result, and Collection IDs we have already seen.
-  seenIDs = new Set();
-
-  // Map a unique ID for a Collection to each element of the Collection
-  // <paramName>:<destinationActionUUID>:<sourceActionUUID>: [{key: ,uuid: }, ...]
-  collectionMapping = {};
+  seenIDs: Set<string> = new Set();
 
   // Search JSON
   search: Fuse<unknown> | null = null;
-  jsonMap = {};
-  keys = new Set();
+  jsonMap: Map<string, object> = new Map();
+  keys: Set<string> = new Set();
 
   // Class attributes passed in by readerModel pertaining to currently loaded
   // Result
-  uuid = "";
+  uuid: string = "";
   zipReader: JSZip = new JSZip();
 
   //***************************************************************************
@@ -85,7 +81,7 @@ class ProvenanceModel {
   setState(uuid: string, zipReader: JSZip) {
     // Reset class attributes
     this.height = 1;
-    this.heightMap = {};
+    this.heightMap.clear();
 
     this.elements = [];
     this.resultNodes = [];
@@ -95,10 +91,8 @@ class ProvenanceModel {
 
     this.seenIDs = new Set();
 
-    this.collectionMapping = {};
-
     this.search = null;
-    this.jsonMap = {};
+    this.jsonMap.clear();
     this.keys = new Set();
 
     this.uuid = uuid;
@@ -135,6 +129,7 @@ class ProvenanceModel {
     getAllObjectKeysRecursively(sourceAction, "", this.keys);
     const sourceActionUUID = sourceAction.execution.uuid;
 
+
     // If this Result is in a Collection, we need to set this to
     // paramName:destinationActionUUID:sourceActionUUID in place of resultUUID
     // as our unique identifier in some places
@@ -160,16 +155,16 @@ class ProvenanceModel {
       // If this Result is in a Collection, handle that
       if (await this._handleCollection(resultUUID, collectionKey, resultID)) {
         // If we have already seen this Collection then short circuit
-        return this.heightMap[sourceActionUUID];
+        return this.heightMap.get(sourceActionUUID);
       }
     } else if (await this._handleResult(resultUUID)) {
       // If we have already seen this Result then short circuit
-      return this.heightMap[sourceActionUUID];
+      return this.heightMap.get(sourceActionUUID);
     }
 
     // If we have already seen this Action then short circuit
     if (await this._handleAction(resultID, sourceActionUUID, sourceAction)) {
-      return this.heightMap[sourceActionUUID];
+      return this.heightMap.get(sourceActionUUID);
     }
 
     // Some Actions, most notably import, cannot have any steps upstream of
@@ -195,7 +190,7 @@ class ProvenanceModel {
     const maxDepth = Math.max(...depths);
 
     // Add this Action height to the map
-    this.heightMap[sourceActionUUID] = maxDepth;
+    this.heightMap.set(sourceActionUUID, maxDepth);
 
     // Finally push the node for this Result if it was new
     this.resultNodes.push({
@@ -237,12 +232,12 @@ class ProvenanceModel {
       // This an as yet untracked collection, so we need to begin tracking it
       // then continue recursing
       this.seenIDs.add(collectionID);
-      this.jsonMap[collectionID] = {};
-      this.jsonMap[collectionID][collectionKey] = result;
+      this.jsonMap.set(collectionID, {});
+      this.jsonMap.get(collectionID)[collectionKey] = result;
     } else {
       // This is a collection we are already tracking, so we need to add this
       // result to the collection and then can stop recursing up this path
-      this.jsonMap[collectionID][collectionKey] = result;
+      this.jsonMap.get(collectionID)[collectionKey] = result;
       return true;
     }
 
@@ -270,7 +265,7 @@ class ProvenanceModel {
     this.seenIDs.add(resultUUID);
     let result = await this.getProvenanceArtifact(resultUUID);
     getAllObjectKeysRecursively(result, "", this.keys);
-    this.jsonMap[resultUUID] = result;
+    this.jsonMap.set(resultUUID, result);
 
     return false;
   }
@@ -304,7 +299,7 @@ class ProvenanceModel {
         data: {
           id: resultUUID,
           parent: sourceActionUUID,
-          row: this.heightMap[sourceActionUUID],
+          row: this.heightMap.get(sourceActionUUID),
         },
       });
 
@@ -313,7 +308,7 @@ class ProvenanceModel {
 
     // Push this Action node
     this.seenIDs.add(sourceActionUUID);
-    this.jsonMap[sourceActionUUID] = sourceAction;
+    this.jsonMap.set(sourceActionUUID, sourceAction);
 
     this.elements.push({
       data: { id: sourceActionUUID },
@@ -469,7 +464,7 @@ class ProvenanceModel {
       }
     }
 
-    this.search = new Fuse(Array.from(Object.values(this.jsonMap)), {
+    this.search = new Fuse(Array.from(this.jsonMap.keys()), {
       keys: Array.from(this.keys),
     });
     this.elements.push(...this.resultNodes);
