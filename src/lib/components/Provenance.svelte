@@ -9,14 +9,25 @@
   let value: string = '';
   let submittedValue: string | undefined = undefined;
 
+  // Chloe said her most common searches would probably be
+  //
+  // Search for where X param has Y value
+  // Search for a specific artifact UUID
+  // Search for a specific action UUID
   function searchProvenance() {
-    const hits = provenanceModel.search?.search(value);
+    console.log(value)
+    // const searchVal = `'${value}`
+    // const thing = provenanceModel.jsonMap.get('33a0f06d-626d-4328-974f-4b0446abd384')
+    // thing['action']['parameters']['1']['sampling_depth'] = '1103';
+    // const searchVal = {'sampling_depth': "1103"}
+    const hits = provenanceModel.searchJSON('sampling_depth', 1103)
+    // const searchVal = '1103'
+    // const hits = provenanceModel.search?.search(searchVal);
     const keys = []
     console.log(hits)
 
     for (const hit of hits) {
-      console.log(hit)
-      keys.push(provenanceModel.jsonMap.getKey(hit.item));
+      keys.push(provenanceModel.nodeIDToJSON.getKey(hit.item));
     }
 
     return keys

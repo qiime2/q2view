@@ -64,13 +64,13 @@
 
   function setActionSelection(uuid: string) {
     provenanceModel.provTitle = "Action Details";
-    const selectionData = provenanceModel.jsonMap.get(uuid);
+    const selectionData = provenanceModel.nodeIDToJSON.get(uuid);
     _setSelection(selectionData);
   }
 
   function setResultSelection(uuid: string) {
     provenanceModel.provTitle = "Result Details";
-    let selectionData = provenanceModel.jsonMap.get(uuid);
+    let selectionData = provenanceModel.nodeIDToJSON.get(uuid);
     _setSelection(selectionData);
   }
 

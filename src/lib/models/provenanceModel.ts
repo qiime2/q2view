@@ -36,7 +36,8 @@ class ProvenanceModel {
   seenIDs: Set<string> = new Set();
 
   // Search JSON
-  jsonMap = new BiMap();
+  jsonKeysToJSON = new BiMap();
+  nodeIDToJSON = new BiMap();
   keys: Set<string> = new Set();
 
   // Class attributes passed in by readerModel pertaining to currently loaded
@@ -90,7 +91,8 @@ class ProvenanceModel {
 
     this.seenIDs = new Set();
 
-    this.jsonMap.clear();
+    this.jsonKeysToJSON.clear();
+    this.nodeIDToJSON.clear();
     this.keys = new Set();
 
     this.uuid = uuid;
@@ -243,12 +245,12 @@ class ProvenanceModel {
       // This an as yet untracked collection, so we need to begin tracking it
       // then continue recursing
       this.seenIDs.add(collectionID);
-      this.jsonMap.set(collectionID, {});
-      this.jsonMap.get(collectionID)[collectionKey] = result;
+      this.nodeIDToJSON.set(collectionID, {});
+      this.nodeIDToJSON.get(collectionID)[collectionKey] = result;
     } else {
       // This is a collection we are already tracking, so we need to add this
       // result to the collection and then can stop recursing up this path
-      this.jsonMap.get(collectionID)[collectionKey] = result;
+      this.nodeIDToJSON.get(collectionID)[collectionKey] = result;
       return true;
     }
 
@@ -278,7 +280,7 @@ class ProvenanceModel {
 
     this._addKeysHelper(result, []);
 
-    this.jsonMap.set(resultUUID, result);
+    this.nodeIDToJSON.set(resultUUID, result);
 
     return false;
   }
@@ -321,7 +323,7 @@ class ProvenanceModel {
 
     // Push this Action node
     this.seenIDs.add(sourceActionUUID);
-    this.jsonMap.set(sourceActionUUID, sourceAction);
+    this.nodeIDToJSON.set(sourceActionUUID, sourceAction);
 
     this.elements.push({
       data: { id: sourceActionUUID },
@@ -530,10 +532,54 @@ class ProvenanceModel {
     );
   }
 
+  searchJSON(key: string, value: any) {
+    const matches = new Set();
+    const matchingKeys = new Set();
+
+    for (const _key of this.keys) {
+      if (_key.endsWith(key)) {
+        matchingKeys.add(_key);
+      }
+    }
+
+    for (const json of this.nodeIDToJSON.values()) {
+      for (const matchedKey of matchingKeys) {
+        const _key = JSON.parse(matchedKey)
+        let _value = '';
+        let goodKey = true;
+        let obj = {};
+
+        obj = json[_key[0]];
+        if (obj === undefined) {
+          goodKey = false;
+        } else {
+          for (let i = 1; i < _key.length; i++) {
+            obj = obj[_key[i]];
+            if (obj === undefined) {
+              goodKey = false;
+              break;
+            }
+          }
+        }
+
+        if (goodKey) {
+          _value = obj;
+        }
+
+        if (_value === value) {
+          matches.add(this.nodeIDToJSON.getKey(json))
+        }
+      }
+    }
+
+    return matches;
+  }
+
   _addKeysHelper(target: object, initialAccumulator: Array<string>) {
     const keySet: Set<string> = new Set();
     getAllObjectKeysRecursively(target, initialAccumulator, keySet);
     keySet.forEach(this.keys.add, this.keys)
+    this.jsonKeysToJSON.set(keySet, target);
   }
 }
 
