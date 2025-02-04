@@ -117,22 +117,21 @@ export function getScrollBarWidth() {
 
 export function getAllObjectKeysRecursively(
   targetObject: object,
-  keyAccumulator: string,
-  keySet: Set<string>,
+  currentkeyAccumulator: Array<string>,
+  globalKeySet: Set<string>,
 ) {
   if (targetObject !== null && targetObject !== undefined) {
     for (const key of Object.keys(targetObject)) {
-      let newKeyAccumulator = keyAccumulator + key;
+      const newKeyAccumulator = [...currentkeyAccumulator, key];
 
       if (typeof targetObject[key as keyof object] === "object") {
-        newKeyAccumulator += ".";
         getAllObjectKeysRecursively(
           targetObject[key as keyof object],
           newKeyAccumulator,
-          keySet,
+          globalKeySet,
         );
       } else {
-        keySet.add(newKeyAccumulator);
+        globalKeySet.add(JSON.stringify(newKeyAccumulator));
       }
     }
   }

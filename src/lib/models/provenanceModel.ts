@@ -3,7 +3,6 @@
 // result
 // ****************************************************************************
 import JSZip from "jszip";
-import Fuse from "fuse.js";
 
 import BiMap from "$lib/scripts/biMap";
 import { getYAML } from "$lib/scripts/fileutils";
@@ -37,7 +36,6 @@ class ProvenanceModel {
   seenIDs: Set<string> = new Set();
 
   // Search JSON
-  search: Fuse<unknown> | null = null;
   jsonMap = new BiMap();
   keys: Set<string> = new Set();
 
@@ -92,7 +90,6 @@ class ProvenanceModel {
 
     this.seenIDs = new Set();
 
-    this.search = null;
     this.jsonMap.clear();
     this.keys = new Set();
 
@@ -127,7 +124,9 @@ class ProvenanceModel {
     collectionKey: string | undefined,
   ): Promise<number> {
     const sourceAction = await this.getProvenanceAction(resultUUID);
-    getAllObjectKeysRecursively(sourceAction, "", this.keys);
+
+    this._addKeysHelper(sourceAction, []);
+
     const sourceActionUUID = sourceAction.execution.uuid;
 
     // If this Result is in a Collection, we need to set this to
@@ -225,7 +224,6 @@ class ProvenanceModel {
     collectionID: string,
   ): Promise<boolean> {
     const result = await this.getProvenanceArtifact(resultUUID);
-    getAllObjectKeysRecursively(result, "", this.keys);
 
     // STUPID HACK: JS returns object keys in insertion order UNLESS it can parse
     // the key into a non-negative integer. It puts all those non-negative integer
@@ -236,6 +234,9 @@ class ProvenanceModel {
     // of the key to insure the key CANNOT be parsed into a number. This space
     // does not show up in the final JSONTree.
     collectionKey = ` ${collectionKey}`;
+    // Start each key in this listing with the key for this element
+    this._addKeysHelper(result, [collectionKey])
+
 
     // We map this collectionID to every element of the collection
     if (!this.seenIDs.has(collectionID)) {
@@ -274,7 +275,9 @@ class ProvenanceModel {
 
     this.seenIDs.add(resultUUID);
     let result = await this.getProvenanceArtifact(resultUUID);
-    getAllObjectKeysRecursively(result, "", this.keys);
+
+    this._addKeysHelper(result, []);
+
     this.jsonMap.set(resultUUID, result);
 
     return false;
@@ -474,9 +477,6 @@ class ProvenanceModel {
       }
     }
 
-    this.search = new Fuse(Array.from(this.jsonMap.values()), {
-      keys: Array.from(this.keys),
-    });
     this.elements.push(...this.resultNodes);
   }
 
@@ -528,6 +528,12 @@ class ProvenanceModel {
       this.uuid,
       this.zipReader,
     );
+  }
+
+  _addKeysHelper(target: object, initialAccumulator: Array<string>) {
+    const keySet: Set<string> = new Set();
+    getAllObjectKeysRecursively(target, initialAccumulator, keySet);
+    keySet.forEach(this.keys.add, this.keys)
   }
 }
 
