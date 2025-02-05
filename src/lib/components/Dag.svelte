@@ -27,7 +27,7 @@
     console.log(clauses)
     for (const clause of clauses) {
       const split = clause.split('=');
-      const key = split[0].split('.');
+      const key = split[0].split('');
       const value = split[1];
 
       hits.push(provenanceModel.searchJSON(key, value));
