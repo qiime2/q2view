@@ -7,30 +7,25 @@
   import provenanceModel from "$lib/models/provenanceModel";
 
   let value: string = '';
-  let submittedValue: string | undefined = undefined;
 
-  // Chloe said her most common searches would probably be
+  // Search syntax something like
   //
-  // Search for where X param has Y value
-  // Search for a specific artifact UUID
-  // Search for a specific action UUID
+  // param:sampling_depth=1103 AND action=core_metrics AND plugin=boots
+  //
+  // If you are searching for a string value that contains = or : or " AND " you
+  // will need to put that string in quotes
+  //
+  // Additionally, if your key contains any of those values you will need to put it
+  // in quotes.
+  //
+  // If your key contains periods, you will need to format it as a list
   function searchProvenance() {
-    console.log(value)
-    // const searchVal = `'${value}`
-    // const thing = provenanceModel.jsonMap.get('33a0f06d-626d-4328-974f-4b0446abd384')
-    // thing['action']['parameters']['1']['sampling_depth'] = '1103';
-    // const searchVal = {'sampling_depth': "1103"}
-    const hits = provenanceModel.searchJSON('sampling_depth', 1103)
-    // const searchVal = '1103'
-    // const hits = provenanceModel.search?.search(searchVal);
-    const keys = []
+    const split = value.split('=');
+    const key = split[0];
+    const _value = split[1];
+
+    const hits = provenanceModel.searchJSON([key], _value)
     console.log(hits)
-
-    for (const hit of hits) {
-      keys.push(provenanceModel.nodeIDToJSON.getKey(hit.item));
-    }
-
-    return keys
   }
 </script>
 
@@ -39,12 +34,11 @@
 {/key}
 {#key $provenanceModel.provData}
   <div>
-    <form on:submit|preventDefault={() => submittedValue = value}>
+    <form on:submit|preventDefault>
       <label>
           Search Provenance:
           <input bind:value />
       </label>
-
       <button on:click={() => console.log(searchProvenance())}>GO</button>
     </form>
     <Panel header={$provenanceModel.provTitle}>

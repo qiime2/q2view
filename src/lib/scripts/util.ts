@@ -118,20 +118,22 @@ export function getScrollBarWidth() {
 export function getAllObjectKeysRecursively(
   targetObject: object,
   currentkeyAccumulator: Array<string>,
-  globalKeySet: Set<string>,
+  globalKeySet: Array<Array<string>>,
 ) {
   if (targetObject !== null && targetObject !== undefined) {
     for (const key of Object.keys(targetObject)) {
       const newKeyAccumulator = [...currentkeyAccumulator, key];
 
-      if (typeof targetObject[key as keyof object] === "object") {
+      // Some terminal values, such as the start and end times, will parse as objects, but they do not have keys of their own
+      const next = targetObject[key as keyof object]
+      if (typeof next === "object" && next !== null && next !== undefined && Object.keys(next).length !== 0) {
         getAllObjectKeysRecursively(
-          targetObject[key as keyof object],
+          next,
           newKeyAccumulator,
           globalKeySet,
         );
       } else {
-        globalKeySet.add(JSON.stringify(newKeyAccumulator));
+        globalKeySet.push(newKeyAccumulator);
       }
     }
   }

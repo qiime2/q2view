@@ -36,7 +36,7 @@ class ProvenanceModel {
   seenIDs: Set<string> = new Set();
 
   // Search JSON
-  jsonKeysToJSON = new BiMap();
+  jsonKeysToJSON = new Map();
   nodeIDToJSON = new BiMap();
   keys: Set<string> = new Set();
 
@@ -126,9 +126,6 @@ class ProvenanceModel {
     collectionKey: string | undefined,
   ): Promise<number> {
     const sourceAction = await this.getProvenanceAction(resultUUID);
-
-    this._addKeysHelper(sourceAction, []);
-
     const sourceActionUUID = sourceAction.execution.uuid;
 
     // If this Result is in a Collection, we need to set this to
@@ -236,9 +233,6 @@ class ProvenanceModel {
     // of the key to insure the key CANNOT be parsed into a number. This space
     // does not show up in the final JSONTree.
     collectionKey = ` ${collectionKey}`;
-    // Start each key in this listing with the key for this element
-    this._addKeysHelper(result, [collectionKey])
-
 
     // We map this collectionID to every element of the collection
     if (!this.seenIDs.has(collectionID)) {
@@ -277,9 +271,6 @@ class ProvenanceModel {
 
     this.seenIDs.add(resultUUID);
     let result = await this.getProvenanceArtifact(resultUUID);
-
-    this._addKeysHelper(result, []);
-
     this.nodeIDToJSON.set(resultUUID, result);
 
     return false;
@@ -532,54 +523,37 @@ class ProvenanceModel {
     );
   }
 
-  searchJSON(key: string, value: any) {
-    const matches = new Set();
-    const matchingKeys = new Set();
-
-    for (const _key of this.keys) {
-      if (_key.endsWith(key)) {
-        matchingKeys.add(_key);
-      }
-    }
+  searchJSON(key: Array<string>, searchValue: string) {
+    const hits = new Set();
 
     for (const json of this.nodeIDToJSON.values()) {
-      for (const matchedKey of matchingKeys) {
-        const _key = JSON.parse(matchedKey)
-        let _value = '';
-        let goodKey = true;
-        let obj = {};
+      const keys: Array<Array<string>> = [];
 
-        obj = json[_key[0]];
-        if (obj === undefined) {
-          goodKey = false;
-        } else {
+      getAllObjectKeysRecursively(json, [], keys);
+      for (const _key of keys) {
+        const terminal = _key.slice(-key.length)
+
+        if (JSON.stringify(terminal) === JSON.stringify(key)) {
+          let value = json[_key[0]];
+
           for (let i = 1; i < _key.length; i++) {
-            obj = obj[_key[i]];
-            if (obj === undefined) {
-              goodKey = false;
-              break;
+            value = value[_key[i]];
+          }
+
+          if (typeof value == 'string') {
+            if (value.includes(searchValue)) {
+              hits.add(this.nodeIDToJSON.getKey(json));
+            }
+          } else {
+            if (value.toString() == searchValue) {
+              hits.add(this.nodeIDToJSON.getKey(json));
             }
           }
         }
-
-        if (goodKey) {
-          _value = obj;
-        }
-
-        if (_value === value) {
-          matches.add(this.nodeIDToJSON.getKey(json))
-        }
       }
     }
 
-    return matches;
-  }
-
-  _addKeysHelper(target: object, initialAccumulator: Array<string>) {
-    const keySet: Set<string> = new Set();
-    getAllObjectKeysRecursively(target, initialAccumulator, keySet);
-    keySet.forEach(this.keys.add, this.keys)
-    this.jsonKeysToJSON.set(keySet, target);
+    return hits;
   }
 }
 
