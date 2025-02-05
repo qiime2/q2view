@@ -531,7 +531,7 @@ class ProvenanceModel {
 
       getAllObjectKeysRecursively(json, [], keys);
       for (const _key of keys) {
-        const terminal = _key.slice(-key.length)
+        const terminal = _key.slice(-key.length);
 
         if (JSON.stringify(terminal) === JSON.stringify(key)) {
           let value = json[_key[0]];
@@ -540,7 +540,7 @@ class ProvenanceModel {
             value = value[_key[i]];
           }
 
-          if (typeof value == 'string') {
+          if (typeof value == "string") {
             if (value.includes(searchValue)) {
               hits.add(this.nodeIDToJSON.getKey(json));
             }

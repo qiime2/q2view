@@ -24,8 +24,8 @@
     const key = split[0];
     const _value = split[1];
 
-    const hits = provenanceModel.searchJSON([key], _value)
-    console.log(hits)
+    const hits = provenanceModel.searchJSON([key], _value);
+    console.log(hits);
   }
 </script>
 
