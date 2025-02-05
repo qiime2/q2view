@@ -7,6 +7,29 @@
   import cytoscape from "cytoscape";
 
   let self: HTMLDivElement;
+  let cy: cytoscape.Core;
+
+  // Search syntax something like
+  //
+  // param:sampling_depth=1103 AND action=core_metrics AND plugin=boots
+  //
+  // If you are searching for a string value that contains = or : or " AND " you
+  // will need to put that string in quotes
+  //
+  // Additionally, if your key contains any of those values you will need to put it
+  // in quotes.
+  //
+  // If your key contains peconstriods, you will need to format it as a list
+  export function searchProvenance(value: string) {
+    const split = value.split('=');
+    const key = split[0];
+    const _value = split[1];
+
+    const hits = provenanceModel.searchJSON([key], _value);
+    const hit = hits[0];
+    const elem = cy.$id(hit);
+    elem.select();
+  }
 
   const cytoscapeConfig = {
     boxSelectionEnabled: true,
@@ -95,7 +118,7 @@
 
     let lock = false; // used to prevent recursive event storms
     let selectedExists = false;
-    let cy = cytoscape({
+    cy = cytoscape({
       ...cytoscapeConfig,
       container: document.getElementById("cy"),
       elements: provenanceModel.elements
@@ -108,6 +131,7 @@
         const elem = event.target;
 
         let node = elem;
+        console.log(node.data("id"))
         if (elem.isEdge()) {
           node = elem.source();
         }
