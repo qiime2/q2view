@@ -524,7 +524,7 @@ class ProvenanceModel {
   }
 
   searchJSON(key: Array<string>, searchValue: string) {
-    const hits = new Set<string>;
+    const hits = new Set<string>();
 
     for (const json of this.nodeIDToJSON.values()) {
       const keys: Array<Array<string>> = [];
