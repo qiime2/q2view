@@ -7,6 +7,29 @@
   import cytoscape from "cytoscape";
 
   let self: HTMLDivElement;
+  let cy: cytoscape.Core;
+
+  // Search syntax something like
+  //
+  // param:sampling_depth=1103 AND action=core_metrics AND plugin=boots
+  //
+  // If you are searching for a string value that contains = or : or " AND " you
+  // will need to put that string in quotes
+  //
+  // Additionally, if your key contains any of those values you will need to put it
+  // in quotes.
+  //
+  // If your key contains periods, you will need to format it as a list
+  export function searchProvenance(value: string) {
+    const split = value.split('=');
+    const key = split[0];
+    const _value = split[1];
+
+    const hits = provenanceModel.searchJSON([key], _value);
+    const hit = hits[0];
+    const elem = cy.$id(hit);
+    elem.select();
+  }
 
   const cytoscapeConfig = {
     boxSelectionEnabled: true,
@@ -62,34 +85,15 @@
     ]
   };
 
-  async function setActionSelection(uuid: string) {
-    if (uuid in provenanceModel.collectionMapping) {
-      // If our uuid is a collectionID we get the uuid of the first element of
-      // the collection to actually get the provenance action.
-      uuid = provenanceModel.collectionMapping[uuid][0]['uuid'];
-    }
-
+  function setActionSelection(uuid: string) {
     provenanceModel.provTitle = "Action Details";
-    const selectionData = await provenanceModel.getProvenanceAction(uuid);
-
+    const selectionData = provenanceModel.nodeIDToJSON.get(uuid);
     _setSelection(selectionData);
   }
 
-  async function setResultSelection(uuid: string) {
+  function setResultSelection(uuid: string) {
     provenanceModel.provTitle = "Result Details";
-    const selectionData = await provenanceModel.getProvenanceArtifact(uuid);
-
-    _setSelection(selectionData);
-  }
-
-  async function setCollectionSelection(uuid: string) {
-    const selectionData = {};
-    provenanceModel.provTitle = "Collection Details";
-
-    for (const artifact of provenanceModel.collectionMapping[uuid]) {
-      selectionData[artifact['key']] = await provenanceModel.getProvenanceArtifact(artifact['uuid']);
-    }
-
+    let selectionData = provenanceModel.nodeIDToJSON.get(uuid);
     _setSelection(selectionData);
   }
 
@@ -114,7 +118,7 @@
 
     let lock = false; // used to prevent recursive event storms
     let selectedExists = false;
-    let cy = cytoscape({
+    cy = cytoscape({
       ...cytoscapeConfig,
       container: document.getElementById("cy"),
       elements: provenanceModel.elements
@@ -136,15 +140,9 @@
           // nodes as its children. We get the action provenance from whichever
           // of its children happens to be first. It doesn't matter which because
           // the data for the action itself won't change regardless.
-          setActionSelection(node.children()[0].data("id"));
+          setActionSelection(node.data("id"));
         } else {
-          const uuid = node.data("id");
-
-          if (uuid in provenanceModel.collectionMapping) {
-            setCollectionSelection(uuid);
-          } else {
-            setResultSelection(uuid);
-          }
+          setResultSelection(node.data("id"));
         }
 
         const edges = node.edgesTo("node");
