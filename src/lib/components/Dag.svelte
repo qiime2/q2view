@@ -131,7 +131,6 @@
         const elem = event.target;
 
         let node = elem;
-        console.log(node.data("id"))
         if (elem.isEdge()) {
           node = elem.source();
         }
