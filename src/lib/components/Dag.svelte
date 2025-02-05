@@ -19,7 +19,7 @@
   // Additionally, if your key contains any of those values you will need to put it
   // in quotes.
   //
-  // If your key contains peconstriods, you will need to format it as a list
+  // If your key contains periods, you will need to format it as a list
   export function searchProvenance(value: string) {
     const split = value.split('=');
     const key = split[0];
