@@ -524,7 +524,7 @@ class ProvenanceModel {
   }
 
   searchJSON(key: Array<string>, searchValue: string) {
-    const hits = new Array<string>;
+    const hits = new Set<string>;
 
     for (const json of this.nodeIDToJSON.values()) {
       const keys: Array<Array<string>> = [];
@@ -542,11 +542,11 @@ class ProvenanceModel {
 
           if (typeof value == "string") {
             if (value.includes(searchValue)) {
-              hits.push(this.nodeIDToJSON.getKey(json));
+              hits.add(this.nodeIDToJSON.getKey(json));
             }
           } else {
             if (value.toString() == searchValue) {
-              hits.push(this.nodeIDToJSON.getKey(json));
+              hits.add(this.nodeIDToJSON.getKey(json));
             }
           }
         }

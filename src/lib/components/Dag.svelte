@@ -20,13 +20,27 @@
   // in quotes.
   //
   // If your key contains periods, you will need to format it as a list
-  export function searchProvenance(value: string) {
-    const split = value.split('=');
-    const key = split[0];
-    const _value = split[1];
+  export function searchProvenance(searchValue: string) {
+    const hits: Array<Set<string>> = [];
 
-    const hits = provenanceModel.searchJSON([key], _value);
-    const hit = hits[0];
+    const clauses = searchValue.split(' AND ');
+    console.log(clauses)
+    for (const clause of clauses) {
+      const split = clause.split('=');
+      const key = split[0];
+      const value = split[1];
+
+      hits.push(provenanceModel.searchJSON([key], value));
+    }
+
+    console.log(hits)
+    const finalHits = hits[0];
+    for (let i = 1; i < hits.length; i++) {
+      finalHits.union(hits[i])
+    }
+
+    console.log(finalHits);
+    const hit = Array.from(finalHits)[0];
     const elem = cy.$id(hit);
     elem.select();
   }
