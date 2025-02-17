@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .max-width {
+    max-width: calc(1110px + 17em);
+    margin: 0 auto;
+    padding: 0 0.67em;
+  }
+}
+
 :root {
   --tailwind-blue-700: rgb(29, 78, 216);
   --tailwind-green-700: rgb(21, 128, 61);

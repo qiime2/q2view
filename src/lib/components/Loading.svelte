@@ -2,9 +2,9 @@
   import loading from '$lib/scripts/loading'
 </script>
 
-<h1>
-  LOADING: {$loading.message}
-</h1>
+<h2 class="mt-5">
+  Loading: {$loading.message}
+</h2>
 <div id="loader"></div>
 
 <style lang="postcss">

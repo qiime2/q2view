@@ -19,8 +19,8 @@
   let loadingComponent: undefined | HTMLElement;
 </script>
 
-<div id="positioned-container">
-  <div id="content-container">
+<div id="positioned-container" class='px-4'>
+  <div id="content-container" class="max-width">
     <div
       class={$url.pathname.replaceAll("/", "") === "" && $loading.status !== "LOADING" ? "tab" : "hidden-tab"}
     >
@@ -60,7 +60,7 @@
     {#if $readerModel.indexPath}
       <div
         class={$url.pathname.replaceAll("/", "") === "visualization" && $loading.status !== "LOADING"
-          ? "tab"
+          ? "tab iframe"
           : "hidden-tab"}
       >
         <Iframe />
@@ -89,9 +89,9 @@
 <style lang="postcss">
   #positioned-container {
     position: absolute;
-    top: 50px;
+    top: 55px;
     width: 100%;
-    height: calc(100% - 50px);
+    height: calc(100% - 55px);
     overflow: auto;
     /* Prevent content from repositioning in Chromium when a scrollbar appears */
     scrollbar-gutter: stable both-edges;
@@ -100,8 +100,7 @@
   #content-container {
     display: grid;
     @apply mx-auto
-    px-10
-    max-w-7xl;
+    px-2;
   }
 
   /* If we need to slap an alert notice at the top of the page use this
@@ -117,14 +116,16 @@
   }
 
   .tab {
-    margin-top: 21px;
     grid-column: 1;
     grid-row: 1;
     visibility: visible;
     overflow: hidden;
     /* This padding is to accomodate the dropshadow on the DropZone */
     padding-right: 10px;
-    @apply mb-4;
+    @apply mb-4 pt-5;
+  }
+  .tab.iframe {
+    @apply pt-0;
   }
 
   /* Hoist this up here because the absolute will cause the scrollbar to persist
