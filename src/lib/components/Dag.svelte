@@ -5,9 +5,12 @@
 
   import provenanceModel from "$lib/models/provenanceModel";
   import cytoscape from "cytoscape";
+    import { provSearchStore } from "$lib/scripts/prov-search-store";
 
   let self: HTMLDivElement;
   let cy: cytoscape.Core;
+
+  export let finalHits = null;
 
   // Search syntax something like
   //
@@ -35,7 +38,7 @@
     }
 
     console.log(hits)
-    let finalHits = hits[0];
+    finalHits = hits[0];
     for (let i = 1; i < hits.length; i++) {
       finalHits = finalHits.intersection(hits[i])
     }
@@ -44,6 +47,9 @@
     const hit = Array.from(finalHits)[0];
     const elem = cy.$id(hit);
     elem.select();
+    provSearchStore.set({
+      searchHits: finalHits
+    });
   }
 
   // TODO: Clean this up and make it work better
@@ -186,6 +192,11 @@
   }
 
   onMount(() => {
+    // null this out when mounting a new DAG
+    provSearchStore.set({
+      searchHits: new Set()
+    });
+
     // Set this height so we center the DAG based on this height
     let displayHeight = (provenanceModel.height + 1) * 105;
     self.style.setProperty("height", `${displayHeight}px`);
