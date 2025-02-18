@@ -15,34 +15,93 @@
   //
   // If you are searching for a string value that contains = or : or " AND " you
   // will need to put that string in quotes
+  // If the string contains quotes, they will need to be escaped e.g. \"
+  // If the string contains \" add additional \ e.g. \\"
   //
-  // Additionally, if your key contains any of those values you will need to put it
-  // in quotes.
-  //
-  // If your key contains periods, you will need to format it as a list
+  // param/params/parameter/parameters and input as special keys?
+  // param and co. match if parameters is above terminal key in path
+  // inputs mathes if inputs is above terminal key in path
+  // what happens if param is in middle of complex key?
   export function searchProvenance(searchValue: string) {
+    console.log(searchValue);
+    const tokens: Array<Array<any>> = [];
+    parser(searchValue, tokens);
+    console.log(tokens);
+
     const hits: Array<Set<string>> = [];
 
-    const clauses = searchValue.split(' AND ');
-    console.log(clauses)
-    for (const clause of clauses) {
-      const split = clause.split('=');
-      const key = split[0].split(':');
-      const value = split[1];
-
-      hits.push(provenanceModel.searchJSON(key, value));
+    for (const token of tokens) {
+      hits.push(provenanceModel.searchJSON(token[0], token[1]));
     }
 
     console.log(hits)
-    const finalHits = hits[0];
+    let finalHits = hits[0];
     for (let i = 1; i < hits.length; i++) {
-      finalHits.union(hits[i])
+      finalHits = finalHits.intersection(hits[i])
     }
 
     console.log(finalHits);
     const hit = Array.from(finalHits)[0];
     const elem = cy.$id(hit);
     elem.select();
+  }
+
+  // sampling_depth=1103 AND plugin=boots
+  // sampling_depth=1103 AND plugin="boots AND something"
+  // sampling_depth=1103 AND plugin="boots AND something" AND action=idk
+  function parser(searchValue: string, tokens: Array<Array<any>>) {
+    if (searchValue === "") {
+      return;
+    }
+
+    // The location of the = that separates key=values
+    const splitIndex = searchValue.indexOf('=');
+    // Everything before that = is the key
+    const keys = searchValue.split('=', 1)[0].split(':');
+
+    // The indices marking the beginning and end of the value that goes with
+    // the current key
+    let startValIndex = splitIndex + 1;
+    let endValIndex = searchValue.indexOf(' AND ');
+    let value = '';
+
+    // If the value starts with a quote, our value is everything between this
+    // quote and the next unescaped quote.
+    if (searchValue[startValIndex] === '"') {
+      // Increment past the opening quote
+      startValIndex++;
+      endValIndex++;
+
+      // Search for the next unescaped quote
+      do {
+        endValIndex = searchValue.indexOf('"', endValIndex);
+      } while (searchValue[endValIndex] === '\\')
+
+      // If we hit the end of the searchValue they didn't close their quote
+      if (endValIndex === -1) {
+        console.log(keys)
+        console.log("HERE")
+        // some kinda parse error
+      }
+
+      // Cut the value out
+      value = searchValue.slice(startValIndex, endValIndex);
+      // Increment past the next " AND "
+      endValIndex += 5;
+    } else {
+      endValIndex = searchValue.indexOf(" AND ");
+
+      if (endValIndex === -1) {
+        value = searchValue.slice(startValIndex);
+        endValIndex = searchValue.length;
+      } else {
+        value = searchValue.slice(startValIndex, endValIndex);
+        endValIndex += 5;
+      }
+    }
+
+    tokens.push([keys, value]);
+    parser(searchValue.slice(endValIndex), tokens);
   }
 
   const cytoscapeConfig = {
