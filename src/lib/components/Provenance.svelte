@@ -5,9 +5,17 @@
   import JSONTree from "svelte-json-tree";
   import Dag from "./Dag.svelte";
   import provenanceModel from "$lib/models/provenanceModel";
+  import { provSearchStore } from "$lib/scripts/prov-search-store";
 
   let DAG: Dag;
   let value: string = '';
+
+  let searchIndex = 0;
+  let searchHits: Set<string>;
+
+  provSearchStore.subscribe((value) => {
+    searchHits = value.searchHits
+  });
 </script>
 
 {#key $provenanceModel.uuid}
@@ -18,10 +26,47 @@
     <form on:submit|preventDefault>
       <label>
           Search Provenance:
-          <input bind:value />
+          <input class="roundInput" bind:value />
       </label>
       <button on:click={() => DAG.searchProvenance(value)}>GO</button>
     </form>
+    <div class="mx-auto">
+      <button
+        on:click={() => {
+            if (searchIndex > 0) {
+                searchIndex--;
+            }
+        }}
+        class="roundButton"
+      >
+      <svg fill="none"
+          width="10"
+          height="10">
+          <path
+            stroke-width="3"
+            stroke="rgb(119, 119, 119)"
+            d="m8 0L3 5a0,2 0 0 1 1,1M3 5L8 10"/>
+        </svg>
+      </button>
+      {searchIndex + 1}/{searchHits.size}
+      <button
+        on:click={() => {
+          if (searchIndex < searchHits.size) {
+            searchIndex++;
+          }
+        }}
+        class="roundButton"
+      >
+        <svg fill="none"
+          width="10"
+          height="10">
+          <path
+            stroke-width="3"
+            stroke="rgb(119, 119, 119)"
+            d="m3 0L8 5a0,2 0 0 1 1,1M8 5L3 10"/>
+        </svg>
+      </button>
+    </div>
     <Panel header={$provenanceModel.provTitle}>
       {#if provenanceModel.provData !== undefined}
         <div class="JSONTree">
@@ -37,10 +82,3 @@
     </Panel>
   </div>
 {/key}
-
-<style lang="postcss">
-  input {
-    @apply border
-    mb-4;
-  }
-</style>
