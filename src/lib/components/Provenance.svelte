@@ -80,6 +80,21 @@
               d="m3 0L8 5a0,2 0 0 1 1,1M8 5L3 10"/>
           </svg>
         </button>
+        <button
+          on:click={() => DAG.selectSearchHit(searchHits[searchIndex - 1])}
+          class="roundButton"
+        >
+          Re-Focus
+        </button>
+        <button
+          on:click={() => {
+            searchHits = [];
+            value = "";
+          }}
+          class="roundButton"
+        >
+          Clear
+        </button>
       </div>
     {/if}
     <Panel header={$provenanceModel.provTitle}>
