@@ -46,6 +46,7 @@
     elem.select();
   }
 
+  // TODO: Clean this up and make it work better
   // sampling_depth=1103 AND plugin=boots
   // sampling_depth=1103 AND plugin="boots AND something"
   // sampling_depth=1103 AND plugin="boots AND something" AND action=idk
