@@ -4,6 +4,7 @@
   import { onMount } from "svelte";
 
   import provenanceModel from "$lib/models/provenanceModel";
+  import cytoscape from "cytoscape";
   import { provSearchStore } from "$lib/scripts/prov-search-store";
 
   let self: HTMLDivElement;
