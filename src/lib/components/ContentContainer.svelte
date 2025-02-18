@@ -16,28 +16,32 @@
   import Error from "$lib/components/Error.svelte";
   import Loading from "$lib/components/Loading.svelte";
 
+  export let vendored: boolean = false;
+
   let loadingComponent: undefined | HTMLElement;
 </script>
 
 <div id="positioned-container">
   <div id="content-container">
-    <div
-      class={$url.pathname.replaceAll("/", "") === "" && $loading.status !== "LOADING" ? "tab" : "hidden-tab"}
-    >
-      <p class="pb-4">
-        This interface can view .qza and .qzv files directly in your browser
-        without uploading to a server.
-        <a
-          href="#"
-          on:click={() =>
-            history.pushState({}, "", "/about/" + window.location.search)}
-          >Click here to learn more.
-        </a>
-      </p>
-      <DropZone />
-      <UrlInput />
-      <Gallery />
-    </div>
+    {#if !vendored}
+      <div
+        class={$url.pathname.replaceAll("/", "") === "" && $loading.status !== "LOADING" ? "tab" : "hidden-tab"}
+      >
+        <p class="pb-4">
+          This interface can view .qza and .qzv files directly in your browser
+          without uploading to a server.
+          <a
+            href="#"
+            on:click={() =>
+              history.pushState({}, "", "/about/" + window.location.search)}
+            >Click here to learn more.
+          </a>
+        </p>
+        <DropZone />
+        <UrlInput />
+        <Gallery />
+      </div>
+    {/if}
     <div
       class={$url.pathname.replaceAll("/", "") === "about" && $loading.status !== "LOADING"
         ? "tab"
