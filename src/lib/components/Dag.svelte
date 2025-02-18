@@ -5,7 +5,7 @@
 
   import provenanceModel from "$lib/models/provenanceModel";
   import cytoscape from "cytoscape";
-    import { provSearchStore } from "$lib/scripts/prov-search-store";
+  import { provSearchStore } from "$lib/scripts/prov-search-store";
 
   let self: HTMLDivElement;
   let cy: cytoscape.Core;
@@ -43,10 +43,6 @@
       finalHits = finalHits.intersection(hits[i])
     }
 
-    console.log(finalHits);
-    const hit = Array.from(finalHits)[0];
-    const elem = cy.$id(hit);
-    elem.select();
     provSearchStore.set({
       searchHits: finalHits
     });
@@ -109,6 +105,18 @@
 
     tokens.push([keys, value]);
     parser(searchValue.slice(endValIndex), tokens);
+  }
+
+  export function selectSearchHit(hitUUID: string) {
+    const elem = cy.$id(hitUUID);
+    elem.select();
+    cy.center(elem);
+
+    // Pan to put the focused node near the top of the viewport
+    cy.panBy({
+      x: 0,
+      y: ((provenanceModel.height - 2) / 2) * -105
+    })
   }
 
   const cytoscapeConfig = {

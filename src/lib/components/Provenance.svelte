@@ -10,12 +10,18 @@
   let DAG: Dag;
   let value: string = '';
 
-  let searchIndex = 0;
-  let searchHits: Set<string>;
+  let searchIndex = 1;
+  let searchHits: Array<string>;
 
   provSearchStore.subscribe((value) => {
     searchHits = value.searchHits
   });
+
+  $: {
+    if (DAG !== undefined && searchHits[searchIndex - 1] !== undefined) {
+      DAG.selectSearchHit(searchHits[searchIndex - 1]);
+    }
+  }
 </script>
 
 {#key $provenanceModel.uuid}
@@ -33,7 +39,7 @@
     <div class="mx-auto">
       <button
         on:click={() => {
-            if (searchIndex > 0) {
+            if (searchIndex > 1) {
                 searchIndex--;
             }
         }}
@@ -48,10 +54,10 @@
             d="m8 0L3 5a0,2 0 0 1 1,1M3 5L8 10"/>
         </svg>
       </button>
-      {searchIndex + 1}/{searchHits.size}
+      {searchIndex}/{searchHits.length}
       <button
         on:click={() => {
-          if (searchIndex < searchHits.size) {
+          if (searchIndex < searchHits.length) {
             searchIndex++;
           }
         }}
