@@ -4,7 +4,7 @@
   import { onMount } from "svelte";
 
   import provenanceModel from "$lib/models/provenanceModel";
-  import cytoscape from "cytoscape";
+  import cytoscape, { CollectionReturnValue, NodeSingular } from "cytoscape";
   import { provSearchStore } from "$lib/scripts/prov-search-store";
 
   let self: HTMLDivElement;
@@ -42,8 +42,8 @@
 
     // Sort the hit nodes by row then by col within a given row
     finalHits.sort((a, b) => {
-      let aNode = cy.$id(a);
-      let bNode = cy.$id(b);
+      let aNode: NodeSingular = cy.$id(a);
+      let bNode: NodeSingular = cy.$id(b);
 
       if (aNode.descendants().length > 0) {
         aNode = aNode.descendants()[0];
