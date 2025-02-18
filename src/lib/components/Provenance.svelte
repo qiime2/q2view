@@ -45,6 +45,8 @@
           on:click={() => {
               if (searchIndex > 1) {
                   searchIndex--;
+              } else {
+                searchIndex = searchHits.length;
               }
           }}
           class="roundButton"
@@ -63,6 +65,8 @@
           on:click={() => {
             if (searchIndex < searchHits.length) {
               searchIndex++;
+            } else {
+              searchIndex = 1;
             }
           }}
           class="roundButton"
