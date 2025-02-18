@@ -72,6 +72,15 @@
   }
 </script>
 
+<svelte:head>
+  {#if $readerModel.name}
+  <title>{$readerModel.name} - QIIME 2 View</title>
+  {:else}
+  <title>QIIME 2 View</title>
+  {/if}
+</svelte:head>
+
+
 <nav id="navbar" use:melt={$root}>
   <NavBanner/>
   <div class="nav-wrapper mx-2">
