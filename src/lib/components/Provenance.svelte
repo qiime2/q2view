@@ -34,7 +34,10 @@
           Search Provenance:
           <input class="roundInput" bind:value />
       </label>
-      <button on:click={() => DAG.searchProvenance(value)}>GO</button>
+      <button on:click={() => {
+        searchIndex = 1;
+        DAG.searchProvenance(value)
+      }}>GO</button>
     </form>
     <div class="mx-auto">
       <button
