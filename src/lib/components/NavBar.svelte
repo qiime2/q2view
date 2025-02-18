@@ -41,7 +41,7 @@
     }
 
     const nav_dropdown_height = nav_dropdown.clientHeight;
-    const offset = 80 + nav_dropdown_height;
+    const offset = 78 + nav_dropdown_height;
 
     if (positioned_container !== null) {
       positioned_container.style.top = `${offset}px`;
