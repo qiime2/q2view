@@ -10,8 +10,6 @@
   let self: HTMLDivElement;
   let cy: cytoscape.Core;
 
-  export let finalHits = null;
-
   // Search syntax something like
   //
   // param:sampling_depth=1103 AND action=core_metrics AND plugin=boots
@@ -26,10 +24,8 @@
   // inputs mathes if inputs is above terminal key in path
   // what happens if param is in middle of complex key?
   export function searchProvenance(searchValue: string) {
-    console.log(searchValue);
     const tokens: Array<Array<any>> = [];
     parser(searchValue, tokens);
-    console.log(tokens);
 
     const hits: Array<Set<string>> = [];
 
@@ -37,11 +33,35 @@
       hits.push(provenanceModel.searchJSON(token[0], token[1]));
     }
 
-    console.log(hits)
-    finalHits = hits[0];
+    let finalHits: Set<string> | Array<string> = hits[0];
     for (let i = 1; i < hits.length; i++) {
       finalHits = finalHits.intersection(hits[i])
     }
+
+    finalHits = Array.from(finalHits);
+
+    // Sort the hit nodes by row then by col within a given row
+    finalHits.sort((a, b) => {
+      let aNode = cy.$id(a);
+      let bNode = cy.$id(b);
+
+      if (aNode.descendants().length > 0) {
+        aNode = aNode.descendants()[0];
+      }
+
+      if (bNode.descendants().length > 0) {
+        bNode = bNode.descendants()[0];
+      }
+
+      console.log(aNode.data())
+      console.log(bNode.data())
+
+      if (aNode.data().row === bNode.data().row) {
+        return aNode.data().col - bNode.data().col;
+      }
+
+      return aNode.data().row - bNode.data().row;
+    });
 
     provSearchStore.set({
       searchHits: finalHits
