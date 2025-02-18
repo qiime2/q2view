@@ -14,7 +14,7 @@
 <div class="gallery-card">
   <h3 class="pb-2 text-lg font-bold text-[#1a414c] shrink-0">{title}</h3>
   <img src={img} alt={title} class="pb-2 flex-grow min-w-0 min-h-0">
-  <p class="description shrink-0 pb-2">{desc}</p>
+  <p class="description shrink-0 flex-grow pb-2">{desc}</p>
   <button class="gallery-button shrink-0 grid grid-flow-col items-center gap-1" on:click={galleryButton}>
     Start
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4">
@@ -26,7 +26,7 @@
 <style lang='postcss'>
   .gallery-card {
     position: relative;
-    max-height: 400px;
+    height: 400px;
     display: flex;
     flex-direction: column;
     @apply border
