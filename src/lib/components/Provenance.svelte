@@ -23,80 +23,81 @@
     }
   }
 </script>
-
+<div class="col-span-2">
+  <form on:submit|preventDefault>
+    <label>
+        Search Provenance:
+        <input class="roundInput" bind:value />
+    </label>
+    <button on:click={() => {
+      searchIndex = 1;
+      DAG.searchProvenance(value)
+    }}>GO</button>
+  </form>
+  {#if searchHits.length > 0}
+    <div class="mx-auto">
+      <button
+        on:click={() => {
+            if (searchIndex > 1) {
+                searchIndex--;
+            } else {
+              searchIndex = searchHits.length;
+            }
+        }}
+        class="roundButton"
+      >
+      <svg fill="none"
+          width="10"
+          height="10">
+          <path
+            stroke-width="3"
+            stroke="rgb(119, 119, 119)"
+            d="m8 0L3 5a0,2 0 0 1 1,1M3 5L8 10"/>
+        </svg>
+      </button>
+      {searchIndex}/{searchHits.length}
+      <button
+        on:click={() => {
+          if (searchIndex < searchHits.length) {
+            searchIndex++;
+          } else {
+            searchIndex = 1;
+          }
+        }}
+        class="roundButton"
+      >
+        <svg fill="none"
+          width="10"
+          height="10">
+          <path
+            stroke-width="3"
+            stroke="rgb(119, 119, 119)"
+            d="m3 0L8 5a0,2 0 0 1 1,1M8 5L3 10"/>
+        </svg>
+      </button>
+      <button
+        on:click={() => DAG.selectSearchHit(searchHits[searchIndex - 1])}
+        class="roundButton"
+      >
+        Re-Focus
+      </button>
+      <button
+        on:click={() => {
+          searchHits = [];
+          value = "";
+        }}
+        class="roundButton"
+      >
+        Clear
+      </button>
+    </div>
+  {/if}
+</div>
 {#key $provenanceModel.uuid}
   <Dag bind:this={DAG}/>
 {/key}
 {#key $provenanceModel.provData}
   <div>
-    <form on:submit|preventDefault>
-      <label>
-          Search Provenance:
-          <input class="roundInput" bind:value />
-      </label>
-      <button on:click={() => {
-        searchIndex = 1;
-        DAG.searchProvenance(value)
-      }}>GO</button>
-    </form>
-    {#if searchHits.length > 0}
-      <div class="mx-auto">
-        <button
-          on:click={() => {
-              if (searchIndex > 1) {
-                  searchIndex--;
-              } else {
-                searchIndex = searchHits.length;
-              }
-          }}
-          class="roundButton"
-        >
-        <svg fill="none"
-            width="10"
-            height="10">
-            <path
-              stroke-width="3"
-              stroke="rgb(119, 119, 119)"
-              d="m8 0L3 5a0,2 0 0 1 1,1M3 5L8 10"/>
-          </svg>
-        </button>
-        {searchIndex}/{searchHits.length}
-        <button
-          on:click={() => {
-            if (searchIndex < searchHits.length) {
-              searchIndex++;
-            } else {
-              searchIndex = 1;
-            }
-          }}
-          class="roundButton"
-        >
-          <svg fill="none"
-            width="10"
-            height="10">
-            <path
-              stroke-width="3"
-              stroke="rgb(119, 119, 119)"
-              d="m3 0L8 5a0,2 0 0 1 1,1M8 5L3 10"/>
-          </svg>
-        </button>
-        <button
-          on:click={() => DAG.selectSearchHit(searchHits[searchIndex - 1])}
-          class="roundButton"
-        >
-          Re-Focus
-        </button>
-        <button
-          on:click={() => {
-            searchHits = [];
-            value = "";
-          }}
-          class="roundButton"
-        >
-          Clear
-        </button>
-      </div>
-    {/if}
     <Panel header={$provenanceModel.provTitle}>
       {#if provenanceModel.provData !== undefined}
         <div class="JSONTree">
@@ -112,3 +113,9 @@
     </Panel>
   </div>
 {/key}
+
+<style>
+  input {
+    width: 100%;
+  }
+</style>
