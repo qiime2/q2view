@@ -1,0 +1,50 @@
+// This grammar can be compiled to parser.js with the following command:
+//
+// `lark-js grammar.lark -o ./src/lib/scripts/parser.js`
+//
+// This command is dependent on lark-js which can be installed via pip and lark
+// version 1.1.5 which can also be installed via pip
+//
+// lark-js creates parser.js to be a node module. The resulting file requires
+// the following edits.
+//
+// 1. `function get_parser` -> `export function get_parser`
+// 2. `class Transformer` -> `export class Transformer`
+// 3. Delete the entire module.exports section
+
+start: [pair ((AND | OR) pair)*]
+
+pair: pair_single
+    | pair_group
+
+pair_single: key ":" value
+pair_group: "(" [pair ((AND | OR) pair)*] ")"
+
+key: KEY_VALUE (KEY_SEP KEY_VALUE)*
+
+KEY_SEP: "."
+KEY_VALUE: /([\w\d\_\-]+(\\\.)*)+/
+
+value: STRING
+    | NUMBER
+    | TRUE
+    | FALSE
+    | NULL
+    | value_group
+
+value_group: "(" value [((AND | OR) value)*] ")"
+
+STRING: ESCAPED_STRING
+NUMBER: SIGNED_NUMBER
+
+TRUE: "true"
+FALSE: "false"
+NULL: "null"
+
+AND: "AND"
+OR: "OR"
+
+%import common.ESCAPED_STRING
+%import common.SIGNED_NUMBER
+%import common.WS
+%ignore WS

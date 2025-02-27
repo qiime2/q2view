@@ -6,9 +6,95 @@
   import provenanceModel from "$lib/models/provenanceModel";
   import cytoscape from "cytoscape";
   import { provSearchStore } from "$lib/scripts/prov-search-store";
+  import { get_parser, Transformer } from "$lib/scripts/parser";
 
   let self: HTMLDivElement;
   let cy: cytoscape.Core;
+
+  const x = [[["some","kinda"],["nested","&","shit","|","something"]],"&",[[["key","1"],1],"|",[["key","1"],2]]];
+
+  class MyTransformer extends Transformer {
+    start(start) {
+      return start;
+    }
+
+    pair(pair) {
+      return pair[0];
+    }
+
+    pair_single(pair) {
+      const key = pair[0];
+      const value = pair[1];
+
+      return {[key]: value};
+    }
+
+    pair_group(pair_group) {
+      return pair_group;
+    }
+
+    value_group(list) {
+      return list
+    }
+
+    // They key allows for the union of valid Python identifiers and valid
+    // Conda package names. The Conda package names only adds . and -. We use
+    // . as the key sep meaning . in the key must be escaped \.
+    key(key) {
+      const keyList = [];
+
+      for (const child of key) {
+        // Undefined is the seperators which we don't want inlcuded in here
+        if (child !== undefined) {
+          // There can't be any \ characters actually in the key, so kill
+          // off the escape characters here
+          keyList.push(child.replace("\\", ""));
+        }
+      }
+
+      return keyList;
+    }
+
+    value(value) {
+       return value[0];
+    }
+
+    STRING(string) {
+      return string.value.slice(1, -1);
+    }
+
+    NUMBER(number) {
+      return Number(number.value);
+    }
+
+    TRUE(_) {
+      return true;
+    }
+
+    FALSE(_) {
+      return false;
+    }
+
+    NULL(_) {
+      return null;
+    }
+
+    AND(_) {
+      return "&";
+    }
+
+    OR(_) {
+      return "|";
+    }
+
+    KEY_SEP(_) {
+      return;
+    }
+
+    KEY_VALUE(key_value) {
+      return key_value.value;
+    }
+  }
 
   // Search syntax something like
   //
@@ -24,8 +110,16 @@
   // inputs mathes if inputs is above terminal key in path
   // what happens if param is in middle of complex key?
   export function searchProvenance(searchValue: string) {
-    const tokens: Array<Array<any>> = [];
-    parser(searchValue, tokens);
+    const parser = get_parser();
+
+    // const tokens: Array<Array<any>> = [];
+    const ast = parser.parse(searchValue);
+    console.log(ast);
+    const myTransformer = new MyTransformer()
+    const json = myTransformer.transform(ast);
+    console.log(json)
+    console.log(JSON.stringify(json))
+    return;
 
     const hits: Array<Set<string>> = [];
 
@@ -69,6 +163,9 @@
   }
 
   // TODO: Clean this up and make it work better
+  //
+  // Add ^start anchor AND end anchor$
+  //
   // sampling_depth=1103 AND plugin=boots
   // sampling_depth=1103 AND plugin="boots AND something"
   // sampling_depth=1103 AND plugin="boots AND something" AND action=idk
@@ -78,15 +175,15 @@
     }
 
     // The location of the = that separates key=values
-    const splitIndex = searchValue.indexOf('=');
+    const splitIndex = searchValue.indexOf("=");
     // Everything before that = is the key
-    const keys = searchValue.split('=', 1)[0].split(':');
+    const keys = searchValue.split("=", 1)[0].split(":");
 
     // The indices marking the beginning and end of the value that goes with
     // the current key
     let startValIndex = splitIndex + 1;
-    let endValIndex = searchValue.indexOf(' AND ');
-    let value = '';
+    let endValIndex = searchValue.indexOf(" AND ");
+    let value = "";
 
     // If the value starts with a quote, our value is everything between this
     // quote and the next unescaped quote.
@@ -98,7 +195,7 @@
       // Search for the next unescaped quote
       do {
         endValIndex = searchValue.indexOf('"', endValIndex);
-      } while (searchValue[endValIndex] === '\\')
+      } while (searchValue[endValIndex] === "\\")
 
       // If we hit the end of the searchValue they didn't close their quote
       if (endValIndex === -1) {
@@ -196,6 +293,10 @@
   function setActionSelection(uuid: string) {
     provenanceModel.provTitle = "Action Details";
     const selectionData = provenanceModel.nodeIDToJSON.get(uuid);
+    console.log(selectionData["execution"]["runtime"]["start"]);
+    // console.log(selectionData["execution"]["runtime"]["start"].toISOString());
+    console.log(typeof selectionData["execution"]["runtime"]["start"]);
+    console.log(selectionData["execution"]["runtime"]["start"].constructor.name);
     _setSelection(selectionData);
   }
 
