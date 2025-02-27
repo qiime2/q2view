@@ -11,8 +11,6 @@
   let self: HTMLDivElement;
   let cy: cytoscape.Core;
 
-  const x = [[["some","kinda"],["nested","&","shit","|","something"]],"&",[[["key","1"],1],"|",[["key","1"],2]]];
-
   class MyTransformer extends Transformer {
     start(start) {
       return start;
