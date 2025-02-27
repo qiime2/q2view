@@ -81,7 +81,7 @@
     }
 
     if (index < (values.length - 1)) {
-      _searchProvKeyOperator(key, values, index + 1, hits);
+      hits = _searchProvKeyOperator(key, values, index + 1, hits);
     }
 
     return hits;
