@@ -541,10 +541,12 @@ class ProvenanceModel {
           }
 
           if (typeof value == "string") {
+            // For strings match on includes
             if (value.includes(searchValue)) {
               hits.add(this.nodeIDToJSON.getKey(json));
             }
           } else {
+            // For numbers and bools and all that match on equality
             if (value.toString() == searchValue) {
               hits.add(this.nodeIDToJSON.getKey(json));
             }
