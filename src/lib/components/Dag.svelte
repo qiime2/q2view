@@ -25,7 +25,6 @@
   }
 
   function _searchProvenanceValue(json: Array<any>, index: number): Set<string> {
-    console.log(json)
     const elem = json[index];
     let hits = new Set<string>;
 
@@ -197,35 +196,11 @@
   // what happens if param is in middle of complex key?
   export function searchProvenance(searchValue: string) {
     const parser = get_parser();
+    const myTransformer = new MyTransformer()
 
     const ast = parser.parse(searchValue);
-    const myTransformer = new MyTransformer()
     const json = myTransformer.transform(ast);
-    // console.log(ast);
-    // console.log(json)
-    // console.log(JSON.stringify(json))
-    // console.log(typeof JSON.stringify(json))
-    // console.log(typeof json)
-    // console.log(json.constructor === Array)
-  // this.key.is.esca\.ped: (("this" OR "that") AND "thing") AND (key1: 1 OR key2: (4 OR 5))
-
-    // for (const elem of json) {
-    //   console.log(elem)
-    // }
-    // return;
-
     const hits: Array<string> = Array.from(_searchProvenanceValue(json, 0));
-
-    // for (const token of tokens) {
-    //   hits.push(provenanceModel.searchJSON(token[0], token[1]));
-    // }
-
-    // let finalHits: Set<string> | Array<string> = hits[0];
-    // for (let i = 1; i < hits.length; i++) {
-    //   finalHits = finalHits.intersection(hits[i])
-    // }
-
-    // finalHits = Array.from(finalHits);
 
     // Sort the hit nodes by row then by col within a given row
     hits.sort((a, b) => {
@@ -253,68 +228,6 @@
     provSearchStore.set({
       searchHits: hits
     });
-  }
-
-  // TODO: Clean this up and make it work better
-  //
-  // Add ^start anchor AND end anchor$
-  //
-  // sampling_depth=1103 AND plugin=boots
-  // sampling_depth=1103 AND plugin="boots AND something"
-  // sampling_depth=1103 AND plugin="boots AND something" AND action=idk
-  function parser(searchValue: string, tokens: Array<Array<any>>) {
-    if (searchValue === "") {
-      return;
-    }
-
-    // The location of the = that separates key=values
-    const splitIndex = searchValue.indexOf("=");
-    // Everything before that = is the key
-    const keys = searchValue.split("=", 1)[0].split(":");
-
-    // The indices marking the beginning and end of the value that goes with
-    // the current key
-    let startValIndex = splitIndex + 1;
-    let endValIndex = searchValue.indexOf(" AND ");
-    let value = "";
-
-    // If the value starts with a quote, our value is everything between this
-    // quote and the next unescaped quote.
-    if (searchValue[startValIndex] === '"') {
-      // Increment past the opening quote
-      startValIndex++;
-      endValIndex++;
-
-      // Search for the next unescaped quote
-      do {
-        endValIndex = searchValue.indexOf('"', endValIndex);
-      } while (searchValue[endValIndex] === "\\")
-
-      // If we hit the end of the searchValue they didn't close their quote
-      if (endValIndex === -1) {
-        console.log(keys)
-        console.log("HERE")
-        // some kinda parse error
-      }
-
-      // Cut the value out
-      value = searchValue.slice(startValIndex, endValIndex);
-      // Increment past the next " AND "
-      endValIndex += 5;
-    } else {
-      endValIndex = searchValue.indexOf(" AND ");
-
-      if (endValIndex === -1) {
-        value = searchValue.slice(startValIndex);
-        endValIndex = searchValue.length;
-      } else {
-        value = searchValue.slice(startValIndex, endValIndex);
-        endValIndex += 5;
-      }
-    }
-
-    tokens.push([keys, value]);
-    parser(searchValue.slice(endValIndex), tokens);
   }
 
   export function selectSearchHit(hitUUID: string) {
