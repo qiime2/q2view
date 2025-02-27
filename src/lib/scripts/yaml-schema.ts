@@ -16,7 +16,11 @@ export default yaml.Schema.create(yaml.CORE_SCHEMA, [
   new yaml.Type("!ref", {
     kind: "scalar",
     resolve: (data) => data !== null,
-    construct: (data) => data,
+    construct: (data) => {
+      // Data will be of form environment:plugins:<plugin>
+      const plugin = data.split(":")[2];
+      return `q2-${plugin}`;
+    },
   }),
   new yaml.Type("!metadata", {
     kind: "scalar",
