@@ -215,9 +215,6 @@
         bNode = bNode.descendants()[0];
       }
 
-      console.log(aNode.data())
-      console.log(bNode.data())
-
       if (aNode.data().row === bNode.data().row) {
         return aNode.data().col - bNode.data().col;
       }
