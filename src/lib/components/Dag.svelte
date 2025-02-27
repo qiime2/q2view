@@ -28,6 +28,7 @@
     const elem = json[index];
     let hits = new Set<string>;
 
+    console.log(elem)
     if (elem.constructor === Array) {
       hits = _searchProvenanceValue(elem, 0);
     } else if (elem.constructor === _Pair) {
@@ -37,13 +38,13 @@
     }
 
     if (index < (json.length - 1)) {
-      _searchProvenanceOperator(json, index + 1, hits);
+      hits = _searchProvenanceOperator(json, index + 1, hits);
     }
 
     return hits;
   }
 
-  function _searchProvenanceOperator(json: Array<any>, index: number, hits: Set<string>) {
+  function _searchProvenanceOperator(json: Array<any>, index: number, hits: Set<string>): Set<string> {
     const elem = json[index];
     const next_hits = _searchProvenanceValue(json, index + 1);
 
@@ -54,6 +55,8 @@
     } else {
       // TODO: ERROR
     }
+
+    return hits;
   }
 
   function _searchProvKey(key: Array<string>, value: any): Set<string> {
@@ -85,7 +88,7 @@
     return hits;
   }
 
-  function _searchProvKeyOperator(key: Array<string>, values: Array<any>, index: number, hits: Set<string>) {
+  function _searchProvKeyOperator(key: Array<string>, values: Array<any>, index: number, hits: Set<string>): Set<string> {
     const elem = values[index];
     const next_hits = _searchProvKeyValue(key, values, index + 1);
 
@@ -96,6 +99,8 @@
     } else {
       // TODO: ERROR
     }
+
+    return hits;
   }
 
   class MyTransformer extends Transformer {
