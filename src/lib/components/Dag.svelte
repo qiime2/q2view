@@ -11,6 +11,94 @@
   let self: HTMLDivElement;
   let cy: cytoscape.Core;
 
+  const OR = "|";
+  const AND = "&";
+
+  class _Pair {
+    key: Array<string>;
+    value: any;
+
+    constructor(key: Array<string>, value: any) {
+      this.key = key
+      this.value = value;
+    }
+  }
+
+  function _searchProvenanceValue(json: Array<any>, index: number): Set<string> {
+    console.log(json)
+    const elem = json[index];
+    let hits = new Set<string>;
+
+    if (elem.constructor === Array) {
+      hits = _searchProvenanceValue(elem, 0);
+    } else if (elem.constructor === _Pair) {
+      hits = _searchProvKey(elem.key, elem.value)
+    } else {
+      // TODO: ERROR
+    }
+
+    if (index < (json.length - 1)) {
+      _searchProvenanceOperator(json, index + 1, hits);
+    }
+
+    return hits;
+  }
+
+  function _searchProvenanceOperator(json: Array<any>, index: number, hits: Set<string>) {
+    const elem = json[index];
+    const next_hits = _searchProvenanceValue(json, index + 1);
+
+    if (elem === OR) {
+      hits = hits.union(next_hits);
+    } else if (elem === AND) {
+      hits = hits.intersection(next_hits);
+    } else {
+      // TODO: ERROR
+    }
+  }
+
+  function _searchProvKey(key: Array<string>, value: any): Set<string> {
+    let hits = new Set<string>;
+
+    if (value.constructor === Array) {
+      hits = _searchProvKeyValue(key, value, 0);
+    } else {
+      hits = provenanceModel.searchJSON(key, value);
+    }
+
+    return hits;
+  }
+
+  function _searchProvKeyValue(key: Array<string>, values: Array<any>, index: number): Set<string> {
+    const elem = values[index];
+    let hits = new Set<string>;
+
+    if (elem.constructor === Array) {
+      hits = _searchProvKeyValue(key, elem, 0);
+    } else {
+      hits = _searchProvKey(key, elem);
+    }
+
+    if (index < (values.length - 1)) {
+      _searchProvKeyOperator(key, values, index + 1, hits);
+    }
+
+    return hits;
+  }
+
+  function _searchProvKeyOperator(key: Array<string>, values: Array<any>, index: number, hits: Set<string>) {
+    const elem = values[index];
+    const next_hits = _searchProvKeyValue(key, values, index + 1);
+
+    if (elem === OR) {
+      hits = hits.union(next_hits);
+    } else if (elem === AND) {
+      hits = hits.intersection(next_hits);
+    } else {
+      // TODO: ERROR
+    }
+  }
+
   class MyTransformer extends Transformer {
     start(start) {
       return start;
@@ -24,7 +112,7 @@
       const key = pair[0];
       const value = pair[1];
 
-      return {[key]: value};
+      return new _Pair(key, value);
     }
 
     pair_group(pair_group) {
@@ -77,12 +165,12 @@
       return null;
     }
 
-    AND(_) {
-      return "&";
+    OR(_) {
+      return OR;
     }
 
-    OR(_) {
-      return "|";
+    AND(_) {
+      return AND;
     }
 
     KEY_SEP(_) {
@@ -110,30 +198,37 @@
   export function searchProvenance(searchValue: string) {
     const parser = get_parser();
 
-    // const tokens: Array<Array<any>> = [];
     const ast = parser.parse(searchValue);
-    console.log(ast);
     const myTransformer = new MyTransformer()
     const json = myTransformer.transform(ast);
-    console.log(json)
-    console.log(JSON.stringify(json))
-    return;
+    // console.log(ast);
+    // console.log(json)
+    // console.log(JSON.stringify(json))
+    // console.log(typeof JSON.stringify(json))
+    // console.log(typeof json)
+    // console.log(json.constructor === Array)
+  // this.key.is.esca\.ped: (("this" OR "that") AND "thing") AND (key1: 1 OR key2: (4 OR 5))
 
-    const hits: Array<Set<string>> = [];
+    // for (const elem of json) {
+    //   console.log(elem)
+    // }
+    // return;
 
-    for (const token of tokens) {
-      hits.push(provenanceModel.searchJSON(token[0], token[1]));
-    }
+    const hits: Array<string> = Array.from(_searchProvenanceValue(json, 0));
 
-    let finalHits: Set<string> | Array<string> = hits[0];
-    for (let i = 1; i < hits.length; i++) {
-      finalHits = finalHits.intersection(hits[i])
-    }
+    // for (const token of tokens) {
+    //   hits.push(provenanceModel.searchJSON(token[0], token[1]));
+    // }
 
-    finalHits = Array.from(finalHits);
+    // let finalHits: Set<string> | Array<string> = hits[0];
+    // for (let i = 1; i < hits.length; i++) {
+    //   finalHits = finalHits.intersection(hits[i])
+    // }
+
+    // finalHits = Array.from(finalHits);
 
     // Sort the hit nodes by row then by col within a given row
-    finalHits.sort((a, b) => {
+    hits.sort((a, b) => {
       let aNode: any = cy.$id(a);
       let bNode: any = cy.$id(b);
 
@@ -156,7 +251,7 @@
     });
 
     provSearchStore.set({
-      searchHits: finalHits
+      searchHits: hits
     });
   }
 
@@ -291,10 +386,6 @@
   function setActionSelection(uuid: string) {
     provenanceModel.provTitle = "Action Details";
     const selectionData = provenanceModel.nodeIDToJSON.get(uuid);
-    console.log(selectionData["execution"]["runtime"]["start"]);
-    // console.log(selectionData["execution"]["runtime"]["start"].toISOString());
-    console.log(typeof selectionData["execution"]["runtime"]["start"]);
-    console.log(selectionData["execution"]["runtime"]["start"].constructor.name);
     _setSelection(selectionData);
   }
 
