@@ -28,7 +28,6 @@
     const elem = json[index];
     let hits = new Set<string>;
 
-    console.log(elem)
     if (elem.constructor === Array) {
       hits = _searchProvenanceValue(elem, 0);
     } else if (elem.constructor === _Pair) {
