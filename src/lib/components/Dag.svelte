@@ -5,51 +5,10 @@
 
   import provenanceModel from "$lib/models/provenanceModel";
   import cytoscape from "cytoscape";
-  import { provSearchStore } from "$lib/scripts/prov-search-store";
-  import { searchProvenance } from "$lib/scripts/provSearchUtils";
+  import ProvSearchbar from "./ProvSearchbar.svelte";
 
   let self: HTMLDivElement;
   let cy: cytoscape.Core;
-
-  export function handleProvenanceSearch(searchValue: string) {
-    const hits = searchProvenance(searchValue);
-
-    // Sort the hit nodes by row then by col within a given row
-    hits.sort((a, b) => {
-      let aNode: any = cy.$id(a);
-      let bNode: any = cy.$id(b);
-
-      if (aNode.descendants().length > 0) {
-        aNode = aNode.descendants()[0];
-      }
-
-      if (bNode.descendants().length > 0) {
-        bNode = bNode.descendants()[0];
-      }
-
-      if (aNode.data().row === bNode.data().row) {
-        return aNode.data().col - bNode.data().col;
-      }
-
-      return aNode.data().row - bNode.data().row;
-    });
-
-    provSearchStore.set({
-      searchHits: hits
-    });
-  }
-
-  export function selectSearchHit(hitUUID: string) {
-    const elem = cy.$id(hitUUID);
-    elem.select();
-    cy.center(elem);
-
-    // Pan to put the focused node near the top of the viewport
-    cy.panBy({
-      x: 0,
-      y: ((provenanceModel.height - 2) / 2) * -105
-    })
-  }
 
   const cytoscapeConfig = {
     boxSelectionEnabled: true,
@@ -132,11 +91,6 @@
   }
 
   onMount(() => {
-    // null this out when mounting a new DAG
-    provSearchStore.set({
-      searchHits: new Set()
-    });
-
     // Set this height so we center the DAG based on this height
     let displayHeight = (provenanceModel.height + 1) * 105;
     self.style.setProperty("height", `${displayHeight}px`);
@@ -196,10 +150,13 @@
   });
 </script>
 
-<div
-  bind:this={self}
-  id="cy"
-/>
+<div>
+  <ProvSearchbar height={provenanceModel.height} {cy}/>
+  <div
+    bind:this={self}
+    id="cy"
+  />
+</div>
 
 <style lang="postcss">
   #cy {
