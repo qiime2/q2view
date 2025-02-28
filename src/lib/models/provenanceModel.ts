@@ -546,8 +546,8 @@ class ProvenanceModel {
               hits.add(this.nodeIDToJSON.getKey(json));
             }
           } else {
-            // For numbers and bools and all that match on equality
-            if (value.toString() == searchValue) {
+            // For numbers and bools and null match on equality
+            if (value === searchValue) {
               hits.add(this.nodeIDToJSON.getKey(json));
             }
           }

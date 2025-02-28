@@ -61,10 +61,12 @@
   function _searchProvKey(key: Array<string>, value: any): Set<string> {
     let hits = new Set<string>;
 
-    if (value.constructor === Array) {
-      hits = _searchProvKeyValue(key, value, 0);
-    } else {
+    if (value === null || value.constructor !== Array) {
+      // Need to check this first because null.constructor is an error
       hits = provenanceModel.searchJSON(key, value);
+    } else {
+      // value.constructor must === Array
+      hits = _searchProvKeyValue(key, value, 0);
     }
 
     return hits;
