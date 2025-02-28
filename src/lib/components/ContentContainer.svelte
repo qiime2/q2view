@@ -133,7 +133,6 @@
     left: 0%;
     @apply lg:absolute
     lg:grid
-    lg:grid-rows-[5%_99%]
     lg:grid-cols-[70%_30%]
     w-full
     gap-2;
