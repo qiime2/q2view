@@ -11,19 +11,6 @@
   let self: HTMLDivElement;
   let cy: cytoscape.Core;
 
-  // Search syntax something like
-  //
-  // param:sampling_depth=1103 AND action=core_metrics AND plugin=boots
-  //
-  // If you are searching for a string value that contains = or : or " AND " you
-  // will need to put that string in quotes
-  // If the string contains quotes, they will need to be escaped e.g. \"
-  // If the string contains \" add additional \ e.g. \\"
-  //
-  // param/params/parameter/parameters and input as special keys?
-  // param and co. match if parameters is above terminal key in path
-  // inputs mathes if inputs is above terminal key in path
-  // what happens if param is in middle of complex key?
   export function handleProvenanceSearch(searchValue: string) {
     const hits = searchProvenance(searchValue);
 

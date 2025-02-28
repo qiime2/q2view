@@ -25,7 +25,7 @@ class MyTransformer extends Transformer {
   }
 
   value_group(list) {
-    return list
+    return list;
   }
 
   // They key allows for the union of valid Python identifiers and valid
@@ -47,7 +47,7 @@ class MyTransformer extends Transformer {
   }
 
   value(value) {
-      return value[0];
+    return value[0];
   }
 
   STRING(string) {
@@ -92,31 +92,35 @@ class _Pair {
   value: any;
 
   constructor(key: Array<string>, value: any) {
-    this.key = key
+    this.key = key;
     this.value = value;
   }
 }
 
 function _searchProvenanceValue(json: Array<any>, index: number): Set<string> {
   const elem = json[index];
-  let hits = new Set<string>;
+  let hits = new Set<string>();
 
   if (elem.constructor === Array) {
     hits = _searchProvenanceValue(elem, 0);
   } else if (elem.constructor === _Pair) {
-    hits = _searchProvKey(elem.key, elem.value)
+    hits = _searchProvKey(elem.key, elem.value);
   } else {
     // TODO: ERROR
   }
 
-  if (index < (json.length - 1)) {
+  if (index < json.length - 1) {
     hits = _searchProvenanceOperator(json, index + 1, hits);
   }
 
   return hits;
 }
 
-function _searchProvenanceOperator(json: Array<any>, index: number, hits: Set<string>): Set<string> {
+function _searchProvenanceOperator(
+  json: Array<any>,
+  index: number,
+  hits: Set<string>,
+): Set<string> {
   const elem = json[index];
   const next_hits = _searchProvenanceValue(json, index + 1);
 
@@ -132,7 +136,7 @@ function _searchProvenanceOperator(json: Array<any>, index: number, hits: Set<st
 }
 
 function _searchProvKey(key: Array<string>, value: any): Set<string> {
-  let hits = new Set<string>;
+  let hits = new Set<string>();
 
   if (value === null || value.constructor !== Array) {
     // Need to check this first because null.constructor is an error
@@ -145,9 +149,13 @@ function _searchProvKey(key: Array<string>, value: any): Set<string> {
   return hits;
 }
 
-function _searchProvKeyValue(key: Array<string>, values: Array<any>, index: number): Set<string> {
+function _searchProvKeyValue(
+  key: Array<string>,
+  values: Array<any>,
+  index: number,
+): Set<string> {
   const elem = values[index];
-  let hits = new Set<string>;
+  let hits = new Set<string>();
 
   if (elem.constructor === Array) {
     hits = _searchProvKeyValue(key, elem, 0);
@@ -155,14 +163,19 @@ function _searchProvKeyValue(key: Array<string>, values: Array<any>, index: numb
     hits = _searchProvKey(key, elem);
   }
 
-  if (index < (values.length - 1)) {
+  if (index < values.length - 1) {
     hits = _searchProvKeyOperator(key, values, index + 1, hits);
   }
 
   return hits;
 }
 
-function _searchProvKeyOperator(key: Array<string>, values: Array<any>, index: number, hits: Set<string>): Set<string> {
+function _searchProvKeyOperator(
+  key: Array<string>,
+  values: Array<any>,
+  index: number,
+  hits: Set<string>,
+): Set<string> {
   const elem = values[index];
   const next_hits = _searchProvKeyValue(key, values, index + 1);
 
@@ -179,7 +192,7 @@ function _searchProvKeyOperator(key: Array<string>, values: Array<any>, index: n
 
 export function searchProvenance(searchValue: string) {
   const parser = get_parser();
-  const myTransformer = new MyTransformer()
+  const myTransformer = new MyTransformer();
 
   const ast = parser.parse(searchValue);
   const json = myTransformer.transform(ast);
