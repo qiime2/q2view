@@ -65,7 +65,7 @@
       // Need to check this first because null.constructor is an error
       hits = provenanceModel.searchJSON(key, value);
     } else {
-      // value.constructor must === Array
+      // value.constructor === Array
       hits = _searchProvKeyValue(key, value, 0);
     }
 
