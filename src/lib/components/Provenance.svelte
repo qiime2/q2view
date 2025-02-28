@@ -36,7 +36,7 @@
       </label>
       <button on:click={() => {
         searchIndex = 1;
-        DAG.searchProvenance(value)
+        DAG.handleProvenanceSearch(value)
       }}>GO</button>
     </form>
     {#if searchHits.length > 0}

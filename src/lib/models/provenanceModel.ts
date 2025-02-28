@@ -10,6 +10,11 @@ import { getAllObjectKeysRecursively } from "$lib/scripts/util";
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
 
+// Define anchor constants for searching
+const START_ANCHOR = "^";
+const END_ANCHOR = "$";
+const ESCAPED_END_ANCHOR = "$";
+
 /**
  * This class is a subscribable svelte store that manages parsing and storing provenance
  * information for the provided Result.
@@ -523,7 +528,7 @@ class ProvenanceModel {
     );
   }
 
-  searchJSON(key: Array<string>, searchValue: string) {
+  searchJSON(key: Array<string>, searchValue: any) {
     const hits = new Set<string>();
 
     for (const json of this.nodeIDToJSON.values()) {
@@ -540,15 +545,27 @@ class ProvenanceModel {
             value = value[_key[i]];
           }
 
-          if (typeof value == "string") {
-            if (searchValue[0] === "^") {
-              // Start anchor
+          if (typeof value == "string" && typeof searchValue === "string") {
+            // For strings, we need to get fiddly with the matching
+            if (
+              searchValue.startsWith(START_ANCHOR) &&
+              searchValue.endsWith(END_ANCHOR) &&
+              !searchValue.endsWith(ESCAPED_END_ANCHOR)
+            ) {
+              // Start anchor and end anchor match on equality
+              if (value === searchValue.slice(1, -1)) {
+                hits.add(this.nodeIDToJSON.getKey(json));
+              }
+            } else if (searchValue.startsWith(START_ANCHOR)) {
+              // Start anchor match on starts with
               if (value.startsWith(searchValue.slice(1))) {
                 hits.add(this.nodeIDToJSON.getKey(json));
               }
-            } else if (searchValue[searchValue.length - 1] === "$") {
-              // End anchor
-              // TODO: end anchor needs to explicitly check for \$ for a $ literal
+            } else if (
+              searchValue.endsWith(END_ANCHOR) &&
+              !searchValue.endsWith(ESCAPED_END_ANCHOR)
+            ) {
+              // End anchor match on ends with
               if (value.endsWith(searchValue.slice(0, -1))) {
                 hits.add(this.nodeIDToJSON.getKey(json));
               }
@@ -556,11 +573,9 @@ class ProvenanceModel {
               // No anchor match on includes
               hits.add(this.nodeIDToJSON.getKey(json));
             }
-          } else {
-            // For numbers and bools and null match on equality
-            if (value === searchValue) {
-              hits.add(this.nodeIDToJSON.getKey(json));
-            }
+          } else if (value === searchValue) {
+            // For other things (numbers, bools, null) match on equality
+            hits.add(this.nodeIDToJSON.getKey(json));
           }
         }
       }
