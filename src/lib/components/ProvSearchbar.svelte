@@ -125,7 +125,7 @@
   </button>
   <button
     on:click={() => selectSearchHit(searchHits[searchIndex])}
-    class="roundButton"
+    class="roundButton textButton"
   >
     Center on Result
   </button>
@@ -134,7 +134,7 @@
       searchHits = [];
       value = "";
     }}
-    class="roundButton"
+    class="roundButton textButton"
   >
     Clear Search
   </button>
@@ -143,5 +143,16 @@
 <style lang="postcss">
   input {
     width: 100%;
+  }
+
+  .textButton {
+    @apply border
+    border-gray-300
+    bg-gray-200
+    mb-4;
+  }
+
+  .textButton:hover {
+    @apply bg-gray-300;
   }
 </style>
