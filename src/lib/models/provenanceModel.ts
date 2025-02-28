@@ -13,7 +13,7 @@ const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
 // Define anchor constants for searching
 const START_ANCHOR = "^";
 const END_ANCHOR = "$";
-const ESCAPED_END_ANCHOR = "$";
+const ESCAPED_END_ANCHOR = "\\$";
 
 /**
  * This class is a subscribable svelte store that manages parsing and storing provenance
