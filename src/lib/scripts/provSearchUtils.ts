@@ -97,6 +97,19 @@ class _Pair {
   }
 }
 
+//*****************************************************************************
+// Unbelievably Set.Union and Set.Intersection were only added to the
+// ECMAScript standard in 2024, so I'm going to implement them here in ways
+// that will workon older js.
+//****************************************************************************/
+function _setUnion(setA: Set<string>, setB: Set<string>) {
+  return new Set([...setA, ...setB]);
+}
+
+function _setIntersection(setA: Set<string>, setB: Set<string>) {
+  return new Set([...setA].filter((elem) => setB.has(elem)));
+}
+
 function _searchProvenanceValue(json: Array<any>, index: number): Set<string> {
   const elem = json[index];
   let hits = new Set<string>();
@@ -125,9 +138,9 @@ function _searchProvenanceOperator(
   const next_hits = _searchProvenanceValue(json, index + 1);
 
   if (elem === OR) {
-    hits = hits.union(next_hits);
+    hits = _setUnion(hits, next_hits);
   } else if (elem === AND) {
-    hits = hits.intersection(next_hits);
+    hits = _setIntersection(hits, next_hits);
   } else {
     // TODO: ERROR
   }
@@ -180,9 +193,9 @@ function _searchProvKeyOperator(
   const next_hits = _searchProvKeyValue(key, values, index + 1);
 
   if (elem === OR) {
-    hits = hits.union(next_hits);
+    hits = _setUnion(hits, next_hits);
   } else if (elem === AND) {
-    hits = hits.intersection(next_hits);
+    hits = _setIntersection(hits, next_hits);
   } else {
     // TODO: ERROR
   }
