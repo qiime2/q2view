@@ -100,7 +100,7 @@ class _Pair {
 //*****************************************************************************
 // Unbelievably Set.Union and Set.Intersection were only added to the
 // ECMAScript standard in 2024, so I'm going to implement them here in ways
-// that will workon older js.
+// that will work on older js.
 //****************************************************************************/
 function _setUnion(setA: Set<string>, setB: Set<string>) {
   return new Set([...setA, ...setB]);
