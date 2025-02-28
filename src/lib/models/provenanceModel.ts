@@ -541,8 +541,19 @@ class ProvenanceModel {
           }
 
           if (typeof value == "string") {
-            // For strings match on includes
-            if (value.includes(searchValue)) {
+            if (searchValue[0] === "^") {
+              // Start anchor
+              if (value.startsWith(searchValue.slice(1))) {
+                hits.add(this.nodeIDToJSON.getKey(json));
+              }
+            } else if (searchValue[searchValue.length - 1] === "$") {
+              // End anchor
+              // TODO: end anchor needs to explicitly check for \$ for a $ literal
+              if (value.endsWith(searchValue.slice(0, -1))) {
+                hits.add(this.nodeIDToJSON.getKey(json));
+              }
+            } else if (value.includes(searchValue)) {
+              // No anchor match on includes
               hits.add(this.nodeIDToJSON.getKey(json));
             }
           } else {
