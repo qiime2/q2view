@@ -149,7 +149,8 @@
     @apply border
     border-gray-300
     bg-gray-200
-    mb-4;
+    mb-4
+    mx-2;
   }
 
   .textButton:hover {
