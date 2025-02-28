@@ -9,6 +9,7 @@
     <button
         class={$url.pathname.replaceAll("/", "") === "visualization" ? "selected-nav-button nav-button" : "nav-button"}
         on:click={() => (history.pushState({}, "", "/visualization/"+window.location.search))}
+        title='Visualization'
     >
       Visualization
     </button>
@@ -19,6 +20,7 @@
     <button
         class={$url.pathname.replaceAll("/", "") === "citations" ? "selected-nav-button nav-button" : "nav-button"}
         on:click={() => (history.pushState({}, "", "/citations/"+window.location.search))}
+        title='Citations'
     >
       Citations
     </button>
@@ -27,6 +29,7 @@
     <button
         class={$url.pathname.replaceAll("/", "") === "provenance" ? "selected-nav-button nav-button" : "nav-button"}
         on:click={() => (history.pushState({}, "", "/provenance/"+window.location.search))}
+        title='Provenance'
     >
       Provenance
     </button>
