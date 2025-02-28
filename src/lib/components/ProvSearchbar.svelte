@@ -1,6 +1,5 @@
 <script lang="ts">
   import "../../app.css";
-  import { provSearchStore } from "$lib/scripts/prov-search-store";
   import cytoscape from "cytoscape";
   import { searchProvenance } from "$lib/scripts/provSearchUtils";
   import { onMount } from "svelte";
@@ -8,20 +7,16 @@
   export let height: number;
   export let cy: cytoscape.Core;
 
-  let value: string = '';
+  let value: string = "";
+  let searchIndex: number = 0;
+  let searchHits: Array<string> = [];
 
-  let searchIndex = 0;
-  let searchHits: Array<string>;
-
-  provSearchStore.subscribe((value) => {
-    searchHits = value.searchHits
-  });
-
-  function _handleProvenanceSearch(searchValue: string) {
-    const hits = searchProvenance(searchValue);
+  function _handleProvenanceSearch() {
+    searchIndex = 0;
+    searchHits = searchProvenance(value);
 
     // Sort the hit nodes by row then by col within a given row
-    hits.sort((a, b) => {
+    searchHits.sort((a, b) => {
       let aNode: any = cy.$id(a);
       let bNode: any = cy.$id(b);
 
@@ -40,16 +35,14 @@
       return aNode.data().row - bNode.data().row;
     });
 
-    provSearchStore.set({
-      searchHits: hits
-    });
+    _selectSearchHit();
   }
 
   function _selectSearchHit() {
     const hitUUID = searchHits[searchIndex];
 
     if (hitUUID === undefined) {
-      // This will happen if the button is clicked with no search results
+      // This will happen if there are no searc hits
       return;
     } else {
       const elem = cy.$id(hitUUID);
@@ -95,23 +88,18 @@
   }
 
   function _clearSearch() {
+    value = "";
     searchIndex = 0;
     searchHits = [];
-    value = "";
   }
 
   onMount(() => {
-    // null this out when mounting a new DAG
-    searchIndex = 0;
-
-    provSearchStore.set({
-      searchHits: []
-    });
+    // reininit this out when mounting a new DAG
+    _clearSearch();
   })
-
 </script>
 
-<form on:submit|preventDefault={() => {searchIndex = 0; _handleProvenanceSearch(value)}}>
+<form on:submit|preventDefault={_handleProvenanceSearch}>
   <label>
       Search Provenance:
       <input class="roundInput" bind:value />
