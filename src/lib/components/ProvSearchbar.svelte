@@ -17,7 +17,7 @@
     searchHits = value.searchHits
   });
 
-  export function handleProvenanceSearch(searchValue: string) {
+  function _handleProvenanceSearch(searchValue: string) {
     const hits = searchProvenance(searchValue);
 
     // Sort the hit nodes by row then by col within a given row
@@ -45,8 +45,11 @@
     });
   }
 
-  export function selectSearchHit(hitUUID: string) {
+  function _selectSearchHit() {
+    const hitUUID = searchHits[searchIndex];
+
     if (hitUUID === undefined) {
+      // This will happen if the button is clicked with no search results
       return;
     } else {
       const elem = cy.$id(hitUUID);
@@ -61,6 +64,42 @@
     }
   }
 
+  function _decrementSearchIndex() {
+    if (searchHits.length === 0) {
+      // This will happen if the button is clicked with no search results
+      return;
+    }
+
+    if (searchIndex > 0) {
+      searchIndex--;
+    } else {
+      searchIndex = searchHits.length - 1;
+    }
+
+    _selectSearchHit();
+  }
+
+  function _incrementSearchIndex() {
+    if (searchHits.length === 0) {
+      // This will happen if the button is clicked with no search results
+      return;
+    }
+
+    if (searchIndex < searchHits.length - 1) {
+      searchIndex++;
+    } else {
+      searchIndex = 0;
+    }
+
+    _selectSearchHit();
+  }
+
+  function _clearSearch() {
+    searchIndex = 0;
+    searchHits = [];
+    value = "";
+  }
+
   onMount(() => {
     // null this out when mounting a new DAG
     searchIndex = 0;
@@ -72,7 +111,7 @@
 
 </script>
 
-<form on:submit|preventDefault={() => {searchIndex = 0; handleProvenanceSearch(value)}}>
+<form on:submit|preventDefault={() => {searchIndex = 0; _handleProvenanceSearch(value)}}>
   <label>
       Search Provenance:
       <input class="roundInput" bind:value />
@@ -80,15 +119,7 @@
 </form>
 <div class="mx-auto">
   <button
-    on:click={() => {
-        if (searchIndex > 0) {
-            searchIndex--;
-        } else {
-          searchIndex = searchHits.length - 1;
-        }
-
-        selectSearchHit(searchHits[searchIndex]);
-    }}
+    on:click={_decrementSearchIndex}
     class="roundButton"
   >
   <svg fill="none"
@@ -103,15 +134,7 @@
   <!-- Show 0/0 when no results -->
   {searchHits.length > 0 ? searchIndex + 1 : searchIndex}/{searchHits.length}
   <button
-    on:click={() => {
-      if (searchIndex < searchHits.length - 1) {
-        searchIndex++;
-      } else {
-        searchIndex = 0;
-      }
-
-      selectSearchHit(searchHits[searchIndex]);
-    }}
+    on:click={_incrementSearchIndex}
     class="roundButton"
   >
     <svg fill="none"
@@ -124,16 +147,13 @@
     </svg>
   </button>
   <button
-    on:click={() => selectSearchHit(searchHits[searchIndex])}
+    on:click={_selectSearchHit}
     class="roundButton textButton"
   >
     Center on Result
   </button>
   <button
-    on:click={() => {
-      searchHits = [];
-      value = "";
-    }}
+    on:click={_clearSearch}
     class="roundButton textButton"
   >
     Clear Search
