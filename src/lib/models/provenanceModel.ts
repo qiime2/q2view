@@ -6,8 +6,15 @@ import JSZip from "jszip";
 
 import BiMap from "$lib/scripts/biMap";
 import { getYAML } from "$lib/scripts/fileutils";
+import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
+
+let currentMetadata: Array<{}>;
+
+currentMetadataStore.subscribe((value) => {
+  currentMetadata = value.currentMetadata;
+});
 
 /**
  * This class is a subscribable svelte store that manages parsing and storing provenance
@@ -38,6 +45,8 @@ class ProvenanceModel {
   jsonKeysToJSON = new Map();
   nodeIDToJSON = new BiMap();
   keys: Set<string> = new Set();
+
+  metadataMap: Map<string, Array<{}>> = new Map();
 
   // Class attributes passed in by readerModel pertaining to currently loaded
   // Result
@@ -93,6 +102,8 @@ class ProvenanceModel {
     this.jsonKeysToJSON.clear();
     this.nodeIDToJSON.clear();
     this.keys = new Set();
+
+    this.metadataMap = new Map();
 
     this.uuid = uuid;
     this.zipReader = zipReader;
@@ -158,6 +169,10 @@ class ProvenanceModel {
       // If we have already seen this Result then short circuit
       return this.heightMap.get(sourceActionUUID);
     }
+
+    // If we get here we haven't seen this result yet so we need to track any
+    // metadata it might have
+    this._handleMetadata(resultUUID)
 
     // If we have already seen this Action then short circuit
     if (await this._handleAction(resultID, sourceActionUUID, sourceAction)) {
@@ -323,6 +338,24 @@ class ProvenanceModel {
   }
 
   /**
+   * Checks if we parsed any metadata from this artifact and tracks it if we
+   * did
+   *
+   * @param {string} resultUUID - The UUID of the result containing this
+   * metadata in its provenance.
+   */
+  _handleMetadata(resultUUID: string) {
+    if (currentMetadata.length !== 0) {
+      this.metadataMap.set(resultUUID, currentMetadata);
+
+      // Set this back to empty for the next artifact that has metadata
+      currentMetadataStore.set({
+        currentMetadata: [],
+      });
+    }
+  }
+
+  /**
    * Iterate over and recurse up from all Results that were provided as QIIME 2
    * inputs to the Action that produced the Result we are currently parsing.
    *
@@ -470,6 +503,7 @@ class ProvenanceModel {
     }
 
     this.elements.push(...this.resultNodes);
+    console.log(this.metadataMap);
   }
 
   /**
