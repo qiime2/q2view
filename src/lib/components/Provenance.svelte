@@ -13,7 +13,7 @@
   {#if $provenanceModel.provData !== undefined}
     <div class="JSONTree">
       <JSONTree
-        value={provenanceModel.provData}
+        value={$provenanceModel.provData}
         defaultExpandedLevel={100}
         shouldShowPreview={false}
       />
