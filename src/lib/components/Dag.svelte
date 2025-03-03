@@ -7,7 +7,6 @@
   import cytoscape from "cytoscape";
 
   let self: HTMLDivElement;
-  let cy: cytoscape.Core;
 
   const cytoscapeConfig = {
     boxSelectionEnabled: true,
@@ -96,7 +95,7 @@
 
     let lock = false; // used to prevent recursive event storms
     let selectedExists = false;
-    cy = cytoscape({
+    let cy = cytoscape({
       ...cytoscapeConfig,
       container: document.getElementById("cy"),
       elements: provenanceModel.elements
