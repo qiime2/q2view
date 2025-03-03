@@ -12,9 +12,11 @@
   import DropZone from "$lib/components/DropZone.svelte";
   import UrlInput from "$lib/components/UrlInput.svelte";
   import Provenance from "$lib/components/Provenance.svelte";
+  import Metadata from "$lib/components/Metadata.svelte";
   import About from "$lib/components/About.svelte";
   import Error from "$lib/components/Error.svelte";
   import Loading from "$lib/components/Loading.svelte";
+  import provenanceModel from "$lib/models/provenanceModel";
 
   let loadingComponent: undefined | HTMLElement;
 </script>
@@ -81,6 +83,15 @@
           : "hidden-tab"}
       >
         <Provenance />
+      </div>
+    {/if}
+    {#if $provenanceModel.metadataMap.size !== 0}
+      <div
+        class={$url.pathname.replaceAll("/", "") === "metadata" && $loading.status !== "LOADING"
+          ? "tab"
+          : "hidden-tab"}
+      >
+        <Metadata />
       </div>
     {/if}
   </div>
