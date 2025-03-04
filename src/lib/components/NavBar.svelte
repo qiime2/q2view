@@ -11,7 +11,7 @@
 
   import { createCollapsible, createDropdownMenu, melt } from "@melt-ui/svelte";
   import { slide, fly } from "svelte/transition";
-    import NavBanner from "./NavBanner.svelte";
+  import NavBanner from "./NavBanner.svelte";
 
   onMount(() => {
     const nav_dropdown = document.getElementById("nav-dropdown") as Element;
@@ -115,42 +115,42 @@
           {/if}
         </ul>
       {/if}
+      <!-- If the screen is wide enough slap the buttons here in a grid -->
       <ul class="hidden lg:grid grid-flow-col gap-6 items-center">
         <NavButtons {readerModel} />
       </ul>
-      {#if $readerModel.indexPath || $readerModel.rawSrc}
-        <div class="flex ml-auto lg:hidden">
-          <button use:melt={$triggerCollapsible} class={$openCollapsible ? "selected-nav-button" : "nav-button"}>
-            {#if $openCollapsible}
-              <svg
-                fill="none"
-                viewBox="0 0 20 20"
-                class="nav-thumbnail"
-              >
-                <title>Close Collapsible</title>
-                <path
-                  stroke-width="3"
-                  stroke="black"
-                  d="M2 18L18 2M18 18L2 2"
-                />
-              </svg>
-            {:else}
-              <svg
-                fill="none"
-                viewBox="0 0 20 20"
-                class="nav-thumbnail"
-              >
-                <title>Open Collapsible</title>
-                <path
-                  stroke-width="3"
-                  stroke="black"
-                  d="M2 2L18 2M2 10L18 10M2 18L18 18"
-                />
-              </svg>
-            {/if}
-          </button>
-        </div>
-      {/if}
+      <!-- If it isn't wide enough make them collapsible -->
+      <div class="flex ml-auto lg:hidden">
+        <button use:melt={$triggerCollapsible} class={$openCollapsible ? "selected-nav-button" : "nav-button"}>
+          {#if $openCollapsible}
+            <svg
+              fill="none"
+              viewBox="0 0 20 20"
+              class="nav-thumbnail"
+            >
+              <title>Close Collapsible</title>
+              <path
+                stroke-width="3"
+                stroke="black"
+                d="M2 18L18 2M18 18L2 2"
+              />
+            </svg>
+          {:else}
+            <svg
+              fill="none"
+              viewBox="0 0 20 20"
+              class="nav-thumbnail"
+            >
+              <title>Open Collapsible</title>
+              <path
+                stroke-width="3"
+                stroke="black"
+                d="M2 2L18 2M2 10L18 10M2 18L18 18"
+              />
+            </svg>
+          {/if}
+        </button>
+      </div>
       <ul class="grid grid-flow-col items-center gap-6">
         {#if $readerModel.sourceType === "remote"}
           <li class='ml-6'>
@@ -158,7 +158,6 @@
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
               </svg>
-
             </button>
             {#if $openDropdown}
               <div use:melt={$menu} transition:fly id="dropdown">
@@ -284,6 +283,7 @@
     text-gray-950
     border-b-[#e39e54];
   }
+
   :global(.nav-button::before) {
     @apply font-bold;
     display: block;
@@ -294,5 +294,4 @@
     overflow: hidden;
     visibility: hidden;
   }
-
 </style>
