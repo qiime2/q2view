@@ -34,15 +34,15 @@
       Provenance
     </button>
   </li>
-{/if}
-{#if $provenanceModel.metadataMap.size !== 0}
-  <li>
-    <button
-        class={$url.pathname.replaceAll("/", "") === "metadata" ? "selected-nav-button nav-button" : "nav-button"}
-        on:click={() => (history.pushState({}, "", "/metadata/"+window.location.search))}
-        title='Metadata'
-    >
-      Metadata
-    </button>
-  </li>
+  {#if $provenanceModel.metadataMap.size !== 0}
+    <li>
+      <button
+          class={$url.pathname.replaceAll("/", "") === "metadata" ? "selected-nav-button nav-button" : "nav-button"}
+          on:click={() => (history.pushState({}, "", "/metadata/"+window.location.search))}
+          title='Metadata'
+      >
+        Metadata
+      </button>
+    </li>
+  {/if}
 {/if}
