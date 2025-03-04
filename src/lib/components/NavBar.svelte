@@ -11,7 +11,7 @@
 
   import { createCollapsible, createDropdownMenu, melt } from "@melt-ui/svelte";
   import { slide, fly } from "svelte/transition";
-    import NavBanner from "./NavBanner.svelte";
+  import NavBanner from "./NavBanner.svelte";
 
   onMount(() => {
     const nav_dropdown = document.getElementById("nav-dropdown") as Element;
