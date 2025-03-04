@@ -503,7 +503,6 @@ class ProvenanceModel {
     }
 
     this.elements.push(...this.resultNodes);
-    console.log(this.metadataMap);
   }
 
   /**
