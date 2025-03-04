@@ -1,8 +1,7 @@
 <script lang="ts">
+  import readerModel from "$lib/models/readerModel";
   import provenanceModel from "$lib/models/provenanceModel";
   import url from "$lib/scripts/url-store";
-
-  export let readerModel;
 </script>
 
 {#if $readerModel.indexPath}
