@@ -126,12 +126,12 @@
             <svg
               fill="none"
               viewBox="0 0 20 20"
-              style="height: 20px; width: 20px;"
+              stroke-width="3"
+              class="size-5"
+              stroke="currentColor"
             >
               <title>Close Collapsible</title>
               <path
-                stroke-width="3"
-                stroke="currentColor"
                 d="M2 18L18 2M18 18L2 2"
               />
             </svg>
@@ -139,12 +139,12 @@
             <svg
               fill="none"
               viewBox="0 0 20 20"
-              style="height: 20px; width: 20px;"
+              stroke-width="3"
+              class="size-5"
+              stroke="currentColor"
             >
               <title>Open Collapsible</title>
               <path
-                stroke-width="3"
-                stroke="currentColor"
                 d="M2 2L18 2M2 10L18 10M2 18L18 18"
               />
             </svg>
