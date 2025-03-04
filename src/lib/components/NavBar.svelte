@@ -120,37 +120,39 @@
         <NavButtons {readerModel} />
       </ul>
       <!-- If it isn't wide enough make them collapsible -->
-      <div class="flex ml-auto lg:hidden">
-        <button use:melt={$triggerCollapsible} class={$openCollapsible ? "selected-nav-button" : "nav-button"}>
-          {#if $openCollapsible}
-            <svg
-              fill="none"
-              viewBox="0 0 20 20"
-              stroke-width="3"
-              class="size-5"
-              stroke="currentColor"
-            >
-              <title>Close Collapsible</title>
-              <path
-                d="M2 18L18 2M18 18L2 2"
-              />
-            </svg>
-          {:else}
-            <svg
-              fill="none"
-              viewBox="0 0 20 20"
-              stroke-width="3"
-              class="size-5"
-              stroke="currentColor"
-            >
-              <title>Open Collapsible</title>
-              <path
-                d="M2 2L18 2M2 10L18 10M2 18L18 18"
-              />
-            </svg>
-          {/if}
-        </button>
-      </div>
+      {#if $readerModel.rawSrc}
+        <div class="flex ml-auto lg:hidden">
+          <button use:melt={$triggerCollapsible} class={$openCollapsible ? "selected-nav-button" : "nav-button"}>
+            {#if $openCollapsible}
+              <svg
+                fill="none"
+                viewBox="0 0 20 20"
+                stroke-width="3"
+                class="size-5"
+                stroke="currentColor"
+              >
+                <title>Close Collapsible</title>
+                <path
+                  d="M2 18L18 2M18 18L2 2"
+                />
+              </svg>
+            {:else}
+              <svg
+                fill="none"
+                viewBox="0 0 20 20"
+                stroke-width="3"
+                class="size-5"
+                stroke="currentColor"
+              >
+                <title>Open Collapsible</title>
+                <path
+                  d="M2 2L18 2M2 10L18 10M2 18L18 18"
+                />
+              </svg>
+            {/if}
+          </button>
+        </div>
+      {/if}
       <ul class="grid grid-flow-col items-center gap-6">
         {#if $readerModel.sourceType === "remote"}
           <li class='ml-6'>
