@@ -84,15 +84,13 @@
       >
         <Provenance />
       </div>
-      {#if $provenanceModel.metadataMap.size !== 0}
-        <div
-          class={$url.pathname.replaceAll("/", "") === "metadata" && $loading.status !== "LOADING"
-            ? "tab"
-            : "hidden-tab"}
-        >
-          <Metadata />
-        </div>
-      {/if}
+      <div
+        class={$url.pathname.replaceAll("/", "") === "metadata" && $loading.status !== "LOADING"
+          ? "tab"
+          : "hidden-tab"}
+      >
+        <Metadata />
+      </div>
     {/if}
   </div>
 </div>
