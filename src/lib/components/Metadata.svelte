@@ -26,42 +26,34 @@
   </p>
 </Panel>
 <table class="w-full">
-  <tr class="border-b border-gray-300">
-    <th class="border-r border-gray-300">Artifact UUID</th>
-    <th class="border-r border-gray-300">File Name</th>
-    <th>Download</th>
+  <tr class="border-b border-gray-400 text-gray-800">
+    <th class="text-left p-1">Artifact UUID</th>
+    <th class="text-left p-1">File Name</th>
+    <th class="text-left p-1">Download</th>
   </tr>
   {#each $provenanceModel.metadataMap.entries() as entry}
-    <tr class="border-b border-gray-300">
-      <td class="border-r border-gray-300 p-1">{entry[0]}</td>
-      <!-- TODO: We need to in some way handle multiple files in one artifact and dedup
-           dedup ought to be doable on name. A given artifact cannot have multiple files of the same name in its provenance dir
-           so multiple references to the same name must be the same file -->
-      {#each entry[1] as inner}
-        <td class="border-r border-gray-300 p-1">{inner.file}</td>
-        <td class="p-1">
-          <button on:click={async () => {
-              const file = await getFile(`provenance/action/${inner.file}`, entry[0], provenanceModel.zipReader).then((data) => new Blob([data.byteArray], { type: data.type }))
-              const link = document.createElement('a');
+    {#each entry[1] as inner}
+      <tr class="border-t border-gray-300 text-gray-600">
+        <!-- TODO: We need to in some way handle multiple files in one artifact and dedup
+            dedup ought to be doable on name. A given artifact cannot have multiple files of the same name in its provenance dir
+            so multiple references to the same name must be the same file -->
+          <td class="p-1 py-2">{entry[0]}</td>
+          <td class="p-1">{inner.file}</td>
+          <td class="p-1 text-blue-700 hover:text-gray-600">
+            <button on:click={async () => {
+                const file = await getFile(`provenance/action/${inner.file}`, entry[0], provenanceModel.zipReader).then((data) => new Blob([data.byteArray], { type: data.type }))
+                const link = document.createElement('a');
 
-              link.href = URL.createObjectURL(file);
-              link.download = inner.file;
-              link.click();
-              URL.revokeObjectURL(link.href);
-            }
-          }>
-            Download
-          </button>
-        </td>
-      {/each}
+                link.href = URL.createObjectURL(file);
+                link.download = inner.file;
+                link.click();
+                URL.revokeObjectURL(link.href);
+              }
+            }>
+              Download
+            </button>
+          </td>
       </tr>
+    {/each}
   {/each}
 </table>
-
-<style lang="postcss">
-  table {
-    @apply border
-    border-solid
-    border-gray-300;
-  }
-</style>
