@@ -25,18 +25,21 @@
     before use with QIIME 2.
   </p>
 </Panel>
-<table>
-  <tr>
-    <th>Artifact UUID</th>
-    <th>File Name</th>
+<table class="w-full">
+  <tr class="border-b border-gray-300">
+    <th class="border-r border-gray-300">Artifact UUID</th>
+    <th class="border-r border-gray-300">File Name</th>
     <th>Download</th>
   </tr>
   {#each $provenanceModel.metadataMap.entries() as entry}
-    <tr>
-      <td>{entry[0]}</td>
+    <tr class="border-b border-gray-300">
+      <td class="border-r border-gray-300 p-1">{entry[0]}</td>
+      <!-- TODO: We need to in some way handle multiple files in one artifact and dedup
+           dedup ought to be doable on name. A given artifact cannot have multiple files of the same name in its provenance dir
+           so multiple references to the same name must be the same file -->
       {#each entry[1] as inner}
-        <td>{inner.file}</td>
-        <td>
+        <td class="border-r border-gray-300 p-1">{inner.file}</td>
+        <td class="p-1">
           <button on:click={async () => {
               const file = await getFile(`provenance/action/${inner.file}`, entry[0], provenanceModel.zipReader).then((data) => new Blob([data.byteArray], { type: data.type }))
               const link = document.createElement('a');
@@ -53,7 +56,7 @@
       {/each}
       </tr>
   {/each}
-  </table>
+</table>
 
 <style lang="postcss">
   table {
