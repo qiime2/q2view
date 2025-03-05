@@ -350,7 +350,7 @@ class ProvenanceModel {
 
       // Set this back to empty for the next artifact that has metadata
       currentMetadataStore.set({
-        currentMetadata: [],
+        currentMetadata: new Set(),
       });
     }
   }

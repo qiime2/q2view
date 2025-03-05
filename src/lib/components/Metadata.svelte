@@ -31,25 +31,23 @@
     <th class="text-left p-1">File Name</th>
     <th class="text-left p-1">Download</th>
   </tr>
-  {#each $provenanceModel.metadataMap.entries() as entry}
-    {#each entry[1] as inner}
+  {#each $provenanceModel.metadataMap.entries() as [uuid, metadataFiles]}
+    {#each metadataFiles as metadataFile}
       <tr class="border-t border-gray-300 text-gray-600">
-        <!-- TODO: We need to in some way handle multiple files in one artifact and dedup
-            dedup ought to be doable on name. A given artifact cannot have multiple files of the same name in its provenance dir
-            so multiple references to the same name must be the same file -->
-          <td class="p-1 py-2">{entry[0]}</td>
-          <td class="p-1">{inner.file}</td>
-          <td class="p-1 text-blue-700 hover:text-gray-600">
+          <td class="p-1 py-2">{uuid}</td>
+          <td class="p-1">{metadataFile}</td>
+          <td class="p-1 text-blue-700">
             <button on:click={async () => {
-                const file = await getFile(`provenance/action/${inner.file}`, entry[0], provenanceModel.zipReader).then((data) => new Blob([data.byteArray], { type: data.type }))
+                const file = await getFile(`provenance/action/${metadataFile}`, uuid, provenanceModel.zipReader).then((data) => new Blob([data.byteArray], { type: data.type }))
                 const link = document.createElement('a');
 
                 link.href = URL.createObjectURL(file);
-                link.download = inner.file;
+                link.download = file;
                 link.click();
                 URL.revokeObjectURL(link.href);
               }
-            }>
+            }
+            class="hover:text-gray-600">
               Download
             </button>
           </td>
