@@ -204,7 +204,6 @@ function _searchProvKeyOperator(
 }
 
 export function searchProvenance(searchValue: string) {
-  console.log(searchProvenance)
   const parser = get_parser();
   const myTransformer = new MyTransformer();
 
