@@ -4,6 +4,7 @@
   import provenanceModel from "$lib/models/provenanceModel";
   import { getFile } from "$lib/scripts/fileutils";
   import Panel from "./Panel.svelte";
+    import readerModel from "$lib/models/readerModel";
 </script>
 
 <Panel header="Note About Metadata:">
@@ -38,7 +39,15 @@
           <td class="p-1">{metadataFile}</td>
           <td class="p-1 text-blue-700">
             <button on:click={async () => {
-                const file = await getFile(`provenance/action/${metadataFile}`, uuid, provenanceModel.zipReader).then((data) => new Blob([data.byteArray], { type: data.type }))
+                let metadataFilePath;
+
+                if (uuid === provenanceModel.uuid) {
+                  metadataFilePath = `provenance/action/${metadataFile}`;
+                } else {
+                  metadataFilePath = `provenance/artifacts/${uuid}/action/${metadataFile}`
+                }
+
+                const file = await getFile(metadataFilePath, readerModel.uuid, provenanceModel.zipReader).then((data) => new Blob([data.byteArray], { type: data.type }))
                 const link = document.createElement('a');
 
                 link.href = URL.createObjectURL(file);
