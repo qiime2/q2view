@@ -42,7 +42,7 @@
                 const link = document.createElement('a');
 
                 link.href = URL.createObjectURL(file);
-                link.download = file;
+                link.download = metadataFile;
                 link.click();
                 URL.revokeObjectURL(link.href);
               }
