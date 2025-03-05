@@ -528,7 +528,17 @@ class ProvenanceModel {
     );
   }
 
-  searchJSON(key: Array<string>, searchValue: any) {
+  /**
+   * Searches the JSON of all provenance in the graph
+   *
+   * @param {Array<string>} key - The key, or nested sequence of keys, to check
+   * for our value
+   * @param {any} searchValue - The value we are searching for in the JSON
+   *
+   * @returns {Set<string>} - A set of the uuids of all actions/results that
+   * were hit by the search
+   */
+  searchJSON(key: Array<string>, searchValue: any): Set<string> {
     const hits = new Set<string>();
 
     for (const json of this.nodeIDToJSON.values()) {
