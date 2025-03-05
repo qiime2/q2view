@@ -1,45 +1,26 @@
 <script lang="ts">
   export let header: string = "";
+  export let customHeaderID: string  = "";
+  export let customPanelID: string  = "";
 </script>
 
 <div>
   {#if header !== ""}
-    <div class="panel-header">
+    <div class="panel-header border-gray-300 rounded-t-md py-2 px-4 bg-gray-200" id={customHeaderID}>
       {header}
     </div>
   {/if}
-  <div class={header === "" ? "headerless-panel" : "panel"}>
+  <div class="border border-gray-300 p-4 mb-4 {header === "" ? "rounded-md" : "rounded-b-md"}" id={customPanelID}>
     <slot>
     </slot>
   </div>
 </div>
 
 <style lang='postcss'>
-  .headerless-panel {
-    @apply border
-    border-gray-300
-    rounded-md
-    p-4
-    mb-4;
-  }
-
-  .panel {
-    @apply border
-    border-gray-300
-    rounded-b-md
-    p-4
-    mb-4;
-  }
-
   .panel-header {
     border-top-width: 1px;
     border-right-width: 1px;
     border-left-width: 1px;
-    @apply border-gray-300
-    rounded-t-md
-    p-2
-    px-4
-    bg-gray-200;
   }
 
   :global(.danger-panel) {
