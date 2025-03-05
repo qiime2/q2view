@@ -103,7 +103,7 @@
 <form on:submit|preventDefault={_handleProvenanceSearch}>
   <label>
       Search Provenance:
-      <input class="roundInput" bind:value />
+      <input class="roundInput" placeholder='type: ("FeatureData" OR "SampleData")' bind:value />
   </label>
 </form>
 <div class="mx-auto">
