@@ -32,7 +32,10 @@ export default yaml.Schema.create([
         constructed = { file: data, artifacts: [] };
       } else {
         currentMetadata.add(splitData[1]);
-        constructed = { file: splitData[1], artifacts: splitData[0].split(",") };
+        constructed = {
+          file: splitData[1],
+          artifacts: splitData[0].split(","),
+        };
       }
 
       // Update the store

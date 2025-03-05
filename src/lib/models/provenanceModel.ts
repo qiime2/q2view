@@ -172,7 +172,7 @@ class ProvenanceModel {
 
     // If we get here we haven't seen this result yet so we need to track any
     // metadata it might have
-    this._handleMetadata(resultUUID)
+    this._handleMetadata(resultUUID);
 
     // If we have already seen this Action then short circuit
     if (await this._handleAction(resultID, sourceActionUUID, sourceAction)) {
