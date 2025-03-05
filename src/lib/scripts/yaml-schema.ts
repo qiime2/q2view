@@ -1,7 +1,7 @@
 import yaml from "js-yaml";
 import { currentMetadataStore } from "./currentMetadataStore";
 
-let currentMetadata: Array<{}>;
+let currentMetadata: Set<string>;
 
 currentMetadataStore.subscribe((value) => {
   currentMetadata = value.currentMetadata;
@@ -25,16 +25,14 @@ export default yaml.Schema.create([
     resolve: (data) => data !== null,
     construct: (data) => {
       const splitData = data.split(":");
+      let constructed;
 
-      // Add info about the new metadata for this artifact to the value
-      // retrieved from the store
       if (splitData.length === 1) {
-        currentMetadata.push({ file: data, artifacts: [] });
+        currentMetadata.add(splitData[0]);
+        constructed = { file: data, artifacts: [] };
       } else {
-        currentMetadata.push({
-          file: splitData[1],
-          artifacts: splitData[0].split(",")
-        });
+        currentMetadata.add(splitData[1]);
+        constructed = { file: splitData[1], artifacts: splitData[0].split(",") };
       }
 
       // Update the store
@@ -42,7 +40,7 @@ export default yaml.Schema.create([
         currentMetadata: currentMetadata,
       });
 
-      return currentMetadata;
+      return constructed;
     },
   }),
   new yaml.Type("!color", {
