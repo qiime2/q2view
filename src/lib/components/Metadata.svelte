@@ -47,7 +47,15 @@
                   metadataFilePath = `provenance/artifacts/${uuid}/action/${metadataFile}`
                 }
 
-                const file = await getFile(metadataFilePath, readerModel.uuid, provenanceModel.zipReader).then((data) => new Blob([data.byteArray], { type: data.type }))
+                const file = await getFile(
+                  metadataFilePath,
+                  readerModel.uuid,
+                  provenanceModel.zipReader).then(
+                    (data) => new Blob(
+                      [data.byteArray],
+                      { type: data.type }
+                    )
+                  )
                 const link = document.createElement('a');
 
                 link.href = URL.createObjectURL(file);
