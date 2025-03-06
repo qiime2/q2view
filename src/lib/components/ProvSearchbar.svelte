@@ -29,10 +29,10 @@
     ["OR", '"OR"']
   ]);
 
-  function _formatExpected() {
+  function _formatExpected(expected: Set<string>) {
     let mapped = [];
 
-    for (const value of $provenanceModel.searchError.expected) {
+    for (const value of expected) {
       mapped.push(LARK_MAP.get(value));
     }
 
@@ -44,15 +44,16 @@
 
     try {
       searchHits = searchProvenance(value);
+      if (searchHits.length === 0) {
+        throw new Error("No search hits found");
+      }
+
       provenanceModel.searchError = null;
     } catch (error) {
       provenanceModel.searchError = error;
+    } finally {
+      provenanceModel._dirty();
     }
-
-    provenanceModel._dirty();
-
-    console.log(provenanceModel.searchError.token)
-    console.log(provenanceModel.searchError.expected)
 
     // Sort the hit nodes by row then by col within a given row
     searchHits.sort((a, b) => {
@@ -188,7 +189,7 @@
     {#if $provenanceModel.searchError !== null}
       <div class="border border-red-300 rounded-md bg-red-100 py-1 px-2 ml-auto w-2/3">
         {#if $provenanceModel.searchError.constructor.name === "UnexpectedToken"}
-          Error: UnexpectedToken, received {LARK_MAP.get($provenanceModel.searchError.token.type)} expected one of {_formatExpected()}
+          Error: UnexpectedToken, received {LARK_MAP.get($provenanceModel.searchError.token.type)} expected one of {_formatExpected($provenanceModel.searchError.expected)}
         {:else}
           Error: {$provenanceModel.searchError.message}
         {/if}
