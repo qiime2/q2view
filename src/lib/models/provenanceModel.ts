@@ -355,10 +355,11 @@ class ProvenanceModel {
           this.seenMetadata.add(identifier);
 
           this.metadata.push([
-            `${sourceAction.action.plugin} ${sourceAction.action.action}`,
+            sourceAction.action.plugin,
+            sourceAction.action.action,
             sourceAction.execution.uuid,
-            resultUUID,
             metadataFile,
+            resultUUID
           ]);
         }
       }
