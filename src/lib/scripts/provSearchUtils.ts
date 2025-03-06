@@ -119,7 +119,7 @@ function _searchProvenanceValue(json: Array<any>, index: number): Set<string> {
   } else if (elem.constructor === _Pair) {
     hits = _searchProvKey(elem.key, elem.value);
   } else {
-    // TODO: ERROR
+    throw new Error(`Expected Array or Pair got '${elem}'`);
   }
 
   if (index < json.length - 1) {
@@ -142,7 +142,7 @@ function _searchProvenanceOperator(
   } else if (elem === AND) {
     hits = _setIntersection(hits, next_hits);
   } else {
-    // TODO: ERROR
+    throw new Error(`Expected '${AND}' or '${OR}' got '${elem}'`);
   }
 
   return hits;
@@ -197,7 +197,7 @@ function _searchProvKeyOperator(
   } else if (elem === AND) {
     hits = _setIntersection(hits, next_hits);
   } else {
-    // TODO: ERROR
+    throw new Error(`Expected '${AND}' or '${OR}' got '${elem}'`);
   }
 
   return hits;

@@ -45,6 +45,8 @@ class ProvenanceModel {
   nodeIDToJSON = new BiMap();
   keys: Set<string> = new Set();
 
+  searchError: any = null;
+
   // Class attributes passed in by readerModel pertaining to currently loaded
   // Result
   uuid: string = "";
@@ -99,6 +101,8 @@ class ProvenanceModel {
     this.jsonKeysToJSON.clear();
     this.nodeIDToJSON.clear();
     this.keys = new Set();
+
+    this.searchError = null;
 
     this.uuid = uuid;
     this.zipReader = zipReader;
