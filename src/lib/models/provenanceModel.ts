@@ -359,7 +359,7 @@ class ProvenanceModel {
             sourceAction.action.action,
             sourceAction.execution.uuid,
             metadataFile,
-            resultUUID
+            resultUUID,
           ]);
         }
       }
