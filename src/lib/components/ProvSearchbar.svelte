@@ -100,54 +100,53 @@
   })
 </script>
 
-<form on:submit|preventDefault={_handleProvenanceSearch}>
-  <label>
-      Search Provenance:
-      <input class="roundInput" placeholder='type: ("FeatureData" OR "SampleData")' bind:value />
-  </label>
-</form>
-<div class="mx-auto">
-  <button
-    on:click={_decrementSearchIndex}
-    class="roundButton"
-  >
-  <svg fill="none"
-      width="10"
-      height="10">
-      <path
-        stroke-width="3"
-        stroke="rgb(119, 119, 119)"
-        d="m8 0L3 5a0,2 0 0 1 1,1M3 5L8 10"/>
-    </svg>
-  </button>
-  <!-- Show 0/0 when no results -->
-  {searchHits.length > 0 ? searchIndex + 1 : searchIndex}/{searchHits.length}
-  <button
-    on:click={_incrementSearchIndex}
-    class="roundButton"
-  >
+<Panel header="Search Provenance">
+  <form on:submit|preventDefault={_handleProvenanceSearch}>
+    <input class="roundInput" placeholder='type: ("FeatureData" OR "SampleData")' bind:value />
+  </form>
+  <div class="mx-auto">
+    <button
+      on:click={_decrementSearchIndex}
+      class="roundButton"
+    >
     <svg fill="none"
-      width="10"
-      height="10">
-      <path
-        stroke-width="3"
-        stroke="rgb(119, 119, 119)"
-        d="m3 0L8 5a0,2 0 0 1 1,1M8 5L3 10"/>
-    </svg>
-  </button>
-  <button
-    on:click={_selectSearchHit}
-    class="roundButton textButton"
-  >
-    Center on Result
-  </button>
-  <button
-    on:click={_clearSearch}
-    class="roundButton textButton"
-  >
-    Clear Search
-  </button>
-</div>
+        width="10"
+        height="10">
+        <path
+          stroke-width="3"
+          stroke="rgb(119, 119, 119)"
+          d="m8 0L3 5a0,2 0 0 1 1,1M3 5L8 10"/>
+      </svg>
+    </button>
+    <!-- Show 0/0 when no results -->
+    {searchHits.length > 0 ? searchIndex + 1 : searchIndex}/{searchHits.length}
+    <button
+      on:click={_incrementSearchIndex}
+      class="roundButton"
+    >
+      <svg fill="none"
+        width="10"
+        height="10">
+        <path
+          stroke-width="3"
+          stroke="rgb(119, 119, 119)"
+          d="m3 0L8 5a0,2 0 0 1 1,1M8 5L3 10"/>
+      </svg>
+    </button>
+    <button
+      on:click={_selectSearchHit}
+      class="roundButton textButton"
+    >
+      Center on Result
+    </button>
+    <button
+      on:click={_clearSearch}
+      class="roundButton textButton"
+    >
+      Clear Search
+    </button>
+  </div>
+</Panel>
 
 <style lang="postcss">
   input {
@@ -159,7 +158,6 @@
     @apply border
     border-gray-300
     bg-gray-200
-    mb-2
     mx-2
     p-1;
   }
