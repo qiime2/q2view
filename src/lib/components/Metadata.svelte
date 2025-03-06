@@ -5,15 +5,6 @@
   import { getFile } from "$lib/scripts/fileutils";
   import Panel from "./Panel.svelte";
   import readerModel from "$lib/models/readerModel";
-
-  // let action: string;
-  // let executionUUID: string;
-  // let metadataFile: string;
-
-  // function _setState(metadata: string) {
-  //   console.log(metadata);
-  //  [action, executionUUID, metadataFile] = JSON.parse(metadata);
-  // }
 </script>
 
 <Panel header="Warning: Do not include confidential information in your metadata.">
