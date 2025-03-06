@@ -95,7 +95,7 @@
   }
 
   onMount(() => {
-    // reininit this out when mounting a new DAG
+    // re-init this when mounting a new DAG
     _clearSearch();
   })
 </script>
