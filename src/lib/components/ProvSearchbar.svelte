@@ -13,6 +13,32 @@
   let searchIndex: number = 0;
   let searchHits: Array<string> = [];
 
+  const LARK_MAP: Map<string, string> = new Map([
+    ["$END", '"$END"'],
+    ["COLON", '":"'],
+    ["KEY_SEP", '"."'],
+    ["NUMBER", "number"],
+    ["STRING", '"string"'],
+    ["KEY_VALUE", '"key"'],
+    ["FALSE", "false"],
+    ["TRUE", "true"],
+    ["NULL", "null"],
+    ["LPAR", '"("'],
+    ["RPAR", '")"'],
+    ["AND", '"AND"'],
+    ["OR", '"OR"']
+  ]);
+
+  function _formatExpected() {
+    let mapped = [];
+
+    for (const value of $provenanceModel.searchError.expected) {
+      mapped.push(LARK_MAP.get(value));
+    }
+
+    return mapped.join(", ");
+  }
+
   function _handleProvenanceSearch() {
     searchIndex = 0;
 
@@ -162,7 +188,7 @@
     {#if $provenanceModel.searchError !== null}
       <div class="border border-red-300 rounded-md bg-red-100 py-1 px-2 ml-auto w-2/3">
         {#if $provenanceModel.searchError.constructor.name === "UnexpectedToken"}
-          Error: UnexpectedToken, received {$provenanceModel.searchError.token.type} expected one of {Array.from($provenanceModel.searchError.expected)}
+          Error: UnexpectedToken, received {LARK_MAP.get($provenanceModel.searchError.token.type)} expected one of {_formatExpected()}
         {:else}
           Error: {$provenanceModel.searchError.message}
         {/if}
