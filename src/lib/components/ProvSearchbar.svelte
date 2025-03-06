@@ -158,6 +158,7 @@
     @apply border
     border-gray-300
     bg-gray-200
+    mt-2
     mx-2
     p-1;
   }
