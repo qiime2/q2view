@@ -47,7 +47,7 @@
   .example {
     @apply text-black
     bg-gray-300
-    rounded-sm
+    rounded-md
     px-2
     py-0.5
   }
