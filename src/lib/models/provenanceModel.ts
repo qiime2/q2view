@@ -7,6 +7,8 @@ import JSZip from "jszip";
 import BiMap from "$lib/scripts/biMap";
 import { getYAML } from "$lib/scripts/fileutils";
 import { getAllObjectKeysRecursively } from "$lib/scripts/util";
+import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
+
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
 
@@ -14,6 +16,12 @@ const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
 const START_ANCHOR = "^";
 const END_ANCHOR = "$";
 const ESCAPED_END_ANCHOR = "\\$";
+
+let currentMetadata: Set<string>;
+
+currentMetadataStore.subscribe((value) => {
+  currentMetadata = value.currentMetadata;
+});
 
 /**
  * This class is a subscribable svelte store that manages parsing and storing provenance
@@ -44,6 +52,9 @@ class ProvenanceModel {
   jsonKeysToJSON = new Map();
   nodeIDToJSON = new BiMap();
   keys: Set<string> = new Set();
+
+  seenMetadata: Set<string> = new Set();
+  metadata: Array<Array<string>> = [];
 
   // Class attributes passed in by readerModel pertaining to currently loaded
   // Result
@@ -99,6 +110,9 @@ class ProvenanceModel {
     this.jsonKeysToJSON.clear();
     this.nodeIDToJSON.clear();
     this.keys = new Set();
+
+    this.seenMetadata = new Set();
+    this.metadata = [];
 
     this.uuid = uuid;
     this.zipReader = zipReader;
@@ -164,6 +178,10 @@ class ProvenanceModel {
       // If we have already seen this Result then short circuit
       return this.heightMap.get(sourceActionUUID);
     }
+
+    // If we get here we haven't seen this result yet so we need to track any
+    // metadata it might have
+    this._handleMetadata(sourceAction, resultUUID);
 
     // If we have already seen this Action then short circuit
     if (await this._handleAction(resultID, sourceActionUUID, sourceAction)) {
@@ -326,6 +344,38 @@ class ProvenanceModel {
     });
 
     return false;
+  }
+
+  /**
+   * Checks if we parsed any metadata from this artifact and tracks it if we
+   * did
+   *
+   * @param {object} sourceAction - The Action that received this metadata as
+   * input.
+   */
+  _handleMetadata(sourceAction: object, resultUUID: string) {
+    if (currentMetadata.length !== 0) {
+      for (const metadataFile of currentMetadata) {
+        const identifier = `${sourceAction.execution.uuid} ${metadataFile}`;
+
+        if (!this.seenMetadata.has(identifier)) {
+          this.seenMetadata.add(identifier);
+
+          this.metadata.push([
+            sourceAction.action.plugin,
+            sourceAction.action.action,
+            sourceAction.execution.uuid,
+            metadataFile,
+            resultUUID,
+          ]);
+        }
+      }
+
+      // Set this back to empty for the next artifact that has metadata
+      currentMetadataStore.set({
+        currentMetadata: new Set(),
+      });
+    }
   }
 
   /**

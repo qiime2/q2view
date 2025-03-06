@@ -117,7 +117,7 @@
       {/if}
       <!-- If the screen is wide enough slap the buttons here in a grid -->
       <ul class="hidden lg:grid grid-flow-col gap-6 items-center">
-        <NavButtons {readerModel} />
+        <NavButtons/>
       </ul>
       <!-- If it isn't wide enough make them collapsible -->
       {#if $readerModel.rawSrc}
@@ -190,7 +190,7 @@
     <div id="nav-dropdown">
       {#if $openCollapsible}
         <ul use:melt={$content} transition:slide class="lg:hidden">
-          <NavButtons {readerModel} />
+          <NavButtons />
         </ul>
       {/if}
     </div>
