@@ -4,7 +4,16 @@
   import provenanceModel from "$lib/models/provenanceModel";
   import { getFile } from "$lib/scripts/fileutils";
   import Panel from "./Panel.svelte";
-    import readerModel from "$lib/models/readerModel";
+  import readerModel from "$lib/models/readerModel";
+
+  // let action: string;
+  // let executionUUID: string;
+  // let metadataFile: string;
+
+  // function _setState(metadata: string) {
+  //   console.log(metadata);
+  //  [action, executionUUID, metadataFile] = JSON.parse(metadata);
+  // }
 </script>
 
 <Panel header="Warning: Do not include confidential information in your metadata.">
@@ -28,47 +37,47 @@
 </Panel>
 <table class="w-full">
   <tr class="border-b border-gray-400 text-gray-800">
-    <th class="text-left p-1">Artifact UUID</th>
-    <th class="text-left p-1">File Name</th>
+    <th class="text-left p-1">Action</th>
+    <th class="text-left p-1">Execution UUID</th>
+    <th class="text-left p-1">Filename</th>
     <th class="text-left p-1">Download</th>
   </tr>
-  {#each $provenanceModel.metadataMap.entries() as [uuid, metadataFiles]}
-    {#each metadataFiles as metadataFile}
-      <tr class="border-t border-gray-300 text-gray-600">
-          <td class="p-1 py-2">{uuid}</td>
-          <td class="p-1">{metadataFile}</td>
-          <td class="p-1 text-blue-700">
-            <button on:click={async () => {
-                let metadataFilePath;
+  {#each $provenanceModel.metadata as [action, executionUUID, artifactUUID, metadataFile]}
+    <tr class="border-t border-gray-300 text-gray-600">
+        <td class="p-1 py-2">{action}</td>
+        <td class="p-1">{executionUUID}</td>
+        <td class="p-1">{metadataFile}</td>
+        <td class="p-1 text-blue-700">
+          <button on:click={async () => {
+              let metadataFilePath;
 
-                if (uuid === provenanceModel.uuid) {
-                  metadataFilePath = `provenance/action/${metadataFile}`;
-                } else {
-                  metadataFilePath = `provenance/artifacts/${uuid}/action/${metadataFile}`
-                }
-
-                const file = await getFile(
-                  metadataFilePath,
-                  readerModel.uuid,
-                  provenanceModel.zipReader).then(
-                    (data) => new Blob(
-                      [data.byteArray],
-                      { type: data.type }
-                    )
-                  )
-                const link = document.createElement('a');
-
-                link.href = URL.createObjectURL(file);
-                link.download = metadataFile;
-                link.click();
-                URL.revokeObjectURL(link.href);
+              if (artifactUUID === provenanceModel.uuid) {
+                metadataFilePath = `provenance/action/${metadataFile}`;
+              } else {
+                metadataFilePath = `provenance/artifacts/${artifactUUID}/action/${metadataFile}`
               }
+
+              const file = await getFile(
+                metadataFilePath,
+                readerModel.uuid,
+                provenanceModel.zipReader).then(
+                  (data) => new Blob(
+                    [data.byteArray],
+                    { type: data.type }
+                  )
+                )
+              const link = document.createElement('a');
+
+              link.href = URL.createObjectURL(file);
+              link.download = metadataFile;
+              link.click();
+              URL.revokeObjectURL(link.href);
             }
-            class="hover:text-gray-600">
-              Download
-            </button>
-          </td>
-      </tr>
-    {/each}
+          }
+          class="hover:text-gray-600">
+            Download
+          </button>
+        </td>
+    </tr>
   {/each}
 </table>
