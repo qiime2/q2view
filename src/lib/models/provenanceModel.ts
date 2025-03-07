@@ -140,6 +140,14 @@ class ProvenanceModel {
     const sourceAction = await this.getProvenanceAction(resultUUID);
     const sourceActionUUID = sourceAction.execution.uuid;
 
+    // Make this "-" to match q2-<plugin>
+    if (sourceAction.action.action !== undefined) {
+      sourceAction.action.action = sourceAction.action.action.replaceAll(
+        "_",
+        "-",
+      );
+    }
+
     // If this Result is in a Collection, we need to set this to
     // paramName:destinationActionUUID:sourceActionUUID in place of resultUUID
     // as our unique identifier in some places
