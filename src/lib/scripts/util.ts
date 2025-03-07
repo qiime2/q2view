@@ -114,3 +114,28 @@ export function getScrollBarWidth() {
   // Return difference in widths, this is the width of the scrollbar
   return withoutScrollWidth - withScrollWidth;
 }
+
+export function getAllObjectKeysRecursively(
+  targetObject: object,
+  currentkeyAccumulator: Array<string>,
+  globalKeySet: Array<Array<string>>,
+) {
+  if (targetObject !== null && targetObject !== undefined) {
+    for (const key of Object.keys(targetObject)) {
+      const newKeyAccumulator = [...currentkeyAccumulator, key];
+
+      // Some terminal values, such as the start and end times, will parse as objects, but they do not have keys of their own
+      const next = targetObject[key as keyof object];
+      if (
+        typeof next === "object" &&
+        next !== null &&
+        next !== undefined &&
+        Object.keys(next).length !== 0
+      ) {
+        getAllObjectKeysRecursively(next, newKeyAccumulator, globalKeySet);
+      } else {
+        globalKeySet.push(newKeyAccumulator);
+      }
+    }
+  }
+}

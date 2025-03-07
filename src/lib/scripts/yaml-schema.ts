@@ -7,7 +7,12 @@ currentMetadataStore.subscribe((value) => {
   currentMetadata = value.currentMetadata;
 });
 
-export default yaml.Schema.create([
+// yaml.CORE_SCHEMA prevents a lot of type parsing (inlcuding dates) and leaves
+// those values as strings instead which in much better for searching.
+//
+// This has the unfortunate side effect of not localizing the time to your
+// local time zone
+export default yaml.Schema.create(yaml.CORE_SCHEMA, [
   new yaml.Type("!no-provenance", {
     kind: "scalar",
     resolve: (data) =>
