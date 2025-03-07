@@ -22,14 +22,5 @@
     border-right-width: 1px;
     border-left-width: 1px;
   }
-
-  :global(.danger-panel) {
-    @apply border
-    border-red-300
-    rounded-md
-    bg-red-100
-    p-4
-    mr-2;
-  }
 </style>
 

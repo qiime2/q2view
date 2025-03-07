@@ -56,6 +56,8 @@ class ProvenanceModel {
   seenMetadata: Set<string> = new Set();
   metadata: Array<Array<string>> = [];
 
+  searchError: any = null;
+
   // Class attributes passed in by readerModel pertaining to currently loaded
   // Result
   uuid: string = "";
@@ -114,6 +116,8 @@ class ProvenanceModel {
     this.seenMetadata = new Set();
     this.metadata = [];
 
+    this.searchError = null;
+
     this.uuid = uuid;
     this.zipReader = zipReader;
 
@@ -136,7 +140,7 @@ class ProvenanceModel {
    * of a Collection
    *
    * @returns {Promise<number>} The maximum depth of the tree above the Result
-   * we are currently parsing
+   * we are currenYeah that was something else I wanted to ask you but didn't want to bug you about lol. Trynna fit the instructions in there sometly parsing
    */
   async _recurseUpTree(
     resultUUID: string,

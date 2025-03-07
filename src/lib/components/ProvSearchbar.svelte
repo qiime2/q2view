@@ -3,7 +3,8 @@
   import cytoscape from "cytoscape";
   import { searchProvenance } from "$lib/scripts/provSearchUtils";
   import { onMount } from "svelte";
-    import Panel from "./Panel.svelte";
+  import Panel from "./Panel.svelte";
+  import provenanceModel from "$lib/models/provenanceModel";
 
   export let height: number;
   export let cy: cytoscape.Core;
@@ -12,9 +13,47 @@
   let searchIndex: number = 0;
   let searchHits: Array<string> = [];
 
+  const LARK_MAP: Map<string, string> = new Map([
+    ["$END", '"$END"'],
+    ["COLON", '":"'],
+    ["KEY_SEP", '"."'],
+    ["NUMBER", "number"],
+    ["STRING", '"string"'],
+    ["KEY_VALUE", '"key"'],
+    ["FALSE", "false"],
+    ["TRUE", "true"],
+    ["NULL", "null"],
+    ["LPAR", '"("'],
+    ["RPAR", '")"'],
+    ["AND", '"AND"'],
+    ["OR", '"OR"']
+  ]);
+
+  function _formatExpected(expected: Set<string>) {
+    let mapped = [];
+
+    for (const value of expected) {
+      mapped.push(LARK_MAP.get(value));
+    }
+
+    return mapped.join(", ");
+  }
+
   function _handleProvenanceSearch() {
     searchIndex = 0;
-    searchHits = searchProvenance(value);
+
+    try {
+      searchHits = searchProvenance(value);
+      if (searchHits.length === 0) {
+        throw new Error("No search hits found");
+      }
+
+      provenanceModel.searchError = null;
+    } catch (error) {
+      provenanceModel.searchError = error;
+    } finally {
+      provenanceModel._dirty();
+    }
 
     // Sort the hit nodes by row then by col within a given row
     searchHits.sort((a, b) => {
@@ -92,10 +131,12 @@
     value = "";
     searchIndex = 0;
     searchHits = [];
+    provenanceModel.searchError = null;
+    provenanceModel._dirty();
   }
 
   onMount(() => {
-    // reininit this out when mounting a new DAG
+    // re-init this when mounting a new DAG
     _clearSearch();
   })
 </script>
@@ -104,12 +145,12 @@
   <form on:submit|preventDefault={_handleProvenanceSearch}>
     <input class="roundInput" placeholder='type: ("FeatureData" OR "SampleData")' bind:value />
   </form>
-  <div class="mx-auto">
+  <div class="flex mt-2" style="align-items: center">
     <button
       on:click={_decrementSearchIndex}
       class="roundButton"
     >
-    <svg fill="none"
+      <svg fill="none"
         width="10"
         height="10">
         <path
@@ -145,6 +186,15 @@
     >
       Clear Search
     </button>
+    {#if $provenanceModel.searchError !== null}
+      <div class="border border-red-300 rounded-md bg-red-100 py-1 px-2 ml-auto w-2/3">
+        {#if $provenanceModel.searchError.constructor.name === "UnexpectedToken"}
+          Error: UnexpectedToken, received {LARK_MAP.get($provenanceModel.searchError.token.type)} expected one of {_formatExpected($provenanceModel.searchError.expected)}
+        {:else}
+          Error: {$provenanceModel.searchError.message}
+        {/if}
+      </div>
+    {/if}
   </div>
 </Panel>
 
@@ -158,7 +208,6 @@
     @apply border
     border-gray-300
     bg-gray-200
-    mt-2
     mx-2
     p-1;
   }
