@@ -11,7 +11,7 @@
   <Dag />
 {/key}
 {#key $provenanceModel.provData}
-  <div>
+  <div class="pr-4">
     <Panel header={$provenanceModel.provTitle}>
       {#if provenanceModel.provData !== undefined}
         <div class="JSONTree">
@@ -22,7 +22,7 @@
           />
         </div>
       {:else}
-        <div class="text-gray-700">
+        <div class="text-gray-700 text-sm">
           <p class="pb-3 leading-5">Click on an element of the Provenance Graph to learn more. Alternatively, you can search the graph for actions and results matching specific criteria</p>
           <p class="font-bold text-lg">Search Query Instructions:</p>
           <p class="leading-5">All search queries are of the form key: "value"</p><span class="example">uuid: "&lt;uuid&gt;"</span>
@@ -44,6 +44,10 @@
 {/key}
 
 <style lang="postcss">
+  p {
+    @apply text-sm;
+  }
+
   .example {
     @apply text-black
     bg-gray-300

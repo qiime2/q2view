@@ -151,7 +151,9 @@
 </script>
 
 <div>
-  <ProvSearchbar height={provenanceModel.height} {cy}/>
+  <div class="pl-4">
+    <ProvSearchbar height={provenanceModel.height} {cy}/>
+  </div>
   <div
     bind:this={self}
     id="cy"
