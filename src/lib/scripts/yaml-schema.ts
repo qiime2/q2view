@@ -1,6 +1,11 @@
 import yaml from "js-yaml";
 
-export default yaml.Schema.create([
+// yaml.CORE_SCHEMA prevents a lot of type parsing (inlcuding dates) and leaves
+// those values as strings instead which in much better for searching.
+//
+// This has the unfortunate side effect of not localizing the time to your
+// local time zone
+export default yaml.Schema.create(yaml.CORE_SCHEMA, [
   new yaml.Type("!no-provenance", {
     kind: "scalar",
     resolve: (data) =>
@@ -11,7 +16,11 @@ export default yaml.Schema.create([
   new yaml.Type("!ref", {
     kind: "scalar",
     resolve: (data) => data !== null,
-    construct: (data) => data,
+    construct: (data) => {
+      // Data will be of form environment:plugins:<plugin>
+      const plugin = data.split(":")[2];
+      return `q2-${plugin}`;
+    },
   }),
   new yaml.Type("!metadata", {
     kind: "scalar",
