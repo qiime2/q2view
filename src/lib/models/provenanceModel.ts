@@ -6,8 +6,15 @@ import JSZip from "jszip";
 
 import BiMap from "$lib/scripts/biMap";
 import { getYAML } from "$lib/scripts/fileutils";
+import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
+
+let currentMetadata: Set<string>;
+
+currentMetadataStore.subscribe((value) => {
+  currentMetadata = value.currentMetadata;
+});
 
 /**
  * This class is a subscribable svelte store that manages parsing and storing provenance
@@ -38,6 +45,9 @@ class ProvenanceModel {
   jsonKeysToJSON = new Map();
   nodeIDToJSON = new BiMap();
   keys: Set<string> = new Set();
+
+  seenMetadata: Set<string> = new Set();
+  metadata: Array<Array<string>> = [];
 
   // Class attributes passed in by readerModel pertaining to currently loaded
   // Result
@@ -94,6 +104,9 @@ class ProvenanceModel {
     this.nodeIDToJSON.clear();
     this.keys = new Set();
 
+    this.seenMetadata = new Set();
+    this.metadata = [];
+
     this.uuid = uuid;
     this.zipReader = zipReader;
 
@@ -127,6 +140,14 @@ class ProvenanceModel {
     const sourceAction = await this.getProvenanceAction(resultUUID);
     const sourceActionUUID = sourceAction.execution.uuid;
 
+    // Make this "-" to match q2-<plugin>
+    if (sourceAction.action.action !== undefined) {
+      sourceAction.action.action = sourceAction.action.action.replaceAll(
+        "_",
+        "-",
+      );
+    }
+
     // If this Result is in a Collection, we need to set this to
     // paramName:destinationActionUUID:sourceActionUUID in place of resultUUID
     // as our unique identifier in some places
@@ -158,6 +179,10 @@ class ProvenanceModel {
       // If we have already seen this Result then short circuit
       return this.heightMap.get(sourceActionUUID);
     }
+
+    // If we get here we haven't seen this result yet so we need to track any
+    // metadata it might have
+    this._handleMetadata(sourceAction, resultUUID);
 
     // If we have already seen this Action then short circuit
     if (await this._handleAction(resultID, sourceActionUUID, sourceAction)) {
@@ -320,6 +345,38 @@ class ProvenanceModel {
     });
 
     return false;
+  }
+
+  /**
+   * Checks if we parsed any metadata from this artifact and tracks it if we
+   * did
+   *
+   * @param {object} sourceAction - The Action that received this metadata as
+   * input.
+   */
+  _handleMetadata(sourceAction: object, resultUUID: string) {
+    if (currentMetadata.length !== 0) {
+      for (const metadataFile of currentMetadata) {
+        const identifier = `${sourceAction.execution.uuid} ${metadataFile}`;
+
+        if (!this.seenMetadata.has(identifier)) {
+          this.seenMetadata.add(identifier);
+
+          this.metadata.push([
+            sourceAction.action.plugin,
+            sourceAction.action.action,
+            sourceAction.execution.uuid,
+            metadataFile,
+            resultUUID,
+          ]);
+        }
+      }
+
+      // Set this back to empty for the next artifact that has metadata
+      currentMetadataStore.set({
+        currentMetadata: new Set(),
+      });
+    }
   }
 
   /**

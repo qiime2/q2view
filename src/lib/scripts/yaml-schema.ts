@@ -1,4 +1,11 @@
 import yaml from "js-yaml";
+import { currentMetadataStore } from "./currentMetadataStore";
+
+let currentMetadata: Set<string>;
+
+currentMetadataStore.subscribe((value) => {
+  currentMetadata = value.currentMetadata;
+});
 
 export default yaml.Schema.create([
   new yaml.Type("!no-provenance", {
@@ -11,17 +18,36 @@ export default yaml.Schema.create([
   new yaml.Type("!ref", {
     kind: "scalar",
     resolve: (data) => data !== null,
-    construct: (data) => data,
+    construct: (data) => {
+      // Data will be of form environment:plugins:<plugin>
+      const plugin = data.split(":")[2];
+      return `q2-${plugin}`;
+    },
   }),
   new yaml.Type("!metadata", {
     kind: "scalar",
     resolve: (data) => data !== null,
     construct: (data) => {
       const splitData = data.split(":");
+      let constructed;
+
       if (splitData.length === 1) {
-        return { file: data, artifacts: [] };
+        currentMetadata.add(splitData[0]);
+        constructed = { file: data, artifacts: [] };
+      } else {
+        currentMetadata.add(splitData[1]);
+        constructed = {
+          file: splitData[1],
+          artifacts: splitData[0].split(","),
+        };
       }
-      return { file: splitData[1], artifacts: splitData[0].split(",") };
+
+      // Update the store
+      currentMetadataStore.set({
+        currentMetadata: currentMetadata,
+      });
+
+      return constructed;
     },
   }),
   new yaml.Type("!color", {
