@@ -187,7 +187,7 @@
       Clear Search
     </button>
     {#if $provenanceModel.searchError !== null}
-      <div class="border border-red-300 rounded-md bg-red-100 py-1 px-2 ml-auto w-2/3">
+      <div class="border border-red-300 rounded-md bg-red-100 py-1 px-3 ml-auto w-2/3">
         {#if $provenanceModel.searchError.constructor.name === "UnexpectedToken"}
           Error: UnexpectedToken, received {LARK_MAP.get($provenanceModel.searchError.token.type)} expected one of {_formatExpected($provenanceModel.searchError.expected)}
         {:else}
@@ -209,7 +209,8 @@
     border-gray-300
     bg-gray-200
     mx-2
-    p-1;
+    px-3
+    py-1;
   }
 
   .textButton:hover {
