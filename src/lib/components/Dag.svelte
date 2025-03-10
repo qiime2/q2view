@@ -6,6 +6,7 @@
   import provenanceModel from "$lib/models/provenanceModel";
   import cytoscape from "cytoscape";
   import ProvSearchbar from "./ProvSearchbar.svelte";
+    import { getScrollBarWidth } from "$lib/scripts/util";
 
   let self: HTMLDivElement;
   let cy: cytoscape.Core;
@@ -151,7 +152,9 @@
 </script>
 
 <div>
-  <ProvSearchbar height={provenanceModel.height} {cy}/>
+  <div class="{getScrollBarWidth() === 0 ? "pr-4" : ""}">
+    <ProvSearchbar height={provenanceModel.height} {cy}/>
+  </div>
   <div
     bind:this={self}
     id="cy"
