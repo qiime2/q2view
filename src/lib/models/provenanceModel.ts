@@ -8,6 +8,7 @@ import BiMap from "$lib/scripts/biMap";
 import { getYAML } from "$lib/scripts/fileutils";
 import { getAllObjectKeysRecursively } from "$lib/scripts/util";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
+import { _Number } from "$lib/scripts/provSearchUtils";
 
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
@@ -599,6 +600,7 @@ class ProvenanceModel {
    * were hit by the search
    */
   searchJSON(key: Array<string>, searchValue: any): Set<string> {
+    console.log(searchValue)
     const hits = new Set<string>();
 
     for (const json of this.nodeIDToJSON.values()) {
@@ -646,8 +648,37 @@ class ProvenanceModel {
                 // No anchor match on includes
                 hits.add(this.nodeIDToJSON.getKey(json));
               }
+            } else if (searchValue.constructor === _Number) {
+              // For numbers match based on value and operator
+              switch(searchValue.operator) {
+                case "=":
+                  if (value === searchValue.value) {
+                    hits.add(this.nodeIDToJSON.getKey(json));
+                  }
+                  break;
+                case ">":
+                  if (value > searchValue.value) {
+                    hits.add(this.nodeIDToJSON.getKey(json));
+                  }
+                  break;
+                case ">=":
+                  if (value >= searchValue.value) {
+                    hits.add(this.nodeIDToJSON.getKey(json));
+                  }
+                  break;
+                case "<":
+                  if (value < searchValue.value) {
+                    hits.add(this.nodeIDToJSON.getKey(json));
+                  }
+                  break;
+                case "<=":
+                  if (value <= searchValue.value) {
+                    hits.add(this.nodeIDToJSON.getKey(json));
+                  }
+                  break;
+              }
             } else if (value === searchValue) {
-              // For other things (numbers, bools, null) match on equality
+              // For bools and nulls match on equality
               hits.add(this.nodeIDToJSON.getKey(json));
             }
           }

@@ -55,7 +55,15 @@ class MyTransformer extends Transformer {
   }
 
   NUMBER(number) {
-    return Number(number.value);
+    console.log(number)
+    for (const operator of ["=", ">", ">=", "<", "<="]) {
+      if (number.value.startsWith(operator)) {
+        console.log(number.value.split(operator))
+        return new _Number(operator, Number(number.value.split(operator)[1]));
+      }
+    }
+
+    return new _Number("=", Number(number));
   }
 
   TRUE(_) {
@@ -98,6 +106,16 @@ class _Pair {
 }
 
 class _Key<T> extends Array {}
+
+export class _Number {
+  operator: ("=" | ">" | ">=" | "<" | "<=");
+  value: number;
+
+  constructor(operator: ("=" | ">" | ">=" | "<" | "<="), value: number) {
+    this.operator = operator;
+    this.value = value;
+  }
+}
 
 //*****************************************************************************
 // Unbelievably Set.Union and Set.Intersection were only added to the
@@ -213,5 +231,6 @@ export function searchProvenance(searchValue: string) {
 
   const ast = parser.parse(searchValue);
   const json = myTransformer.transform(ast);
+  console.log(json)
   return Array.from(_searchProvenanceValue(json, 0));
 }

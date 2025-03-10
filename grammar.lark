@@ -35,7 +35,12 @@ value: STRING
 value_group: "(" value [((AND | OR) value)*] ")"
 
 STRING: ESCAPED_STRING
-NUMBER: SIGNED_NUMBER
+NUMBER: COMPARISON? SIGNED_NUMBER
+
+COMPARISON: ">"
+          | ">="
+          | "<"
+          | "<="
 
 TRUE: "true"
 FALSE: "false"
