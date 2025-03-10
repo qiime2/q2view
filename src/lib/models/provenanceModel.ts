@@ -10,7 +10,6 @@ import { getAllObjectKeysRecursively } from "$lib/scripts/util";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
 import { _Number } from "$lib/scripts/provSearchUtils";
 
-
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
 
 // Define anchor constants for searching
@@ -600,7 +599,7 @@ class ProvenanceModel {
    * were hit by the search
    */
   searchJSON(key: Array<string>, searchValue: any): Set<string> {
-    console.log(searchValue)
+    console.log(searchValue);
     const hits = new Set<string>();
 
     for (const json of this.nodeIDToJSON.values()) {
@@ -650,7 +649,7 @@ class ProvenanceModel {
               }
             } else if (searchValue.constructor === _Number) {
               // For numbers match based on value and operator
-              switch(searchValue.operator) {
+              switch (searchValue.operator) {
                 case "=":
                   if (value === searchValue.value) {
                     hits.add(this.nodeIDToJSON.getKey(json));

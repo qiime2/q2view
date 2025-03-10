@@ -32,7 +32,7 @@ class MyTransformer extends Transformer {
   // Conda package names. The Conda package names only adds . and -. We use
   // . as the key sep meaning . in the key must be escaped \.
   key(key) {
-    const keyList = new _Key<string>;
+    const keyList = new _Key<string>();
 
     for (const child of key) {
       // Undefined is the seperators which we don't want inlcuded in here
@@ -55,10 +55,10 @@ class MyTransformer extends Transformer {
   }
 
   NUMBER(number) {
-    console.log(number)
+    console.log(number);
     for (const operator of ["=", ">", ">=", "<", "<="]) {
       if (number.value.startsWith(operator)) {
-        console.log(number.value.split(operator))
+        console.log(number.value.split(operator));
         return new _Number(operator, Number(number.value.split(operator)[1]));
       }
     }
@@ -108,10 +108,10 @@ class _Pair {
 class _Key<T> extends Array {}
 
 export class _Number {
-  operator: ("=" | ">" | ">=" | "<" | "<=");
+  operator: "=" | ">" | ">=" | "<" | "<=";
   value: number;
 
-  constructor(operator: ("=" | ">" | ">=" | "<" | "<="), value: number) {
+  constructor(operator: "=" | ">" | ">=" | "<" | "<=", value: number) {
     this.operator = operator;
     this.value = value;
   }
@@ -141,7 +141,9 @@ function _searchProvenanceValue(json: Array<any>, index: number): Set<string> {
   } else if (elem.constructor === _Key) {
     hits = provenanceModel.searchJSON(elem, null);
   } else {
-    throw new Error(`Expected Array, Pair, or Key. Got '${elem}' of type '${typeof elem}'`);
+    throw new Error(
+      `Expected Array, Pair, or Key. Got '${elem}' of type '${typeof elem}'`,
+    );
   }
 
   if (index < json.length - 1) {
@@ -231,6 +233,6 @@ export function searchProvenance(searchValue: string) {
 
   const ast = parser.parse(searchValue);
   const json = myTransformer.transform(ast);
-  console.log(json)
+  console.log(json);
   return Array.from(_searchProvenanceValue(json, 0));
 }
