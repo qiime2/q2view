@@ -1,4 +1,11 @@
 import yaml from "js-yaml";
+import { currentMetadataStore } from "./currentMetadataStore";
+
+let currentMetadata: Set<string>;
+
+currentMetadataStore.subscribe((value) => {
+  currentMetadata = value.currentMetadata;
+});
 
 // yaml.CORE_SCHEMA prevents a lot of type parsing (inlcuding dates) and leaves
 // those values as strings instead which in much better for searching.
@@ -27,10 +34,25 @@ export default yaml.Schema.create(yaml.CORE_SCHEMA, [
     resolve: (data) => data !== null,
     construct: (data) => {
       const splitData = data.split(":");
+      let constructed;
+
       if (splitData.length === 1) {
-        return { file: data, artifacts: [] };
+        currentMetadata.add(splitData[0]);
+        constructed = { file: data, artifacts: [] };
+      } else {
+        currentMetadata.add(splitData[1]);
+        constructed = {
+          file: splitData[1],
+          artifacts: splitData[0].split(","),
+        };
       }
-      return { file: splitData[1], artifacts: splitData[0].split(",") };
+
+      // Update the store
+      currentMetadataStore.set({
+        currentMetadata: currentMetadata,
+      });
+
+      return constructed;
     },
   }),
   new yaml.Type("!color", {

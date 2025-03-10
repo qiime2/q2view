@@ -1,7 +1,7 @@
 <script lang="ts">
+  import readerModel from "$lib/models/readerModel";
+  import provenanceModel from "$lib/models/provenanceModel";
   import url from "$lib/scripts/url-store";
-
-  export let readerModel;
 </script>
 
 {#if $readerModel.indexPath}
@@ -32,6 +32,15 @@
         title='Provenance'
     >
       Provenance
+    </button>
+  </li>
+  <li>
+    <button
+        class={$url.pathname.replaceAll("/", "") === "metadata" ? "selected-nav-button nav-button" : "nav-button"}
+        on:click={() => (history.pushState({}, "", "/metadata/"+window.location.search))}
+        title='Metadata'
+    >
+      Metadata
     </button>
   </li>
 {/if}
