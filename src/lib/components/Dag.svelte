@@ -5,8 +5,11 @@
 
   import provenanceModel from "$lib/models/provenanceModel";
   import cytoscape from "cytoscape";
+  import ProvSearchbar from "./ProvSearchbar.svelte";
+    import { getScrollBarWidth } from "$lib/scripts/util";
 
   let self: HTMLDivElement;
+  let cy: cytoscape.Core;
 
   const cytoscapeConfig = {
     boxSelectionEnabled: true,
@@ -95,7 +98,7 @@
 
     let lock = false; // used to prevent recursive event storms
     let selectedExists = false;
-    let cy = cytoscape({
+    cy = cytoscape({
       ...cytoscapeConfig,
       container: document.getElementById("cy"),
       elements: provenanceModel.elements
@@ -148,10 +151,15 @@
   });
 </script>
 
-<div
-  bind:this={self}
-  id="cy"
-/>
+<div class="{getScrollBarWidth() == 0 ? "pl-4" : ""}">
+  <div>
+    <ProvSearchbar height={provenanceModel.height} {cy}/>
+  </div>
+  <div
+    bind:this={self}
+    id="cy"
+  />
+</div>
 
 <style lang="postcss">
   #cy {
