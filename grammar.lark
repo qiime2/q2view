@@ -12,7 +12,7 @@
 // 2. `class Transformer` -> `export class Transformer`
 // 3. Delete the entire module.exports section
 
-start: [pair ((AND | OR) pair)*]
+start: [(key | pair) ((AND | OR) (key | pair))*]
 
 pair: pair_single
     | pair_group

@@ -73,7 +73,7 @@ class Scanner {
     // TODO deal with priorities!
     let postfix = this.match_whole ? "$" : "";
     let patterns_by_flags = segment_by_key(terminals, (t) =>
-      t.pattern.flags.join(""),
+      t.pattern.flags.join("")
     );
 
     let regexps = [];
@@ -370,7 +370,7 @@ class ConfigurationError extends LarkError {
 }
 
 function assert_config(value, options, msg = "Got %r, expected one of %s") {
-  if (!options.includes(value)) {
+  if (!(options.includes(value))) {
     throw new ConfigurationError(format(msg, value, options));
   }
 }
@@ -452,7 +452,11 @@ class UnexpectedInput extends LarkError {
             use_accepts: Recommended to keep this as ``use_accepts=True``.
 
   */
-  match_examples(parse_fn, examples, token_type_match_fallback = false) {
+  match_examples(
+    parse_fn,
+    examples,
+    token_type_match_fallback = false,
+  ) {
     if (is_dict(examples)) {
       examples = dict_items(examples);
     }
@@ -465,19 +469,19 @@ class UnexpectedInput extends LarkError {
         } catch (ut) {
           if (ut instanceof UnexpectedInput) {
             if (ut.state.eq(this.state)) {
-              if (ut.token === this.token) {
-                return label;
-              }
-
-              if (token_type_match_fallback) {
-                // Fallback to token types match
-                if (
-                  ut.token.type === this.token.type &&
-                  !last_item(candidate)
-                ) {
-                  candidate = [label, true];
+                if (ut.token === this.token) {
+                  return label;
                 }
-              }
+
+                if (token_type_match_fallback) {
+                  // Fallback to token types match
+                  if (
+                    ut.token.type === this.token.type &&
+                    !last_item(candidate)
+                  ) {
+                    candidate = [label, true];
+                  }
+                }
               if (candidate[0] === null) {
                 candidate = [label, false];
               }
@@ -497,7 +501,7 @@ class UnexpectedInput extends LarkError {
     if (this._terminals_by_name) {
       d = this._terminals_by_name;
       expected = expected.map((t_name) =>
-        t_name in d ? d[t_name].user_repr() : t_name,
+        t_name in d ? d[t_name].user_repr() : t_name
       );
     }
 
@@ -554,7 +558,7 @@ class UnexpectedCharacters extends UnexpectedInput {
     this.considered_tokens = considered_tokens;
     this.considered_rules = considered_rules;
     this.token_history = token_history;
-    this.char = seq[lex_pos];
+      this.char = seq[lex_pos];
     // this._context = this.get_context(seq);
   }
 }
@@ -630,7 +634,7 @@ class VisitError extends LarkError {
     let message = format(
       'Error trying to process rule "%s":\n\n%s',
       rule,
-      orig_exc,
+      orig_exc
     );
     super(message);
     this.rule = rule;
@@ -674,7 +678,7 @@ function _deserialize(data, namespace, memo) {
       dict_items(data).map(([key, value]) => [
         key,
         _deserialize(value, namespace, memo),
-      ]),
+      ])
     );
   } else if (is_array(data)) {
     return data.map((value) => _deserialize(value, namespace, memo));
@@ -796,7 +800,7 @@ class Tree {
   _pretty(level, indent_str) {
     if (this.children.length === 1 && !(this.children[0] instanceof Tree)) {
       return [
-        list_repeat(indent_str, level).join(""),
+        list_repeat(indent_str, level).join(''),
         this._pretty_label(),
         "\t",
         format("%s", this.children[0].value),
@@ -804,22 +808,12 @@ class Tree {
       ];
     }
 
-    let l = [
-      list_repeat(indent_str, level).join(""),
-      this._pretty_label(),
-      "\n",
-    ];
+    let l = [list_repeat(indent_str, level).join(''), this._pretty_label(), "\n"];
     for (const n of this.children) {
       if (n instanceof Tree) {
         l.push(...n._pretty(level + 1, indent_str));
       } else {
-        l.push(
-          ...[
-            list_repeat(indent_str, level + 1).join(""),
-            format("%s", n.value),
-            "\n",
-          ],
-        );
+        l.push(...[list_repeat(indent_str, level+1).join(''), format("%s", n.value), "\n"]);
       }
     }
 
@@ -868,7 +862,7 @@ class Tree {
         ...[...subtree.children]
           .reverse()
           .filter((c) => c instanceof Tree && !subtrees.has(c))
-          .map((c) => c),
+          .map((c) => c)
       );
     }
 
@@ -889,6 +883,7 @@ class Tree {
   find_data(data) {
     return this.find_pred((t) => t.data === data);
   }
+
 
   /**
     Return all values in the tree that evaluate pred(value) as true.
@@ -997,9 +992,9 @@ export class Transformer extends _Decoratable {
   static fromObj(obj, ...args) {
     class _T extends this {}
     for (let [k, v] of Object.entries(obj)) {
-      _T.prototype[k] = v;
+      _T.prototype[k] = v
     }
-    return new _T(...args);
+    return new _T(...args)
   }
 
   _call_userfunc(tree, new_children = null) {
@@ -1189,9 +1184,9 @@ class Transformer_InPlaceRecursive extends Transformer {
 
 class VisitorBase {
   _call_userfunc(tree) {
-    const callback = this[tree.data];
+    const callback = this[tree.data]
     if (callback) {
-      return callback(tree);
+      return callback(tree)
     } else {
       return this.__default__(tree);
     }
@@ -1300,13 +1295,13 @@ class Interpreter extends _Decoratable {
     if (tree.data in this) {
       return this[tree.data](tree);
     } else {
-      return this.__default__(tree);
+      return this.__default__(tree)
     }
   }
 
   visit_children(tree) {
     return tree.children.map((child) =>
-      child instanceof Tree ? this.visit(child) : child,
+      child instanceof Tree ? this.visit(child) : child
     );
   }
 
@@ -1351,7 +1346,7 @@ class Terminal extends Symbol {
     return ["name", "filter_out"];
   }
   get is_term() {
-    return true;
+    return true
   }
 
   constructor(name, filter_out = false) {
@@ -1374,8 +1369,9 @@ class NonTerminal extends Symbol {
     return ["name"];
   }
   get is_term() {
-    return false;
+    return false
   }
+
 }
 
 class RuleOptions extends Serialize {
@@ -1393,7 +1389,7 @@ class RuleOptions extends Serialize {
     expand1 = false,
     priority = null,
     template_source = null,
-    empty_indices = [],
+    empty_indices = []
   ) {
     super();
     this.keep_all_tokens = keep_all_tokens;
@@ -1409,7 +1405,7 @@ class RuleOptions extends Serialize {
       this.keep_all_tokens,
       this.expand1,
       this.priority,
-      this.template_source,
+      this.template_source
     );
   }
 }
@@ -1449,7 +1445,7 @@ class Rule extends Serialize {
       this.origin,
       this.expansion,
       this.alias,
-      this.options,
+      this.options
     );
   }
 
@@ -1509,9 +1505,7 @@ class PatternStr extends Pattern {
   static get __serialize_fields__() {
     return ["value", "flags"];
   }
-  static get type() {
-    return "str";
-  }
+  static get type() { return "str"; }
   to_regexp() {
     return this._get_flags(re.escape(this.value));
   }
@@ -1529,9 +1523,7 @@ class PatternRE extends Pattern {
   static get __serialize_fields__() {
     return ["value", "flags", "_width"];
   }
-  static get type() {
-    return "re";
-  }
+  static get type() { return "re"; }
   to_regexp() {
     return this._get_flags(this.value);
   }
@@ -1611,7 +1603,7 @@ class Token {
     column = null,
     end_line = null,
     end_column = null,
-    end_pos = null,
+    end_pos = null
   ) {
     this.type = type_;
     this.start_pos = start_pos;
@@ -1627,7 +1619,7 @@ class Token {
     return Token.new_borrow_pos(
       type_ !== null ? type_ : this.type,
       value !== null ? value : this.value,
-      this,
+      this
     );
   }
 
@@ -1641,7 +1633,7 @@ class Token {
       borrow_t.column,
       borrow_t.end_line,
       borrow_t.end_column,
-      borrow_t.end_pos,
+      borrow_t.end_pos
     );
   }
 
@@ -1740,9 +1732,9 @@ function _create_unless(terminals, g_regex_flags, re_, use_bytes) {
   let tokens_by_type = classify(terminals, (t) => t.pattern.constructor.type);
   let embedded_strs = new Set();
   let callback = {};
-  for (const retok of tokens_by_type.get("re") || []) {
+  for (const retok of tokens_by_type.get('re') || []) {
     unless = [];
-    for (const strtok of tokens_by_type.get("str") || []) {
+    for (const strtok of tokens_by_type.get('str') || []) {
       if (strtok.priority !== retok.priority) {
         continue;
       }
@@ -1750,9 +1742,7 @@ function _create_unless(terminals, g_regex_flags, re_, use_bytes) {
       s = strtok.pattern.value;
       if (s === _get_match(re_, retok.pattern.to_regexp(), s, g_regex_flags)) {
         unless.push(strtok);
-        if (
-          isSubset(new Set(strtok.pattern.flags), new Set(retok.pattern.flags))
-        ) {
+        if (isSubset(new Set(strtok.pattern.flags), new Set(retok.pattern.flags))) {
           embedded_strs.add(strtok);
         }
       }
@@ -1760,7 +1750,13 @@ function _create_unless(terminals, g_regex_flags, re_, use_bytes) {
 
     if (unless.length) {
       callback[retok.name] = new UnlessCallback(
-        new Scanner(unless, g_regex_flags, re_, use_bytes, true),
+        new Scanner(
+          unless,
+          g_regex_flags,
+          re_,
+          use_bytes,
+          true,
+        ),
       );
     }
   }
@@ -1851,19 +1847,21 @@ class Lexer extends ABC {
 }
 
 function sort_by_key_tuple(arr, key) {
-  arr.sort((a, b) => {
-    let ta = key(a);
-    let tb = key(b);
-    for (let i = 0; i < ta.length; i++) {
+  arr.sort( (a, b) => {
+    let ta = key(a)
+    let tb = key(b)
+    for (let i=0; i<ta.length; i++) {
       if (ta[i] > tb[i]) {
         return 1;
-      } else if (ta[i] < tb[i]) {
+      }
+      else if (ta[i] < tb[i]) {
         return -1;
       }
     }
     return 0;
-  });
+  })
 }
+
 
 class BasicLexer extends Lexer {
   constructor(conf) {
@@ -1878,7 +1876,7 @@ class BasicLexer extends Lexer {
         } catch (e) {
           if (e instanceof this.re.error) {
             throw new LexError(
-              format("Cannot compile token %s: %s", t.name, t.pattern),
+              format("Cannot compile token %s: %s", t.name, t.pattern)
             );
           } else {
             throw e;
@@ -1889,8 +1887,8 @@ class BasicLexer extends Lexer {
             format(
               "Lexer does not allow zero-width terminals. (%s: %s)",
               t.name,
-              t.pattern,
-            ),
+              t.pattern
+            )
           );
         }
       }
@@ -1901,9 +1899,9 @@ class BasicLexer extends Lexer {
             "Ignore terminals are not defined: %s",
             set_subtract(
               new Set(conf.ignore),
-              new Set(terminals.map((t) => t.name)),
-            ),
-          ),
+              new Set(terminals.map((t) => t.name))
+            )
+          )
         );
       }
     }
@@ -1912,14 +1910,14 @@ class BasicLexer extends Lexer {
     this.newline_types = frozenset(
       terminals
         .filter((t) => _regexp_has_newline(t.pattern.to_regexp()))
-        .map((t) => t.name),
+        .map((t) => t.name)
     );
     this.ignore_types = frozenset(conf.ignore);
     sort_by_key_tuple(terminals, (x) => [
-      -x.priority,
-      -x.pattern.max_width,
-      -x.pattern.value.length,
-      x.name,
+        -x.priority,
+        -x.pattern.max_width,
+        -x.pattern.value.length,
+        x.name,
     ]);
     this.terminals = terminals;
     this.user_callbacks = conf.callbacks;
@@ -1935,7 +1933,7 @@ class BasicLexer extends Lexer {
       this.terminals,
       this.g_regex_flags,
       this.re,
-      this.use_bytes,
+      this.use_bytes
     );
     for (const [type_, f] of dict_items(this.user_callbacks)) {
       if (type_ in this.callback) {
@@ -1943,7 +1941,7 @@ class BasicLexer extends Lexer {
         this.callback[type_] = new CallChain(
           this.callback[type_],
           f,
-          (t) => t.type === type_,
+          (t) => t.type === type_
         );
       } else {
         this.callback[type_] = f;
@@ -1954,7 +1952,7 @@ class BasicLexer extends Lexer {
       terminals,
       this.g_regex_flags,
       this.re,
-      this.use_bytes,
+      this.use_bytes
     );
   }
 
@@ -2014,7 +2012,7 @@ class BasicLexer extends Lexer {
           value,
           line_ctr.char_pos,
           line_ctr.line,
-          line_ctr.column,
+          line_ctr.column
         );
         line_ctr.feed(value, this.newline_types.has(type_));
         t.end_line = line_ctr.line;
@@ -2024,7 +2022,7 @@ class BasicLexer extends Lexer {
           t = this.callback[t.type](t);
           if (!(t instanceof Token)) {
             throw new LexError(
-              format("Callbacks must return a token (returned %r)", t),
+              format("Callbacks must return a token (returned %r)", t)
             );
           }
         }
@@ -2038,7 +2036,7 @@ class BasicLexer extends Lexer {
             value,
             line_ctr.char_pos,
             line_ctr.line,
-            line_ctr.column,
+            line_ctr.column
           );
           this.callback[type_](t2);
         }
@@ -2139,14 +2137,14 @@ class LexerConf extends Serialize {
     ignore = [],
     postlex = null,
     callbacks = null,
-    g_regex_flags = "",
+    g_regex_flags = '',
     skip_validation = false,
     use_bytes = false,
   } = {}) {
     super();
     this.terminals = terminals;
     this.terminals_by_name = Object.fromEntries(
-      this.terminals.map((t) => [t.name, t]),
+      this.terminals.map((t) => [t.name, t])
     );
     this.ignore = ignore;
     this.postlex = postlex;
@@ -2160,7 +2158,7 @@ class LexerConf extends Serialize {
 
   _deserialize() {
     this.terminals_by_name = Object.fromEntries(
-      this.terminals.map((t) => [t.name, t]),
+      this.terminals.map((t) => [t.name, t])
     );
   }
 }
@@ -2289,7 +2287,7 @@ function make_propagate_positions(option) {
   }
 
   throw new ConfigurationError(
-    format("Invalid option for propagate_positions: %r", option),
+    format("Invalid option for propagate_positions: %r", option)
   );
 }
 
@@ -2387,7 +2385,7 @@ class _ChildFilterLALR_NoPlaceholders extends _ChildFilter {
 }
 
 const ChildFilterLALR_NoPlaceholders = callable_class(
-  _ChildFilterLALR_NoPlaceholders,
+  _ChildFilterLALR_NoPlaceholders
 );
 function _should_expand(sym) {
   return !sym.is_term && sym.name.startsWith("_");
@@ -2397,7 +2395,7 @@ function maybe_create_child_filter(
   expansion,
   keep_all_tokens,
   ambiguous,
-  _empty_indices,
+  _empty_indices
 ) {
   let empty_indices, s;
   // Prepare empty_indices as: How many Nones to insert at each index?
@@ -2427,17 +2425,18 @@ function maybe_create_child_filter(
       return partial(
         ambiguous ? ChildFilter : ChildFilterLALR,
         to_include,
-        nones_to_add,
+        nones_to_add
       );
     } else {
       // LALR without placeholders
       return partial(
         ChildFilterLALR_NoPlaceholders,
-        to_include.map(([i, x, _]) => [i, x]),
+        to_include.map(([i, x, _]) => [i, x])
       );
     }
   }
 }
+
 
 /**
 
@@ -2495,7 +2494,7 @@ function inplace_transformer(func) {
 function apply_visit_wrapper(func, name, wrapper) {
   if (wrapper === _vargs_meta || wrapper === _vargs_meta_inline) {
     throw new NotImplementedError(
-      "Meta args not supported for internal transformer",
+      "Meta args not supported for internal transformer"
     );
   }
 
@@ -2513,7 +2512,7 @@ class ParseTreeBuilder {
     tree_class,
     propagate_positions = false,
     ambiguous = false,
-    maybe_placeholders = false,
+    maybe_placeholders = false
   ) {
     this.tree_class = tree_class;
     this.propagate_positions = propagate_positions;
@@ -2525,7 +2524,7 @@ class ParseTreeBuilder {
   *_init_builders(rules) {
     let expand_single_child, keep_all_tokens, options, wrapper_chain;
     let propagate_positions = make_propagate_positions(
-      this.propagate_positions,
+      this.propagate_positions
     );
     for (const rule of rules) {
       options = rule.options;
@@ -2538,7 +2537,7 @@ class ParseTreeBuilder {
             rule.expansion,
             keep_all_tokens,
             this.ambiguous,
-            this.maybe_placeholders ? options.empty_indices : [],
+            this.maybe_placeholders ? options.empty_indices : []
           ),
           propagate_positions,
         ]),
@@ -2617,7 +2616,7 @@ class LALR_Parser extends Serialize {
     });
   }
 
-  parse({ lexer, start, on_error = null } = {}) {
+  parse({lexer, start, on_error = null} = {}) {
     let e, p, s;
     try {
       return this.parser.parse({ lexer: lexer, start: start });
@@ -2722,13 +2721,13 @@ class ParserState {
     let callbacks = this.parse_conf.callbacks;
     while (true) {
       state = last_item(state_stack);
-      if (token.type in states[state]) {
+      if ( token.type in states[state] ) {
         [action, arg] = states[state][token.type];
       } else {
         expected = new Set(
           dict_keys(states[state])
             .filter((s) => isupper(s))
-            .map((s) => s),
+            .map((s) => s)
         );
         throw new UnexpectedToken({
           token: token,
@@ -2742,7 +2741,7 @@ class ParserState {
 
         state_stack.push(arg);
         value_stack.push(
-          !(token.type in callbacks) ? token : callbacks[token.type](token),
+          !(token.type in callbacks) ? token : callbacks[token.type](token)
         );
         return;
       } else {
@@ -2787,7 +2786,7 @@ class _Parser {
       parse_conf,
       lexer,
       state_stack,
-      value_stack,
+      value_stack
     );
     if (start_interactive) {
       return new InteractiveParser(this, parser_state, parser_state.lexer);
@@ -2815,7 +2814,7 @@ class _Parser {
           e.interactive_parser = new InteractiveParser(
             this,
             state,
-            state.lexer,
+            state.lexer
           );
         } catch (e) {
           if (e instanceof ReferenceError) {
@@ -2936,7 +2935,7 @@ class InteractiveParser {
     return new ImmutableInteractiveParser(
       p.parser,
       p.parser_state,
-      p.lexer_thread,
+      p.lexer_thread
     );
   }
 
@@ -3071,9 +3070,9 @@ class ParseTable {
           dict_items(actions).map(([token, [action, arg]]) => [
             dict_get(tokens, token),
             action === Reduce ? [1, arg.serialize(memo)] : [0, arg],
-          ]),
+          ])
         ),
-      ]),
+      ])
     );
     return {
       tokens: tokens.reversed(),
@@ -3093,9 +3092,9 @@ class ParseTable {
           dict_items(actions).map(([token, [action, arg]]) => [
             tokens[token],
             action === 1 ? [Reduce, Rule.deserialize(arg, memo)] : [Shift, arg],
-          ]),
+          ])
         ),
-      ]),
+      ])
     );
     return new cls(states, data["start_states"], data["end_states"]);
   }
@@ -3106,7 +3105,7 @@ class IntParseTable extends ParseTable {
     const cls = this;
     let enum_ = [...parse_table.states];
     let state_to_idx = Object.fromEntries(
-      enumerate(enum_).map(([i, s]) => [s, i]),
+      enumerate(enum_).map(([i, s]) => [s, i])
     );
     let int_states = {};
     for (let [s, la] of dict_items(parse_table.states)) {
@@ -3114,7 +3113,7 @@ class IntParseTable extends ParseTable {
         dict_items(la).map(([k, v]) => [
           k,
           v[0] === Shift ? [v[0], state_to_idx[v[1]]] : v,
-        ]),
+        ])
       );
       int_states[state_to_idx[s]] = la;
     }
@@ -3123,13 +3122,13 @@ class IntParseTable extends ParseTable {
       dict_items(parse_table.start_states).map(([start, s]) => [
         start,
         state_to_idx[s],
-      ]),
+      ])
     );
     let end_states = Object.fromEntries(
       dict_items(parse_table.end_states).map(([start, s]) => [
         start,
         state_to_idx[s],
-      ]),
+      ])
     );
     return new cls(int_states, start_states, end_states);
   }
@@ -3172,7 +3171,7 @@ class MakeParsingFrontend {
       data["parser"],
       memo,
       callbacks,
-      options.debug,
+      options.debug
     );
     parser_conf.callbacks = callbacks;
     return new ParsingFrontend({
@@ -3191,15 +3190,10 @@ function _deserialize_parsing_frontend(
   memo,
   lexer_conf,
   callbacks,
-  options,
+  options
 ) {
   let parser_conf = ParserConf.deserialize(data["parser_conf"], memo);
-  let parser = LALR_Parser.deserialize(
-    data["parser"],
-    memo,
-    callbacks,
-    options.debug,
-  );
+  let parser = LALR_Parser.deserialize(data["parser"], memo, callbacks, options.debug);
   parser_conf.callbacks = callbacks;
   return new ParsingFrontend({
     lexer_conf: lexer_conf,
@@ -3209,7 +3203,7 @@ function _deserialize_parsing_frontend(
   });
 }
 
-var _parser_creators = {};
+var _parser_creators = {}
 
 class ParsingFrontend extends Serialize {
   static get __serialize_fields__() {
@@ -3238,16 +3232,16 @@ class ParsingFrontend extends Serialize {
     }
 
     const lexers = {
-      basic: create_basic_lexer,
-      contextual: create_contextual_lexer,
-    };
+        basic: create_basic_lexer,
+        contextual: create_contextual_lexer
+    }
     if (lexer_type in lexers) {
       create_lexer = lexers[lexer_type];
       this.lexer = create_lexer(
         lexer_conf,
         this.parser,
         lexer_conf.postlex,
-        options,
+        options
       );
     } else {
       this.lexer = _wrap_lexer(lexer_type)(lexer_conf);
@@ -3264,18 +3258,18 @@ class ParsingFrontend extends Serialize {
       if (start_decls.length > 1) {
         throw new ConfigurationError(
           "Lark initialized with more than 1 possible start rule. Must specify which start rule to parse",
-          start_decls,
+          start_decls
         );
       }
 
       [start] = start_decls;
-    } else if (!this.parser_conf.start.includes(start)) {
+    } else if (!(this.parser_conf.start.includes(start))) {
       throw new ConfigurationError(
         format(
           "Unknown start rule %s. Must be one of %r",
           start,
-          this.parser_conf.start,
-        ),
+          this.parser_conf.start
+        )
       );
     }
 
@@ -3301,7 +3295,7 @@ class ParsingFrontend extends Serialize {
     let chosen_start = this._verify_start(start);
     if (this.parser_conf.parser_type !== "lalr") {
       throw new ConfigurationError(
-        "parse_interactive() currently only works with parser='lalr' ",
+        "parse_interactive() currently only works with parser='lalr' "
       );
     }
 
@@ -3325,8 +3319,8 @@ function _validate_frontend_args(parser, lexer) {
       expected,
       format(
         "Parser %r does not support lexer %%r, expected one of %%s",
-        parser,
-      ),
+        parser
+      )
     );
   }
 }
@@ -3365,7 +3359,7 @@ function create_contextual_lexer(lexer_conf, parser, postlex, options) {
     dict_items(parser._parse_table.states).map(([idx, t]) => [
       idx,
       [...dict_keys(t)],
-    ]),
+    ])
   );
   let always_accept = postlex ? postlex.always_accept : [];
   return new ContextualLexer({
@@ -3495,7 +3489,7 @@ class LarkOptions extends Serialize {
     lexer_callbacks: {},
     maybe_placeholders: true,
     edit_terminals: null,
-    g_regex_flags: "",
+    g_regex_flags: '',
     use_bytes: false,
     import_paths: [],
     source_path: null,
@@ -3530,7 +3524,7 @@ class LarkOptions extends Serialize {
     if (this.parser === "earley" && this.transformer) {
       throw new ConfigurationError(
         "Cannot specify an embedded transformer when using the Earley algorithm. " +
-          "Please use your transformer on the resulting parse tree, or use a different algorithm (i.e. LALR)",
+          "Please use your transformer on the resulting parse tree, or use a different algorithm (i.e. LALR)"
       );
     }
 
@@ -3602,16 +3596,16 @@ class Lark extends Serialize {
         this.options.tree_class || make_constructor(Tree),
         this.options.propagate_positions,
         this.options.parser !== "lalr" && this.options.ambiguity === "explicit",
-        this.options.maybe_placeholders,
+        this.options.maybe_placeholders
       );
       this._callbacks = this._parse_tree_builder.create_callback(
-        this.options.transformer,
+        this.options.transformer
       );
     }
 
     dict_update(
       this._callbacks,
-      _get_lexer_callbacks(this.options.transformer, this.terminals),
+      _get_lexer_callbacks(this.options.transformer, this.terminals)
     );
   }
 
@@ -3632,7 +3626,7 @@ class Lark extends Serialize {
     lexer_conf.callbacks = options.lexer_callbacks || {};
     lexer_conf.re_module = options.regex ? regex : re;
     lexer_conf.use_bytes = options.use_bytes;
-    lexer_conf.g_regex_flags = options.g_regex_flags || "";
+    lexer_conf.g_regex_flags = options.g_regex_flags || '';
     lexer_conf.skip_validation = true;
     lexer_conf.postlex = options.postlex;
     return lexer_conf;
@@ -3650,7 +3644,7 @@ class Lark extends Serialize {
     let memo = SerializeMemoizer.deserialize(
       memo_json,
       { Rule: Rule, TerminalDef: TerminalDef },
-      {},
+      {}
     );
     let options = dict(data["options"]);
     // if (
@@ -3672,19 +3666,19 @@ class Lark extends Serialize {
     this.lexer_conf = this._deserialize_lexer_conf(
       data["parser"],
       memo,
-      this.options,
+      this.options
     );
     this.terminals = this.lexer_conf.terminals;
     this._prepare_callbacks();
     this._terminals_dict = Object.fromEntries(
-      this.terminals.map((t) => [t.name, t]),
+      this.terminals.map((t) => [t.name, t])
     );
     this.parser = _deserialize_parsing_frontend(
       data["parser"],
       memo,
       this.lexer_conf,
       this._callbacks,
-      this.options,
+      this.options
     );
     return this;
   }
@@ -3726,7 +3720,7 @@ class Lark extends Serialize {
       "Lark(open(%r), parser=%r, lexer=%r, ...)",
       this.source_path,
       this.options.parser,
-      this.options.lexer,
+      this.options.lexer
     );
   }
 
@@ -3844,8 +3838,8 @@ class Indenter extends PostLex {
           format(
             "Unexpected dedent to column %s. Expected dedent to %s",
             indent,
-            last_item(this.indent_level),
-          ),
+            last_item(this.indent_level)
+          )
         );
       }
     }
@@ -3948,2020 +3942,3095 @@ class PythonIndenter extends Indenter {
 }
 
 const NAMESPACE = {
-  Terminal: Terminal,
-  NonTerminal: NonTerminal,
-  RuleOptions: RuleOptions,
-  PatternStr: PatternStr,
-  PatternRE: PatternRE,
-  TerminalDef: TerminalDef,
-};
+    Terminal: Terminal,
+    NonTerminal: NonTerminal,
+    RuleOptions: RuleOptions,
+    PatternStr: PatternStr,
+    PatternRE: PatternRE,
+    TerminalDef: TerminalDef
+}
 
-var DATA = {
-  parser: {
-    lexer_conf: {
-      terminals: [
+var DATA={
+  "parser": {
+    "lexer_conf": {
+      "terminals": [
         {
-          "@": 0,
+          "@": 0
         },
         {
-          "@": 1,
+          "@": 1
         },
         {
-          "@": 2,
+          "@": 2
         },
         {
-          "@": 3,
+          "@": 3
         },
         {
-          "@": 4,
+          "@": 4
         },
         {
-          "@": 5,
+          "@": 5
         },
         {
-          "@": 6,
+          "@": 6
         },
         {
-          "@": 7,
+          "@": 7
         },
         {
-          "@": 8,
+          "@": 8
         },
         {
-          "@": 9,
+          "@": 9
         },
         {
-          "@": 10,
+          "@": 10
         },
         {
-          "@": 11,
+          "@": 11
         },
         {
-          "@": 12,
-        },
+          "@": 12
+        }
       ],
-      ignore: ["WS"],
-      g_regex_flags: 0,
-      use_bytes: false,
-      lexer_type: "contextual",
-      __type__: "LexerConf",
-    },
-    parser_conf: {
-      rules: [
-        {
-          "@": 13,
-        },
-        {
-          "@": 14,
-        },
-        {
-          "@": 15,
-        },
-        {
-          "@": 16,
-        },
-        {
-          "@": 17,
-        },
-        {
-          "@": 18,
-        },
-        {
-          "@": 19,
-        },
-        {
-          "@": 20,
-        },
-        {
-          "@": 21,
-        },
-        {
-          "@": 22,
-        },
-        {
-          "@": 23,
-        },
-        {
-          "@": 24,
-        },
-        {
-          "@": 25,
-        },
-        {
-          "@": 26,
-        },
-        {
-          "@": 27,
-        },
-        {
-          "@": 28,
-        },
-        {
-          "@": 29,
-        },
-        {
-          "@": 30,
-        },
-        {
-          "@": 31,
-        },
-        {
-          "@": 32,
-        },
-        {
-          "@": 33,
-        },
-        {
-          "@": 34,
-        },
-        {
-          "@": 35,
-        },
-        {
-          "@": 36,
-        },
-        {
-          "@": 37,
-        },
-        {
-          "@": 38,
-        },
-        {
-          "@": 39,
-        },
-        {
-          "@": 40,
-        },
-        {
-          "@": 41,
-        },
+      "ignore": [
+        "WS"
       ],
-      start: ["start"],
-      parser_type: "lalr",
-      __type__: "ParserConf",
+      "g_regex_flags": 0,
+      "use_bytes": false,
+      "lexer_type": "contextual",
+      "__type__": "LexerConf"
     },
-    parser: {
-      tokens: {
-        0: "KEY_VALUE",
-        1: "__value_group_star_2",
-        2: "AND",
-        3: "OR",
-        4: "RPAR",
-        5: "pair_single",
-        6: "pair",
-        7: "LPAR",
-        8: "pair_group",
-        9: "key",
-        10: "STRING",
-        11: "NULL",
-        12: "FALSE",
-        13: "TRUE",
-        14: "value_group",
-        15: "NUMBER",
-        16: "value",
-        17: "$END",
-        18: "start",
-        19: "COLON",
-        20: "KEY_SEP",
-        21: "__key_star_1",
-        22: "__start_star_0",
-      },
-      states: {
-        0: {
-          0: [0, 17],
+    "parser_conf": {
+      "rules": [
+        {
+          "@": 13
         },
-        1: {
-          1: [0, 14],
-          2: [0, 4],
-          3: [0, 15],
-          4: [0, 8],
+        {
+          "@": 14
         },
-        2: {
-          5: [0, 9],
-          6: [0, 19],
-          7: [0, 26],
-          8: [0, 24],
-          0: [0, 28],
-          9: [0, 47],
+        {
+          "@": 15
         },
-        3: {
-          5: [0, 9],
-          7: [0, 26],
-          6: [0, 20],
-          8: [0, 24],
-          0: [0, 28],
-          9: [0, 47],
+        {
+          "@": 16
         },
-        4: {
-          10: [0, 46],
-          7: [0, 33],
-          11: [0, 45],
-          12: [0, 13],
-          13: [0, 11],
-          14: [0, 38],
-          15: [0, 34],
-          16: [0, 6],
+        {
+          "@": 17
         },
-        5: {
-          10: [0, 46],
-          7: [0, 33],
-          11: [0, 45],
-          12: [0, 13],
-          13: [0, 11],
-          14: [0, 38],
-          15: [0, 34],
-          16: [0, 27],
+        {
+          "@": 18
         },
-        6: {
-          2: [
-            1,
-            {
-              "@": 38,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 38,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 38,
-            },
-          ],
+        {
+          "@": 19
         },
-        7: {
-          5: [0, 9],
-          6: [0, 23],
-          7: [0, 26],
-          8: [0, 24],
-          0: [0, 28],
-          9: [0, 47],
+        {
+          "@": 20
         },
-        8: {
-          2: [
-            1,
-            {
-              "@": 31,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 31,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 31,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 31,
-            },
-          ],
+        {
+          "@": 21
         },
-        9: {
-          2: [
-            1,
-            {
-              "@": 16,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 16,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 16,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 16,
-            },
-          ],
+        {
+          "@": 22
         },
-        10: {
-          2: [
-            1,
-            {
-              "@": 41,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 41,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 41,
-            },
-          ],
+        {
+          "@": 23
         },
-        11: {
-          2: [
-            1,
-            {
-              "@": 26,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 26,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 26,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 26,
-            },
-          ],
+        {
+          "@": 24
         },
-        12: {
-          5: [0, 9],
-          18: [0, 21],
-          6: [0, 41],
-          7: [0, 26],
-          8: [0, 24],
-          0: [0, 28],
-          9: [0, 47],
-          17: [
-            1,
-            {
-              "@": 15,
-            },
-          ],
+        {
+          "@": 25
         },
-        13: {
-          2: [
-            1,
-            {
-              "@": 27,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 27,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 27,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 27,
-            },
-          ],
+        {
+          "@": 26
         },
-        14: {
-          4: [0, 40],
-          3: [0, 18],
-          2: [0, 5],
+        {
+          "@": 27
         },
-        15: {
-          10: [0, 46],
-          7: [0, 33],
-          16: [0, 22],
-          11: [0, 45],
-          12: [0, 13],
-          13: [0, 11],
-          14: [0, 38],
-          15: [0, 34],
+        {
+          "@": 28
         },
-        16: {
-          19: [
-            1,
-            {
-              "@": 36,
-            },
-          ],
-          20: [
-            1,
-            {
-              "@": 36,
-            },
-          ],
+        {
+          "@": 29
         },
-        17: {
-          19: [
-            1,
-            {
-              "@": 37,
-            },
-          ],
-          20: [
-            1,
-            {
-              "@": 37,
-            },
-          ],
+        {
+          "@": 30
         },
-        18: {
-          10: [0, 46],
-          7: [0, 33],
-          16: [0, 10],
-          11: [0, 45],
-          12: [0, 13],
-          13: [0, 11],
-          14: [0, 38],
-          15: [0, 34],
+        {
+          "@": 31
         },
-        19: {
-          2: [
-            1,
-            {
-              "@": 35,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 35,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 35,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 35,
-            },
-          ],
+        {
+          "@": 32
         },
-        20: {
-          2: [
-            1,
-            {
-              "@": 34,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 34,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 34,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 34,
-            },
-          ],
+        {
+          "@": 33
         },
-        21: {},
-        22: {
-          2: [
-            1,
-            {
-              "@": 39,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 39,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 39,
-            },
-          ],
+        {
+          "@": 34
         },
-        23: {
-          2: [
-            1,
-            {
-              "@": 33,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 33,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 33,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 33,
-            },
-          ],
+        {
+          "@": 35
         },
-        24: {
-          2: [
-            1,
-            {
-              "@": 17,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 17,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 17,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 17,
-            },
-          ],
+        {
+          "@": 36
         },
-        25: {
-          3: [0, 2],
-          2: [0, 3],
-          17: [
-            1,
-            {
-              "@": 13,
-            },
-          ],
+        {
+          "@": 37
         },
-        26: {
-          5: [0, 9],
-          4: [0, 43],
-          6: [0, 37],
-          7: [0, 26],
-          8: [0, 24],
-          0: [0, 28],
-          9: [0, 47],
+        {
+          "@": 38
         },
-        27: {
-          2: [
-            1,
-            {
-              "@": 40,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 40,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 40,
-            },
-          ],
+        {
+          "@": 39
         },
-        28: {
-          20: [0, 44],
-          21: [0, 32],
-          19: [
-            1,
-            {
-              "@": 23,
-            },
-          ],
+        {
+          "@": 40
         },
-        29: {
-          2: [
-            1,
-            {
-              "@": 18,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 18,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 18,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 18,
-            },
-          ],
+        {
+          "@": 41
         },
-        30: {
-          2: [
-            1,
-            {
-              "@": 32,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 32,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 32,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 32,
-            },
-          ],
+        {
+          "@": 42
         },
-        31: {
-          3: [0, 2],
-          4: [0, 35],
-          2: [0, 3],
+        {
+          "@": 43
         },
-        32: {
-          20: [0, 0],
-          19: [
-            1,
-            {
-              "@": 22,
-            },
-          ],
+        {
+          "@": 44
         },
-        33: {
-          10: [0, 46],
-          7: [0, 33],
-          13: [0, 11],
-          11: [0, 45],
-          16: [0, 1],
-          12: [0, 13],
-          14: [0, 38],
-          15: [0, 34],
+        {
+          "@": 45
         },
-        34: {
-          2: [
-            1,
-            {
-              "@": 25,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 25,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 25,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 25,
-            },
-          ],
+        {
+          "@": 46
         },
-        35: {
-          2: [
-            1,
-            {
-              "@": 19,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 19,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 19,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 19,
-            },
-          ],
+        {
+          "@": 47
         },
-        36: {
-          5: [0, 9],
-          7: [0, 26],
-          8: [0, 24],
-          0: [0, 28],
-          9: [0, 47],
-          6: [0, 30],
+        {
+          "@": 48
         },
-        37: {
-          4: [0, 39],
-          22: [0, 31],
-          3: [0, 7],
-          2: [0, 36],
+        {
+          "@": 49
         },
-        38: {
-          2: [
-            1,
-            {
-              "@": 29,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 29,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 29,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 29,
-            },
-          ],
+        {
+          "@": 50
         },
-        39: {
-          2: [
-            1,
-            {
-              "@": 20,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 20,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 20,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 20,
-            },
-          ],
-        },
-        40: {
-          2: [
-            1,
-            {
-              "@": 30,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 30,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 30,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 30,
-            },
-          ],
-        },
-        41: {
-          22: [0, 25],
-          3: [0, 7],
-          2: [0, 36],
-          17: [
-            1,
-            {
-              "@": 14,
-            },
-          ],
-        },
-        42: {
-          10: [0, 46],
-          7: [0, 33],
-          16: [0, 29],
-          11: [0, 45],
-          12: [0, 13],
-          13: [0, 11],
-          14: [0, 38],
-          15: [0, 34],
-        },
-        43: {
-          2: [
-            1,
-            {
-              "@": 21,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 21,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 21,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 21,
-            },
-          ],
-        },
-        44: {
-          0: [0, 16],
-        },
-        45: {
-          2: [
-            1,
-            {
-              "@": 28,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 28,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 28,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 28,
-            },
-          ],
-        },
-        46: {
-          2: [
-            1,
-            {
-              "@": 24,
-            },
-          ],
-          3: [
-            1,
-            {
-              "@": 24,
-            },
-          ],
-          4: [
-            1,
-            {
-              "@": 24,
-            },
-          ],
-          17: [
-            1,
-            {
-              "@": 24,
-            },
-          ],
-        },
-        47: {
-          19: [0, 42],
-        },
-      },
-      start_states: {
-        start: 12,
-      },
-      end_states: {
-        start: 21,
-      },
+        {
+          "@": 51
+        }
+      ],
+      "start": [
+        "start"
+      ],
+      "parser_type": "lalr",
+      "__type__": "ParserConf"
     },
-    __type__: "ParsingFrontend",
+    "parser": {
+      "tokens": {
+        "0": "LPAR",
+        "1": "value",
+        "2": "FALSE",
+        "3": "STRING",
+        "4": "value_group",
+        "5": "TRUE",
+        "6": "NUMBER",
+        "7": "NULL",
+        "8": "AND",
+        "9": "OR",
+        "10": "RPAR",
+        "11": "$END",
+        "12": "KEY_VALUE",
+        "13": "pair_single",
+        "14": "key",
+        "15": "pair_group",
+        "16": "pair",
+        "17": "COLON",
+        "18": "__start_star_0",
+        "19": "KEY_SEP",
+        "20": "start",
+        "21": "__pair_group_star_1",
+        "22": "__value_group_star_3",
+        "23": "__key_star_2"
+      },
+      "states": {
+        "0": {
+          "0": [
+            0,
+            39
+          ],
+          "1": [
+            0,
+            41
+          ],
+          "2": [
+            0,
+            2
+          ],
+          "3": [
+            0,
+            12
+          ],
+          "4": [
+            0,
+            35
+          ],
+          "5": [
+            0,
+            53
+          ],
+          "6": [
+            0,
+            42
+          ],
+          "7": [
+            0,
+            19
+          ]
+        },
+        "1": {
+          "8": [
+            1,
+            {
+              "@": 51
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 51
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 51
+            }
+          ]
+        },
+        "2": {
+          "8": [
+            1,
+            {
+              "@": 29
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 29
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 29
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 29
+            }
+          ]
+        },
+        "3": {
+          "8": [
+            1,
+            {
+              "@": 23
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 23
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 23
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 23
+            }
+          ]
+        },
+        "4": {
+          "8": [
+            1,
+            {
+              "@": 41
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 41
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 41
+            }
+          ]
+        },
+        "5": {
+          "0": [
+            0,
+            39
+          ],
+          "2": [
+            0,
+            2
+          ],
+          "3": [
+            0,
+            12
+          ],
+          "4": [
+            0,
+            35
+          ],
+          "5": [
+            0,
+            53
+          ],
+          "6": [
+            0,
+            42
+          ],
+          "7": [
+            0,
+            19
+          ],
+          "1": [
+            0,
+            22
+          ]
+        },
+        "6": {
+          "12": [
+            0,
+            45
+          ],
+          "0": [
+            0,
+            61
+          ],
+          "13": [
+            0,
+            29
+          ],
+          "14": [
+            0,
+            37
+          ],
+          "15": [
+            0,
+            60
+          ],
+          "16": [
+            0,
+            59
+          ]
+        },
+        "7": {
+          "17": [
+            0,
+            33
+          ]
+        },
+        "8": {
+          "8": [
+            1,
+            {
+              "@": 20
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 20
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 20
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 20
+            }
+          ]
+        },
+        "9": {
+          "9": [
+            0,
+            14
+          ],
+          "18": [
+            0,
+            49
+          ],
+          "8": [
+            0,
+            18
+          ],
+          "11": [
+            1,
+            {
+              "@": 16
+            }
+          ]
+        },
+        "10": {
+          "19": [
+            0,
+            27
+          ],
+          "17": [
+            1,
+            {
+              "@": 24
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 24
+            }
+          ],
+          "8": [
+            1,
+            {
+              "@": 24
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 24
+            }
+          ]
+        },
+        "11": {
+          "9": [
+            0,
+            28
+          ],
+          "8": [
+            0,
+            0
+          ],
+          "10": [
+            0,
+            43
+          ]
+        },
+        "12": {
+          "8": [
+            1,
+            {
+              "@": 26
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 26
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 26
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 26
+            }
+          ]
+        },
+        "13": {
+          "0": [
+            0,
+            39
+          ],
+          "2": [
+            0,
+            2
+          ],
+          "1": [
+            0,
+            20
+          ],
+          "3": [
+            0,
+            12
+          ],
+          "4": [
+            0,
+            35
+          ],
+          "5": [
+            0,
+            53
+          ],
+          "6": [
+            0,
+            42
+          ],
+          "7": [
+            0,
+            19
+          ]
+        },
+        "14": {
+          "12": [
+            0,
+            45
+          ],
+          "0": [
+            0,
+            61
+          ],
+          "16": [
+            0,
+            26
+          ],
+          "13": [
+            0,
+            29
+          ],
+          "14": [
+            0,
+            30
+          ],
+          "15": [
+            0,
+            60
+          ]
+        },
+        "15": {
+          "8": [
+            1,
+            {
+              "@": 43
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 43
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 43
+            }
+          ]
+        },
+        "16": {
+          "12": [
+            0,
+            45
+          ],
+          "0": [
+            0,
+            61
+          ],
+          "20": [
+            0,
+            17
+          ],
+          "13": [
+            0,
+            29
+          ],
+          "14": [
+            0,
+            25
+          ],
+          "15": [
+            0,
+            60
+          ],
+          "16": [
+            0,
+            9
+          ],
+          "11": [
+            1,
+            {
+              "@": 17
+            }
+          ]
+        },
+        "17": {},
+        "18": {
+          "12": [
+            0,
+            45
+          ],
+          "0": [
+            0,
+            61
+          ],
+          "16": [
+            0,
+            36
+          ],
+          "14": [
+            0,
+            50
+          ],
+          "13": [
+            0,
+            29
+          ],
+          "15": [
+            0,
+            60
+          ]
+        },
+        "19": {
+          "8": [
+            1,
+            {
+              "@": 30
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 30
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 30
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 30
+            }
+          ]
+        },
+        "20": {
+          "8": [
+            1,
+            {
+              "@": 49
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 49
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 49
+            }
+          ]
+        },
+        "21": {
+          "12": [
+            0,
+            45
+          ],
+          "0": [
+            0,
+            61
+          ],
+          "13": [
+            0,
+            29
+          ],
+          "14": [
+            0,
+            7
+          ],
+          "15": [
+            0,
+            60
+          ],
+          "16": [
+            0,
+            56
+          ]
+        },
+        "22": {
+          "8": [
+            1,
+            {
+              "@": 48
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 48
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 48
+            }
+          ]
+        },
+        "23": {
+          "9": [
+            0,
+            24
+          ],
+          "8": [
+            0,
+            21
+          ],
+          "10": [
+            0,
+            44
+          ]
+        },
+        "24": {
+          "12": [
+            0,
+            45
+          ],
+          "16": [
+            0,
+            31
+          ],
+          "0": [
+            0,
+            61
+          ],
+          "13": [
+            0,
+            29
+          ],
+          "14": [
+            0,
+            7
+          ],
+          "15": [
+            0,
+            60
+          ]
+        },
+        "25": {
+          "9": [
+            0,
+            14
+          ],
+          "18": [
+            0,
+            46
+          ],
+          "17": [
+            0,
+            33
+          ],
+          "8": [
+            0,
+            18
+          ],
+          "11": [
+            1,
+            {
+              "@": 14
+            }
+          ]
+        },
+        "26": {
+          "8": [
+            1,
+            {
+              "@": 37
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 37
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 37
+            }
+          ]
+        },
+        "27": {
+          "12": [
+            0,
+            47
+          ]
+        },
+        "28": {
+          "0": [
+            0,
+            39
+          ],
+          "2": [
+            0,
+            2
+          ],
+          "3": [
+            0,
+            12
+          ],
+          "4": [
+            0,
+            35
+          ],
+          "5": [
+            0,
+            53
+          ],
+          "6": [
+            0,
+            42
+          ],
+          "7": [
+            0,
+            19
+          ],
+          "1": [
+            0,
+            1
+          ]
+        },
+        "29": {
+          "11": [
+            1,
+            {
+              "@": 18
+            }
+          ],
+          "8": [
+            1,
+            {
+              "@": 18
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 18
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 18
+            }
+          ]
+        },
+        "30": {
+          "17": [
+            0,
+            33
+          ],
+          "8": [
+            1,
+            {
+              "@": 36
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 36
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 36
+            }
+          ]
+        },
+        "31": {
+          "8": [
+            1,
+            {
+              "@": 45
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 45
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 45
+            }
+          ]
+        },
+        "32": {
+          "8": [
+            1,
+            {
+              "@": 33
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 33
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 33
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 33
+            }
+          ]
+        },
+        "33": {
+          "0": [
+            0,
+            39
+          ],
+          "2": [
+            0,
+            2
+          ],
+          "3": [
+            0,
+            12
+          ],
+          "4": [
+            0,
+            35
+          ],
+          "5": [
+            0,
+            53
+          ],
+          "6": [
+            0,
+            42
+          ],
+          "7": [
+            0,
+            19
+          ],
+          "1": [
+            0,
+            8
+          ]
+        },
+        "34": {
+          "17": [
+            0,
+            33
+          ],
+          "8": [
+            1,
+            {
+              "@": 40
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 40
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 40
+            }
+          ]
+        },
+        "35": {
+          "8": [
+            1,
+            {
+              "@": 31
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 31
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 31
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 31
+            }
+          ]
+        },
+        "36": {
+          "8": [
+            1,
+            {
+              "@": 35
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 35
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 35
+            }
+          ]
+        },
+        "37": {
+          "17": [
+            0,
+            33
+          ],
+          "8": [
+            1,
+            {
+              "@": 38
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 38
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 38
+            }
+          ]
+        },
+        "38": {
+          "10": [
+            0,
+            55
+          ],
+          "21": [
+            0,
+            23
+          ],
+          "9": [
+            0,
+            57
+          ],
+          "8": [
+            0,
+            51
+          ]
+        },
+        "39": {
+          "0": [
+            0,
+            39
+          ],
+          "7": [
+            0,
+            19
+          ],
+          "2": [
+            0,
+            2
+          ],
+          "3": [
+            0,
+            12
+          ],
+          "4": [
+            0,
+            35
+          ],
+          "5": [
+            0,
+            53
+          ],
+          "6": [
+            0,
+            42
+          ],
+          "1": [
+            0,
+            40
+          ]
+        },
+        "40": {
+          "10": [
+            0,
+            32
+          ],
+          "9": [
+            0,
+            13
+          ],
+          "8": [
+            0,
+            5
+          ],
+          "22": [
+            0,
+            11
+          ]
+        },
+        "41": {
+          "8": [
+            1,
+            {
+              "@": 50
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 50
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 50
+            }
+          ]
+        },
+        "42": {
+          "8": [
+            1,
+            {
+              "@": 27
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 27
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 27
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 27
+            }
+          ]
+        },
+        "43": {
+          "8": [
+            1,
+            {
+              "@": 32
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 32
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 32
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 32
+            }
+          ]
+        },
+        "44": {
+          "8": [
+            1,
+            {
+              "@": 21
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 21
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 21
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 21
+            }
+          ]
+        },
+        "45": {
+          "19": [
+            0,
+            48
+          ],
+          "23": [
+            0,
+            10
+          ],
+          "17": [
+            1,
+            {
+              "@": 25
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 25
+            }
+          ],
+          "8": [
+            1,
+            {
+              "@": 25
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 25
+            }
+          ]
+        },
+        "46": {
+          "9": [
+            0,
+            52
+          ],
+          "8": [
+            0,
+            6
+          ],
+          "11": [
+            1,
+            {
+              "@": 13
+            }
+          ]
+        },
+        "47": {
+          "17": [
+            1,
+            {
+              "@": 47
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 47
+            }
+          ],
+          "8": [
+            1,
+            {
+              "@": 47
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 47
+            }
+          ],
+          "19": [
+            1,
+            {
+              "@": 47
+            }
+          ]
+        },
+        "48": {
+          "12": [
+            0,
+            54
+          ]
+        },
+        "49": {
+          "9": [
+            0,
+            52
+          ],
+          "8": [
+            0,
+            6
+          ],
+          "11": [
+            1,
+            {
+              "@": 15
+            }
+          ]
+        },
+        "50": {
+          "17": [
+            0,
+            33
+          ],
+          "8": [
+            1,
+            {
+              "@": 34
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 34
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 34
+            }
+          ]
+        },
+        "51": {
+          "12": [
+            0,
+            45
+          ],
+          "0": [
+            0,
+            61
+          ],
+          "16": [
+            0,
+            58
+          ],
+          "13": [
+            0,
+            29
+          ],
+          "14": [
+            0,
+            7
+          ],
+          "15": [
+            0,
+            60
+          ]
+        },
+        "52": {
+          "12": [
+            0,
+            45
+          ],
+          "0": [
+            0,
+            61
+          ],
+          "14": [
+            0,
+            34
+          ],
+          "13": [
+            0,
+            29
+          ],
+          "15": [
+            0,
+            60
+          ],
+          "16": [
+            0,
+            4
+          ]
+        },
+        "53": {
+          "8": [
+            1,
+            {
+              "@": 28
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 28
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 28
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 28
+            }
+          ]
+        },
+        "54": {
+          "17": [
+            1,
+            {
+              "@": 46
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 46
+            }
+          ],
+          "8": [
+            1,
+            {
+              "@": 46
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 46
+            }
+          ],
+          "19": [
+            1,
+            {
+              "@": 46
+            }
+          ]
+        },
+        "55": {
+          "8": [
+            1,
+            {
+              "@": 22
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 22
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 22
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 22
+            }
+          ]
+        },
+        "56": {
+          "8": [
+            1,
+            {
+              "@": 44
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 44
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 44
+            }
+          ]
+        },
+        "57": {
+          "12": [
+            0,
+            45
+          ],
+          "0": [
+            0,
+            61
+          ],
+          "16": [
+            0,
+            15
+          ],
+          "13": [
+            0,
+            29
+          ],
+          "14": [
+            0,
+            7
+          ],
+          "15": [
+            0,
+            60
+          ]
+        },
+        "58": {
+          "8": [
+            1,
+            {
+              "@": 42
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 42
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 42
+            }
+          ]
+        },
+        "59": {
+          "8": [
+            1,
+            {
+              "@": 39
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 39
+            }
+          ],
+          "11": [
+            1,
+            {
+              "@": 39
+            }
+          ]
+        },
+        "60": {
+          "11": [
+            1,
+            {
+              "@": 19
+            }
+          ],
+          "8": [
+            1,
+            {
+              "@": 19
+            }
+          ],
+          "9": [
+            1,
+            {
+              "@": 19
+            }
+          ],
+          "10": [
+            1,
+            {
+              "@": 19
+            }
+          ]
+        },
+        "61": {
+          "12": [
+            0,
+            45
+          ],
+          "0": [
+            0,
+            61
+          ],
+          "16": [
+            0,
+            38
+          ],
+          "13": [
+            0,
+            29
+          ],
+          "14": [
+            0,
+            7
+          ],
+          "15": [
+            0,
+            60
+          ],
+          "10": [
+            0,
+            3
+          ]
+        }
+      },
+      "start_states": {
+        "start": 16
+      },
+      "end_states": {
+        "start": 17
+      }
+    },
+    "__type__": "ParsingFrontend"
   },
-  rules: [
+  "rules": [
     {
-      "@": 13,
+      "@": 13
     },
     {
-      "@": 14,
+      "@": 14
     },
     {
-      "@": 15,
+      "@": 15
     },
     {
-      "@": 16,
+      "@": 16
     },
     {
-      "@": 17,
+      "@": 17
     },
     {
-      "@": 18,
+      "@": 18
     },
     {
-      "@": 19,
+      "@": 19
     },
     {
-      "@": 20,
+      "@": 20
     },
     {
-      "@": 21,
+      "@": 21
     },
     {
-      "@": 22,
+      "@": 22
     },
     {
-      "@": 23,
+      "@": 23
     },
     {
-      "@": 24,
+      "@": 24
     },
     {
-      "@": 25,
+      "@": 25
     },
     {
-      "@": 26,
+      "@": 26
     },
     {
-      "@": 27,
+      "@": 27
     },
     {
-      "@": 28,
+      "@": 28
     },
     {
-      "@": 29,
+      "@": 29
     },
     {
-      "@": 30,
+      "@": 30
     },
     {
-      "@": 31,
+      "@": 31
     },
     {
-      "@": 32,
+      "@": 32
     },
     {
-      "@": 33,
+      "@": 33
     },
     {
-      "@": 34,
+      "@": 34
     },
     {
-      "@": 35,
+      "@": 35
     },
     {
-      "@": 36,
+      "@": 36
     },
     {
-      "@": 37,
+      "@": 37
     },
     {
-      "@": 38,
+      "@": 38
     },
     {
-      "@": 39,
+      "@": 39
     },
     {
-      "@": 40,
+      "@": 40
     },
     {
-      "@": 41,
+      "@": 41
     },
+    {
+      "@": 42
+    },
+    {
+      "@": 43
+    },
+    {
+      "@": 44
+    },
+    {
+      "@": 45
+    },
+    {
+      "@": 46
+    },
+    {
+      "@": 47
+    },
+    {
+      "@": 48
+    },
+    {
+      "@": 49
+    },
+    {
+      "@": 50
+    },
+    {
+      "@": 51
+    }
   ],
-  options: {
-    debug: false,
-    keep_all_tokens: false,
-    tree_class: null,
-    cache: false,
-    postlex: null,
-    parser: "lalr",
-    lexer: "contextual",
-    transformer: null,
-    start: ["start"],
-    priority: "normal",
-    ambiguity: "auto",
-    regex: false,
-    propagate_positions: false,
-    lexer_callbacks: {},
-    maybe_placeholders: false,
-    edit_terminals: null,
-    g_regex_flags: 0,
-    use_bytes: false,
-    import_paths: [],
-    source_path: null,
-    _plugins: {},
+  "options": {
+    "debug": false,
+    "keep_all_tokens": false,
+    "tree_class": null,
+    "cache": false,
+    "postlex": null,
+    "parser": "lalr",
+    "lexer": "contextual",
+    "transformer": null,
+    "start": [
+      "start"
+    ],
+    "priority": "normal",
+    "ambiguity": "auto",
+    "regex": false,
+    "propagate_positions": false,
+    "lexer_callbacks": {},
+    "maybe_placeholders": false,
+    "edit_terminals": null,
+    "g_regex_flags": 0,
+    "use_bytes": false,
+    "import_paths": [],
+    "source_path": null,
+    "_plugins": {}
   },
-  __type__: "Lark",
+  "__type__": "Lark"
 };
 
-var MEMO = {
-  0: {
-    name: "WS",
-    pattern: {
-      value: "(?:[ \t\f\r\n])+",
-      flags: [],
-      _width: [1, 4294967295],
-      __type__: "PatternRE",
+var MEMO={
+  "0": {
+    "name": "WS",
+    "pattern": {
+      "value": "(?:[ \t\f\r\n])+",
+      "flags": [],
+      "_width": [
+        1,
+        4294967295
+      ],
+      "__type__": "PatternRE"
     },
-    priority: 0,
-    __type__: "TerminalDef",
+    "priority": 0,
+    "__type__": "TerminalDef"
   },
-  1: {
-    name: "KEY_SEP",
-    pattern: {
-      value: ".",
-      flags: [],
-      __type__: "PatternStr",
+  "1": {
+    "name": "KEY_SEP",
+    "pattern": {
+      "value": ".",
+      "flags": [],
+      "__type__": "PatternStr"
     },
-    priority: 0,
-    __type__: "TerminalDef",
+    "priority": 0,
+    "__type__": "TerminalDef"
   },
-  2: {
-    name: "KEY_VALUE",
-    pattern: {
-      value: "([\\w\\d\\_\\-]+(\\\\\\.)*)+",
-      flags: [],
-      _width: [1, 4294967295],
-      __type__: "PatternRE",
+  "2": {
+    "name": "KEY_VALUE",
+    "pattern": {
+      "value": "([\\w\\d\\_\\-]+(\\\\\\.)*)+",
+      "flags": [],
+      "_width": [
+        1,
+        4294967295
+      ],
+      "__type__": "PatternRE"
     },
-    priority: 0,
-    __type__: "TerminalDef",
+    "priority": 0,
+    "__type__": "TerminalDef"
   },
-  3: {
-    name: "STRING",
-    pattern: {
-      value: '".*?(?<!\\\\)(\\\\\\\\)*?"',
-      flags: [],
-      _width: [2, 4294967295],
-      __type__: "PatternRE",
+  "3": {
+    "name": "STRING",
+    "pattern": {
+      "value": "\".*?(?<!\\\\)(\\\\\\\\)*?\"",
+      "flags": [],
+      "_width": [
+        2,
+        4294967295
+      ],
+      "__type__": "PatternRE"
     },
-    priority: 0,
-    __type__: "TerminalDef",
+    "priority": 0,
+    "__type__": "TerminalDef"
   },
-  4: {
-    name: "NUMBER",
-    pattern: {
-      value:
-        "(?:(?:\\+|\\-))?(?:(?:(?:[0-9])+(?:e|E)(?:(?:\\+|\\-))?(?:[0-9])+|(?:(?:[0-9])+\\.(?:(?:[0-9])+)?|\\.(?:[0-9])+)(?:(?:e|E)(?:(?:\\+|\\-))?(?:[0-9])+)?)|(?:[0-9])+)",
-      flags: [],
-      _width: [1, 4294967295],
-      __type__: "PatternRE",
+  "4": {
+    "name": "NUMBER",
+    "pattern": {
+      "value": "(?:(?:\\+|\\-))?(?:(?:(?:[0-9])+(?:e|E)(?:(?:\\+|\\-))?(?:[0-9])+|(?:(?:[0-9])+\\.(?:(?:[0-9])+)?|\\.(?:[0-9])+)(?:(?:e|E)(?:(?:\\+|\\-))?(?:[0-9])+)?)|(?:[0-9])+)",
+      "flags": [],
+      "_width": [
+        1,
+        4294967295
+      ],
+      "__type__": "PatternRE"
     },
-    priority: 0,
-    __type__: "TerminalDef",
+    "priority": 0,
+    "__type__": "TerminalDef"
   },
-  5: {
-    name: "TRUE",
-    pattern: {
-      value: "true",
-      flags: [],
-      __type__: "PatternStr",
+  "5": {
+    "name": "TRUE",
+    "pattern": {
+      "value": "true",
+      "flags": [],
+      "__type__": "PatternStr"
     },
-    priority: 0,
-    __type__: "TerminalDef",
+    "priority": 0,
+    "__type__": "TerminalDef"
   },
-  6: {
-    name: "FALSE",
-    pattern: {
-      value: "false",
-      flags: [],
-      __type__: "PatternStr",
+  "6": {
+    "name": "FALSE",
+    "pattern": {
+      "value": "false",
+      "flags": [],
+      "__type__": "PatternStr"
     },
-    priority: 0,
-    __type__: "TerminalDef",
+    "priority": 0,
+    "__type__": "TerminalDef"
   },
-  7: {
-    name: "NULL",
-    pattern: {
-      value: "null",
-      flags: [],
-      __type__: "PatternStr",
+  "7": {
+    "name": "NULL",
+    "pattern": {
+      "value": "null",
+      "flags": [],
+      "__type__": "PatternStr"
     },
-    priority: 0,
-    __type__: "TerminalDef",
+    "priority": 0,
+    "__type__": "TerminalDef"
   },
-  8: {
-    name: "AND",
-    pattern: {
-      value: "AND",
-      flags: [],
-      __type__: "PatternStr",
+  "8": {
+    "name": "AND",
+    "pattern": {
+      "value": "AND",
+      "flags": [],
+      "__type__": "PatternStr"
     },
-    priority: 0,
-    __type__: "TerminalDef",
+    "priority": 0,
+    "__type__": "TerminalDef"
   },
-  9: {
-    name: "OR",
-    pattern: {
-      value: "OR",
-      flags: [],
-      __type__: "PatternStr",
+  "9": {
+    "name": "OR",
+    "pattern": {
+      "value": "OR",
+      "flags": [],
+      "__type__": "PatternStr"
     },
-    priority: 0,
-    __type__: "TerminalDef",
+    "priority": 0,
+    "__type__": "TerminalDef"
   },
-  10: {
-    name: "COLON",
-    pattern: {
-      value: ":",
-      flags: [],
-      __type__: "PatternStr",
+  "10": {
+    "name": "COLON",
+    "pattern": {
+      "value": ":",
+      "flags": [],
+      "__type__": "PatternStr"
     },
-    priority: 0,
-    __type__: "TerminalDef",
+    "priority": 0,
+    "__type__": "TerminalDef"
   },
-  11: {
-    name: "LPAR",
-    pattern: {
-      value: "(",
-      flags: [],
-      __type__: "PatternStr",
+  "11": {
+    "name": "LPAR",
+    "pattern": {
+      "value": "(",
+      "flags": [],
+      "__type__": "PatternStr"
     },
-    priority: 0,
-    __type__: "TerminalDef",
+    "priority": 0,
+    "__type__": "TerminalDef"
   },
-  12: {
-    name: "RPAR",
-    pattern: {
-      value: ")",
-      flags: [],
-      __type__: "PatternStr",
+  "12": {
+    "name": "RPAR",
+    "pattern": {
+      "value": ")",
+      "flags": [],
+      "__type__": "PatternStr"
     },
-    priority: 0,
-    __type__: "TerminalDef",
+    "priority": 0,
+    "__type__": "TerminalDef"
   },
-  13: {
-    origin: {
-      name: "start",
-      __type__: "NonTerminal",
+  "13": {
+    "origin": {
+      "name": "start",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "pair",
-        __type__: "NonTerminal",
+        "name": "key",
+        "__type__": "NonTerminal"
       },
       {
-        name: "__start_star_0",
-        __type__: "NonTerminal",
-      },
+        "name": "__start_star_0",
+        "__type__": "NonTerminal"
+      }
     ],
-    order: 0,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 0,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  14: {
-    origin: {
-      name: "start",
-      __type__: "NonTerminal",
+  "14": {
+    "origin": {
+      "name": "start",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "pair",
-        __type__: "NonTerminal",
-      },
+        "name": "key",
+        "__type__": "NonTerminal"
+      }
     ],
-    order: 1,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 1,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  15: {
-    origin: {
-      name: "start",
-      __type__: "NonTerminal",
+  "15": {
+    "origin": {
+      "name": "start",
+      "__type__": "NonTerminal"
     },
-    expansion: [],
-    order: 2,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [true],
-      __type__: "RuleOptions",
-    },
-    __type__: "Rule",
-  },
-  16: {
-    origin: {
-      name: "pair",
-      __type__: "NonTerminal",
-    },
-    expansion: [
+    "expansion": [
       {
-        name: "pair_single",
-        __type__: "NonTerminal",
+        "name": "pair",
+        "__type__": "NonTerminal"
       },
+      {
+        "name": "__start_star_0",
+        "__type__": "NonTerminal"
+      }
     ],
-    order: 0,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 2,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  17: {
-    origin: {
-      name: "pair",
-      __type__: "NonTerminal",
+  "16": {
+    "origin": {
+      "name": "start",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "pair_group",
-        __type__: "NonTerminal",
-      },
+        "name": "pair",
+        "__type__": "NonTerminal"
+      }
     ],
-    order: 1,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 3,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  18: {
-    origin: {
-      name: "pair_single",
-      __type__: "NonTerminal",
+  "17": {
+    "origin": {
+      "name": "start",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [],
+    "order": 4,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [
+        true
+      ],
+      "__type__": "RuleOptions"
+    },
+    "__type__": "Rule"
+  },
+  "18": {
+    "origin": {
+      "name": "pair",
+      "__type__": "NonTerminal"
+    },
+    "expansion": [
       {
-        name: "key",
-        __type__: "NonTerminal",
-      },
-      {
-        name: "COLON",
-        filter_out: true,
-        __type__: "Terminal",
-      },
-      {
-        name: "value",
-        __type__: "NonTerminal",
-      },
+        "name": "pair_single",
+        "__type__": "NonTerminal"
+      }
     ],
-    order: 0,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 0,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  19: {
-    origin: {
-      name: "pair_group",
-      __type__: "NonTerminal",
+  "19": {
+    "origin": {
+      "name": "pair",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "LPAR",
-        filter_out: true,
-        __type__: "Terminal",
-      },
-      {
-        name: "pair",
-        __type__: "NonTerminal",
-      },
-      {
-        name: "__start_star_0",
-        __type__: "NonTerminal",
-      },
-      {
-        name: "RPAR",
-        filter_out: true,
-        __type__: "Terminal",
-      },
+        "name": "pair_group",
+        "__type__": "NonTerminal"
+      }
     ],
-    order: 0,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 1,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  20: {
-    origin: {
-      name: "pair_group",
-      __type__: "NonTerminal",
+  "20": {
+    "origin": {
+      "name": "pair_single",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "LPAR",
-        filter_out: true,
-        __type__: "Terminal",
+        "name": "key",
+        "__type__": "NonTerminal"
       },
       {
-        name: "pair",
-        __type__: "NonTerminal",
+        "name": "COLON",
+        "filter_out": true,
+        "__type__": "Terminal"
       },
       {
-        name: "RPAR",
-        filter_out: true,
-        __type__: "Terminal",
-      },
+        "name": "value",
+        "__type__": "NonTerminal"
+      }
     ],
-    order: 1,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 0,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  21: {
-    origin: {
-      name: "pair_group",
-      __type__: "NonTerminal",
+  "21": {
+    "origin": {
+      "name": "pair_group",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "LPAR",
-        filter_out: true,
-        __type__: "Terminal",
+        "name": "LPAR",
+        "filter_out": true,
+        "__type__": "Terminal"
       },
       {
-        name: "RPAR",
-        filter_out: true,
-        __type__: "Terminal",
+        "name": "pair",
+        "__type__": "NonTerminal"
       },
+      {
+        "name": "__pair_group_star_1",
+        "__type__": "NonTerminal"
+      },
+      {
+        "name": "RPAR",
+        "filter_out": true,
+        "__type__": "Terminal"
+      }
     ],
-    order: 2,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [false, true, false],
-      __type__: "RuleOptions",
+    "order": 0,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  22: {
-    origin: {
-      name: "key",
-      __type__: "NonTerminal",
+  "22": {
+    "origin": {
+      "name": "pair_group",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "KEY_VALUE",
-        filter_out: false,
-        __type__: "Terminal",
+        "name": "LPAR",
+        "filter_out": true,
+        "__type__": "Terminal"
       },
       {
-        name: "__key_star_1",
-        __type__: "NonTerminal",
+        "name": "pair",
+        "__type__": "NonTerminal"
       },
+      {
+        "name": "RPAR",
+        "filter_out": true,
+        "__type__": "Terminal"
+      }
     ],
-    order: 0,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 1,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  23: {
-    origin: {
-      name: "key",
-      __type__: "NonTerminal",
+  "23": {
+    "origin": {
+      "name": "pair_group",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "KEY_VALUE",
-        filter_out: false,
-        __type__: "Terminal",
+        "name": "LPAR",
+        "filter_out": true,
+        "__type__": "Terminal"
       },
+      {
+        "name": "RPAR",
+        "filter_out": true,
+        "__type__": "Terminal"
+      }
     ],
-    order: 1,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 2,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [
+        false,
+        true,
+        false
+      ],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  24: {
-    origin: {
-      name: "value",
-      __type__: "NonTerminal",
+  "24": {
+    "origin": {
+      "name": "key",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "STRING",
-        filter_out: false,
-        __type__: "Terminal",
+        "name": "KEY_VALUE",
+        "filter_out": false,
+        "__type__": "Terminal"
       },
+      {
+        "name": "__key_star_2",
+        "__type__": "NonTerminal"
+      }
     ],
-    order: 0,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 0,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  25: {
-    origin: {
-      name: "value",
-      __type__: "NonTerminal",
+  "25": {
+    "origin": {
+      "name": "key",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "NUMBER",
-        filter_out: false,
-        __type__: "Terminal",
-      },
+        "name": "KEY_VALUE",
+        "filter_out": false,
+        "__type__": "Terminal"
+      }
     ],
-    order: 1,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 1,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  26: {
-    origin: {
-      name: "value",
-      __type__: "NonTerminal",
+  "26": {
+    "origin": {
+      "name": "value",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "TRUE",
-        filter_out: false,
-        __type__: "Terminal",
-      },
+        "name": "STRING",
+        "filter_out": false,
+        "__type__": "Terminal"
+      }
     ],
-    order: 2,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 0,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  27: {
-    origin: {
-      name: "value",
-      __type__: "NonTerminal",
+  "27": {
+    "origin": {
+      "name": "value",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "FALSE",
-        filter_out: false,
-        __type__: "Terminal",
-      },
+        "name": "NUMBER",
+        "filter_out": false,
+        "__type__": "Terminal"
+      }
     ],
-    order: 3,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 1,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  28: {
-    origin: {
-      name: "value",
-      __type__: "NonTerminal",
+  "28": {
+    "origin": {
+      "name": "value",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "NULL",
-        filter_out: false,
-        __type__: "Terminal",
-      },
+        "name": "TRUE",
+        "filter_out": false,
+        "__type__": "Terminal"
+      }
     ],
-    order: 4,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 2,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  29: {
-    origin: {
-      name: "value",
-      __type__: "NonTerminal",
+  "29": {
+    "origin": {
+      "name": "value",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "value_group",
-        __type__: "NonTerminal",
-      },
+        "name": "FALSE",
+        "filter_out": false,
+        "__type__": "Terminal"
+      }
     ],
-    order: 5,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 3,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  30: {
-    origin: {
-      name: "value_group",
-      __type__: "NonTerminal",
+  "30": {
+    "origin": {
+      "name": "value",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "LPAR",
-        filter_out: true,
-        __type__: "Terminal",
-      },
-      {
-        name: "value",
-        __type__: "NonTerminal",
-      },
-      {
-        name: "__value_group_star_2",
-        __type__: "NonTerminal",
-      },
-      {
-        name: "RPAR",
-        filter_out: true,
-        __type__: "Terminal",
-      },
+        "name": "NULL",
+        "filter_out": false,
+        "__type__": "Terminal"
+      }
     ],
-    order: 0,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 4,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  31: {
-    origin: {
-      name: "value_group",
-      __type__: "NonTerminal",
+  "31": {
+    "origin": {
+      "name": "value",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "LPAR",
-        filter_out: true,
-        __type__: "Terminal",
-      },
-      {
-        name: "value",
-        __type__: "NonTerminal",
-      },
-      {
-        name: "RPAR",
-        filter_out: true,
-        __type__: "Terminal",
-      },
+        "name": "value_group",
+        "__type__": "NonTerminal"
+      }
     ],
-    order: 1,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 5,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  32: {
-    origin: {
-      name: "__start_star_0",
-      __type__: "NonTerminal",
+  "32": {
+    "origin": {
+      "name": "value_group",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "AND",
-        filter_out: false,
-        __type__: "Terminal",
+        "name": "LPAR",
+        "filter_out": true,
+        "__type__": "Terminal"
       },
       {
-        name: "pair",
-        __type__: "NonTerminal",
+        "name": "value",
+        "__type__": "NonTerminal"
       },
+      {
+        "name": "__value_group_star_3",
+        "__type__": "NonTerminal"
+      },
+      {
+        "name": "RPAR",
+        "filter_out": true,
+        "__type__": "Terminal"
+      }
     ],
-    order: 0,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 0,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  33: {
-    origin: {
-      name: "__start_star_0",
-      __type__: "NonTerminal",
+  "33": {
+    "origin": {
+      "name": "value_group",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "OR",
-        filter_out: false,
-        __type__: "Terminal",
+        "name": "LPAR",
+        "filter_out": true,
+        "__type__": "Terminal"
       },
       {
-        name: "pair",
-        __type__: "NonTerminal",
+        "name": "value",
+        "__type__": "NonTerminal"
       },
+      {
+        "name": "RPAR",
+        "filter_out": true,
+        "__type__": "Terminal"
+      }
     ],
-    order: 1,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 1,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  34: {
-    origin: {
-      name: "__start_star_0",
-      __type__: "NonTerminal",
+  "34": {
+    "origin": {
+      "name": "__start_star_0",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "__start_star_0",
-        __type__: "NonTerminal",
+        "name": "AND",
+        "filter_out": false,
+        "__type__": "Terminal"
       },
       {
-        name: "AND",
-        filter_out: false,
-        __type__: "Terminal",
-      },
-      {
-        name: "pair",
-        __type__: "NonTerminal",
-      },
+        "name": "key",
+        "__type__": "NonTerminal"
+      }
     ],
-    order: 2,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 0,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  35: {
-    origin: {
-      name: "__start_star_0",
-      __type__: "NonTerminal",
+  "35": {
+    "origin": {
+      "name": "__start_star_0",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "__start_star_0",
-        __type__: "NonTerminal",
+        "name": "AND",
+        "filter_out": false,
+        "__type__": "Terminal"
       },
       {
-        name: "OR",
-        filter_out: false,
-        __type__: "Terminal",
-      },
-      {
-        name: "pair",
-        __type__: "NonTerminal",
-      },
+        "name": "pair",
+        "__type__": "NonTerminal"
+      }
     ],
-    order: 3,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 1,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  36: {
-    origin: {
-      name: "__key_star_1",
-      __type__: "NonTerminal",
+  "36": {
+    "origin": {
+      "name": "__start_star_0",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "KEY_SEP",
-        filter_out: false,
-        __type__: "Terminal",
+        "name": "OR",
+        "filter_out": false,
+        "__type__": "Terminal"
       },
       {
-        name: "KEY_VALUE",
-        filter_out: false,
-        __type__: "Terminal",
-      },
+        "name": "key",
+        "__type__": "NonTerminal"
+      }
     ],
-    order: 0,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 2,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  37: {
-    origin: {
-      name: "__key_star_1",
-      __type__: "NonTerminal",
+  "37": {
+    "origin": {
+      "name": "__start_star_0",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "__key_star_1",
-        __type__: "NonTerminal",
+        "name": "OR",
+        "filter_out": false,
+        "__type__": "Terminal"
       },
       {
-        name: "KEY_SEP",
-        filter_out: false,
-        __type__: "Terminal",
-      },
-      {
-        name: "KEY_VALUE",
-        filter_out: false,
-        __type__: "Terminal",
-      },
+        "name": "pair",
+        "__type__": "NonTerminal"
+      }
     ],
-    order: 1,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 3,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  38: {
-    origin: {
-      name: "__value_group_star_2",
-      __type__: "NonTerminal",
+  "38": {
+    "origin": {
+      "name": "__start_star_0",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "AND",
-        filter_out: false,
-        __type__: "Terminal",
+        "name": "__start_star_0",
+        "__type__": "NonTerminal"
       },
       {
-        name: "value",
-        __type__: "NonTerminal",
+        "name": "AND",
+        "filter_out": false,
+        "__type__": "Terminal"
       },
+      {
+        "name": "key",
+        "__type__": "NonTerminal"
+      }
     ],
-    order: 0,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 4,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  39: {
-    origin: {
-      name: "__value_group_star_2",
-      __type__: "NonTerminal",
+  "39": {
+    "origin": {
+      "name": "__start_star_0",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "OR",
-        filter_out: false,
-        __type__: "Terminal",
+        "name": "__start_star_0",
+        "__type__": "NonTerminal"
       },
       {
-        name: "value",
-        __type__: "NonTerminal",
+        "name": "AND",
+        "filter_out": false,
+        "__type__": "Terminal"
       },
+      {
+        "name": "pair",
+        "__type__": "NonTerminal"
+      }
     ],
-    order: 1,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 5,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  40: {
-    origin: {
-      name: "__value_group_star_2",
-      __type__: "NonTerminal",
+  "40": {
+    "origin": {
+      "name": "__start_star_0",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "__value_group_star_2",
-        __type__: "NonTerminal",
+        "name": "__start_star_0",
+        "__type__": "NonTerminal"
       },
       {
-        name: "AND",
-        filter_out: false,
-        __type__: "Terminal",
+        "name": "OR",
+        "filter_out": false,
+        "__type__": "Terminal"
       },
       {
-        name: "value",
-        __type__: "NonTerminal",
-      },
+        "name": "key",
+        "__type__": "NonTerminal"
+      }
     ],
-    order: 2,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 6,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
-  41: {
-    origin: {
-      name: "__value_group_star_2",
-      __type__: "NonTerminal",
+  "41": {
+    "origin": {
+      "name": "__start_star_0",
+      "__type__": "NonTerminal"
     },
-    expansion: [
+    "expansion": [
       {
-        name: "__value_group_star_2",
-        __type__: "NonTerminal",
+        "name": "__start_star_0",
+        "__type__": "NonTerminal"
       },
       {
-        name: "OR",
-        filter_out: false,
-        __type__: "Terminal",
+        "name": "OR",
+        "filter_out": false,
+        "__type__": "Terminal"
       },
       {
-        name: "value",
-        __type__: "NonTerminal",
-      },
+        "name": "pair",
+        "__type__": "NonTerminal"
+      }
     ],
-    order: 3,
-    alias: null,
-    options: {
-      keep_all_tokens: false,
-      expand1: false,
-      priority: null,
-      template_source: null,
-      empty_indices: [],
-      __type__: "RuleOptions",
+    "order": 7,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
     },
-    __type__: "Rule",
+    "__type__": "Rule"
   },
+  "42": {
+    "origin": {
+      "name": "__pair_group_star_1",
+      "__type__": "NonTerminal"
+    },
+    "expansion": [
+      {
+        "name": "AND",
+        "filter_out": false,
+        "__type__": "Terminal"
+      },
+      {
+        "name": "pair",
+        "__type__": "NonTerminal"
+      }
+    ],
+    "order": 0,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
+    },
+    "__type__": "Rule"
+  },
+  "43": {
+    "origin": {
+      "name": "__pair_group_star_1",
+      "__type__": "NonTerminal"
+    },
+    "expansion": [
+      {
+        "name": "OR",
+        "filter_out": false,
+        "__type__": "Terminal"
+      },
+      {
+        "name": "pair",
+        "__type__": "NonTerminal"
+      }
+    ],
+    "order": 1,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
+    },
+    "__type__": "Rule"
+  },
+  "44": {
+    "origin": {
+      "name": "__pair_group_star_1",
+      "__type__": "NonTerminal"
+    },
+    "expansion": [
+      {
+        "name": "__pair_group_star_1",
+        "__type__": "NonTerminal"
+      },
+      {
+        "name": "AND",
+        "filter_out": false,
+        "__type__": "Terminal"
+      },
+      {
+        "name": "pair",
+        "__type__": "NonTerminal"
+      }
+    ],
+    "order": 2,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
+    },
+    "__type__": "Rule"
+  },
+  "45": {
+    "origin": {
+      "name": "__pair_group_star_1",
+      "__type__": "NonTerminal"
+    },
+    "expansion": [
+      {
+        "name": "__pair_group_star_1",
+        "__type__": "NonTerminal"
+      },
+      {
+        "name": "OR",
+        "filter_out": false,
+        "__type__": "Terminal"
+      },
+      {
+        "name": "pair",
+        "__type__": "NonTerminal"
+      }
+    ],
+    "order": 3,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
+    },
+    "__type__": "Rule"
+  },
+  "46": {
+    "origin": {
+      "name": "__key_star_2",
+      "__type__": "NonTerminal"
+    },
+    "expansion": [
+      {
+        "name": "KEY_SEP",
+        "filter_out": false,
+        "__type__": "Terminal"
+      },
+      {
+        "name": "KEY_VALUE",
+        "filter_out": false,
+        "__type__": "Terminal"
+      }
+    ],
+    "order": 0,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
+    },
+    "__type__": "Rule"
+  },
+  "47": {
+    "origin": {
+      "name": "__key_star_2",
+      "__type__": "NonTerminal"
+    },
+    "expansion": [
+      {
+        "name": "__key_star_2",
+        "__type__": "NonTerminal"
+      },
+      {
+        "name": "KEY_SEP",
+        "filter_out": false,
+        "__type__": "Terminal"
+      },
+      {
+        "name": "KEY_VALUE",
+        "filter_out": false,
+        "__type__": "Terminal"
+      }
+    ],
+    "order": 1,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
+    },
+    "__type__": "Rule"
+  },
+  "48": {
+    "origin": {
+      "name": "__value_group_star_3",
+      "__type__": "NonTerminal"
+    },
+    "expansion": [
+      {
+        "name": "AND",
+        "filter_out": false,
+        "__type__": "Terminal"
+      },
+      {
+        "name": "value",
+        "__type__": "NonTerminal"
+      }
+    ],
+    "order": 0,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
+    },
+    "__type__": "Rule"
+  },
+  "49": {
+    "origin": {
+      "name": "__value_group_star_3",
+      "__type__": "NonTerminal"
+    },
+    "expansion": [
+      {
+        "name": "OR",
+        "filter_out": false,
+        "__type__": "Terminal"
+      },
+      {
+        "name": "value",
+        "__type__": "NonTerminal"
+      }
+    ],
+    "order": 1,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
+    },
+    "__type__": "Rule"
+  },
+  "50": {
+    "origin": {
+      "name": "__value_group_star_3",
+      "__type__": "NonTerminal"
+    },
+    "expansion": [
+      {
+        "name": "__value_group_star_3",
+        "__type__": "NonTerminal"
+      },
+      {
+        "name": "AND",
+        "filter_out": false,
+        "__type__": "Terminal"
+      },
+      {
+        "name": "value",
+        "__type__": "NonTerminal"
+      }
+    ],
+    "order": 2,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
+    },
+    "__type__": "Rule"
+  },
+  "51": {
+    "origin": {
+      "name": "__value_group_star_3",
+      "__type__": "NonTerminal"
+    },
+    "expansion": [
+      {
+        "name": "__value_group_star_3",
+        "__type__": "NonTerminal"
+      },
+      {
+        "name": "OR",
+        "filter_out": false,
+        "__type__": "Terminal"
+      },
+      {
+        "name": "value",
+        "__type__": "NonTerminal"
+      }
+    ],
+    "order": 3,
+    "alias": null,
+    "options": {
+      "keep_all_tokens": false,
+      "expand1": false,
+      "priority": null,
+      "template_source": null,
+      "empty_indices": [],
+      "__type__": "RuleOptions"
+    },
+    "__type__": "Rule"
+  }
 };

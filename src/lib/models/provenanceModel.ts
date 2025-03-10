@@ -609,43 +609,47 @@ class ProvenanceModel {
         const terminal = _key.slice(-key.length);
 
         if (JSON.stringify(terminal) === JSON.stringify(key)) {
-          let value = json[_key[0]];
+          if (searchValue === null) {
+            hits.add(this.nodeIDToJSON.getKey(json));
+          } else {
+            let value = json[_key[0]];
 
-          for (let i = 1; i < _key.length; i++) {
-            value = value[_key[i]];
-          }
+            for (let i = 1; i < _key.length; i++) {
+              value = value[_key[i]];
+            }
 
-          if (typeof value == "string" && typeof searchValue === "string") {
-            // For strings, we need to get fiddly with the matching
-            if (
-              searchValue.startsWith(START_ANCHOR) &&
-              searchValue.endsWith(END_ANCHOR) &&
-              !searchValue.endsWith(ESCAPED_END_ANCHOR)
-            ) {
-              // Start anchor and end anchor match on equality
-              if (value === searchValue.slice(1, -1)) {
+            if (typeof value == "string" && typeof searchValue === "string") {
+              // For strings, we need to get fiddly with the matching
+              if (
+                searchValue.startsWith(START_ANCHOR) &&
+                searchValue.endsWith(END_ANCHOR) &&
+                !searchValue.endsWith(ESCAPED_END_ANCHOR)
+              ) {
+                // Start anchor and end anchor match on equality
+                if (value === searchValue.slice(1, -1)) {
+                  hits.add(this.nodeIDToJSON.getKey(json));
+                }
+              } else if (searchValue.startsWith(START_ANCHOR)) {
+                // Start anchor match on starts with
+                if (value.startsWith(searchValue.slice(1))) {
+                  hits.add(this.nodeIDToJSON.getKey(json));
+                }
+              } else if (
+                searchValue.endsWith(END_ANCHOR) &&
+                !searchValue.endsWith(ESCAPED_END_ANCHOR)
+              ) {
+                // End anchor match on ends with
+                if (value.endsWith(searchValue.slice(0, -1))) {
+                  hits.add(this.nodeIDToJSON.getKey(json));
+                }
+              } else if (value.includes(searchValue)) {
+                // No anchor match on includes
                 hits.add(this.nodeIDToJSON.getKey(json));
               }
-            } else if (searchValue.startsWith(START_ANCHOR)) {
-              // Start anchor match on starts with
-              if (value.startsWith(searchValue.slice(1))) {
-                hits.add(this.nodeIDToJSON.getKey(json));
-              }
-            } else if (
-              searchValue.endsWith(END_ANCHOR) &&
-              !searchValue.endsWith(ESCAPED_END_ANCHOR)
-            ) {
-              // End anchor match on ends with
-              if (value.endsWith(searchValue.slice(0, -1))) {
-                hits.add(this.nodeIDToJSON.getKey(json));
-              }
-            } else if (value.includes(searchValue)) {
-              // No anchor match on includes
+            } else if (value === searchValue) {
+              // For other things (numbers, bools, null) match on equality
               hits.add(this.nodeIDToJSON.getKey(json));
             }
-          } else if (value === searchValue) {
-            // For other things (numbers, bools, null) match on equality
-            hits.add(this.nodeIDToJSON.getKey(json));
           }
         }
       }

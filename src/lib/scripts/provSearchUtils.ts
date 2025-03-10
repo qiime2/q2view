@@ -32,7 +32,7 @@ class MyTransformer extends Transformer {
   // Conda package names. The Conda package names only adds . and -. We use
   // . as the key sep meaning . in the key must be escaped \.
   key(key) {
-    const keyList = [];
+    const keyList = new _Key<string>;
 
     for (const child of key) {
       // Undefined is the seperators which we don't want inlcuded in here
@@ -88,14 +88,16 @@ class MyTransformer extends Transformer {
 }
 
 class _Pair {
-  key: Array<string>;
+  key: _Key<string>;
   value: any;
 
-  constructor(key: Array<string>, value: any) {
+  constructor(key: _Key<string>, value: any) {
     this.key = key;
     this.value = value;
   }
 }
+
+class _Key<T> extends Array {}
 
 //*****************************************************************************
 // Unbelievably Set.Union and Set.Intersection were only added to the
@@ -118,8 +120,10 @@ function _searchProvenanceValue(json: Array<any>, index: number): Set<string> {
     hits = _searchProvenanceValue(elem, 0);
   } else if (elem.constructor === _Pair) {
     hits = _searchProvKey(elem.key, elem.value);
+  } else if (elem.constructor === _Key) {
+    hits = provenanceModel.searchJSON(elem, null);
   } else {
-    throw new Error(`Expected Array or Pair got '${elem}'`);
+    throw new Error(`Expected Array, Pair, or Key. Got '${elem}' of type '${typeof elem}'`);
   }
 
   if (index < json.length - 1) {
