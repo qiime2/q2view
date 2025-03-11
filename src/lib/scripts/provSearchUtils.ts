@@ -61,7 +61,7 @@ class MyTransformer extends Transformer {
       }
     }
 
-    return new _Number("=", Number(number));
+    return new _Number("=", Number(number.value));
   }
 
   TRUE(_) {
@@ -226,10 +226,12 @@ function _searchProvKeyOperator(
 }
 
 export function searchProvenance(searchValue: string) {
+  console.log(searchValue)
   const parser = get_parser();
   const myTransformer = new MyTransformer();
 
   const ast = parser.parse(searchValue);
   const json = myTransformer.transform(ast);
+  console.log(json)
   return Array.from(_searchProvenanceValue(json, 0));
 }
