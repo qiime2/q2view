@@ -609,7 +609,8 @@ class ProvenanceModel {
         const terminal = _key.slice(-key.length);
 
         if (JSON.stringify(terminal) === JSON.stringify(key)) {
-          if (searchValue === null) {
+          if (searchValue === undefined) {
+            // We had a key with no value, so we only search the key
             hits.add(this.nodeIDToJSON.getKey(json));
           } else {
             let value = json[_key[0]];
@@ -646,7 +647,7 @@ class ProvenanceModel {
                 // No anchor match on includes
                 hits.add(this.nodeIDToJSON.getKey(json));
               }
-            } else if (searchValue.constructor === _Number) {
+            } else if (searchValue !== null && searchValue.constructor === _Number) {
               // For numbers match based on value and operator
               switch (searchValue.operator) {
                 case "=":

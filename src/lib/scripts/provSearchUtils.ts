@@ -55,7 +55,7 @@ class MyTransformer extends Transformer {
   }
 
   NUMBER(number) {
-     for (const operator of ["=", ">", ">=", "<", "<="]) {
+     for (const operator of ["=", ">=", ">", "<=", "<"]) {
       if (number.value.startsWith(operator)) {
         return new _Number(operator, Number(number.value.split(operator)[1]));
       }
@@ -106,10 +106,10 @@ class _Pair {
 class _Key<T> extends Array {}
 
 export class _Number {
-  operator: "=" | ">" | ">=" | "<" | "<=";
+  operator: "=" | ">=" | ">" | "<=" | "<";
   value: number;
 
-  constructor(operator: "=" | ">" | ">=" | "<" | "<=", value: number) {
+  constructor(operator: "=" | ">=" | ">" | "<=" | "<", value: number) {
     this.operator = operator;
     this.value = value;
   }
@@ -137,7 +137,7 @@ function _searchProvenanceValue(json: Array<any>, index: number): Set<string> {
   } else if (elem.constructor === _Pair) {
     hits = _searchProvKey(elem.key, elem.value);
   } else if (elem.constructor === _Key) {
-    hits = provenanceModel.searchJSON(elem, null);
+    hits = provenanceModel.searchJSON(elem, undefined);
   } else {
     throw new Error(
       `Expected Array, Pair, or Key. Got '${elem}' of type '${typeof elem}'`,
