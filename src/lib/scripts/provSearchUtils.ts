@@ -55,10 +55,8 @@ class MyTransformer extends Transformer {
   }
 
   NUMBER(number) {
-    console.log(number);
-    for (const operator of ["=", ">", ">=", "<", "<="]) {
+     for (const operator of ["=", ">", ">=", "<", "<="]) {
       if (number.value.startsWith(operator)) {
-        console.log(number.value.split(operator));
         return new _Number(operator, Number(number.value.split(operator)[1]));
       }
     }
@@ -233,6 +231,5 @@ export function searchProvenance(searchValue: string) {
 
   const ast = parser.parse(searchValue);
   const json = myTransformer.transform(ast);
-  console.log(json);
   return Array.from(_searchProvenanceValue(json, 0));
 }

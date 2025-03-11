@@ -599,7 +599,6 @@ class ProvenanceModel {
    * were hit by the search
    */
   searchJSON(key: Array<string>, searchValue: any): Set<string> {
-    console.log(searchValue);
     const hits = new Set<string>();
 
     for (const json of this.nodeIDToJSON.values()) {
