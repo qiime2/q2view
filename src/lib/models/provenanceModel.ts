@@ -355,7 +355,7 @@ class ProvenanceModel {
    * input.
    */
   _handleMetadata(sourceAction: object, resultUUID: string) {
-    if (currentMetadata.length !== 0) {
+    if (currentMetadata.size !== 0) {
       for (const metadataFile of currentMetadata) {
         const identifier = `${sourceAction.execution.uuid} ${metadataFile}`;
 
