@@ -139,3 +139,16 @@ export function getAllObjectKeysRecursively(
     }
   }
 }
+
+//*****************************************************************************
+// Unbelievably Set.Union and Set.Intersection were only added to the
+// ECMAScript standard in 2024, so I'm going to implement them here in ways
+// that will work on older js.
+//****************************************************************************/
+export function setUnion(setA: Set<string>, setB: Set<string>) {
+  return new Set([...setA, ...setB]);
+}
+
+export function setIntersection(setA: Set<string>, setB: Set<string>) {
+  return new Set([...setA].filter((elem) => setB.has(elem)));
+}

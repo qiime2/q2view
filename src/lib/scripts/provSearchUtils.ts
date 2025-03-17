@@ -1,8 +1,15 @@
 import { get_parser, Transformer } from "$lib/scripts/parser";
 import provenanceModel from "$lib/models/provenanceModel";
+import { getAllObjectKeysRecursively, setUnion, setIntersection } from "./util";
+import BiMap from "./biMap";
 
 const OR = "|";
 const AND = "&";
+
+// Define anchor constants for searching
+const START_ANCHOR = "^";
+const END_ANCHOR = "$";
+const ESCAPED_END_ANCHOR = "\\$";
 
 class MyTransformer extends Transformer {
   start(start) {
@@ -51,11 +58,12 @@ class MyTransformer extends Transformer {
   }
 
   STRING(string) {
+    // slice the quotes off
     return string.value.slice(1, -1);
   }
 
   NUMBER(number) {
-     for (const operator of ["=", ">=", ">", "<=", "<"]) {
+    for (const operator of ["=", ">=", ">", "<=", "<"]) {
       if (number.value.startsWith(operator)) {
         return new _Number(operator, Number(number.value.split(operator)[1]));
       }
@@ -115,29 +123,20 @@ export class _Number {
   }
 }
 
-//*****************************************************************************
-// Unbelievably Set.Union and Set.Intersection were only added to the
-// ECMAScript standard in 2024, so I'm going to implement them here in ways
-// that will work on older js.
-//****************************************************************************/
-function _setUnion(setA: Set<string>, setB: Set<string>) {
-  return new Set([...setA, ...setB]);
-}
-
-function _setIntersection(setA: Set<string>, setB: Set<string>) {
-  return new Set([...setA].filter((elem) => setB.has(elem)));
-}
-
-function _searchProvenanceValue(json: Array<any>, index: number): Set<string> {
+function _searchProvenanceValue(
+  json: Array<any>,
+  index: number,
+  jsonMAP: BiMap<string, {}>,
+): Set<string> {
   const elem = json[index];
   let hits = new Set<string>();
 
   if (elem.constructor === Array) {
-    hits = _searchProvenanceValue(elem, 0);
+    hits = _searchProvenanceValue(elem, 0, jsonMAP);
   } else if (elem.constructor === _Pair) {
-    hits = _searchProvKey(elem.key, elem.value);
+    hits = _searchProvKey(elem.key, elem.value, jsonMAP);
   } else if (elem.constructor === _Key) {
-    hits = provenanceModel.searchJSON(elem, undefined);
+    hits = searchJSONMap(elem, undefined, jsonMAP);
   } else {
     throw new Error(
       `Expected Array, Pair, or Key. Got '${elem}' of type '${typeof elem}'`,
@@ -145,7 +144,7 @@ function _searchProvenanceValue(json: Array<any>, index: number): Set<string> {
   }
 
   if (index < json.length - 1) {
-    hits = _searchProvenanceOperator(json, index + 1, hits);
+    hits = _searchProvenanceOperator(json, index + 1, hits, jsonMAP);
   }
 
   return hits;
@@ -155,14 +154,15 @@ function _searchProvenanceOperator(
   json: Array<any>,
   index: number,
   hits: Set<string>,
+  jsonMAP: BiMap<string, {}>,
 ): Set<string> {
   const elem = json[index];
-  const next_hits = _searchProvenanceValue(json, index + 1);
+  const next_hits = _searchProvenanceValue(json, index + 1, jsonMAP);
 
   if (elem === OR) {
-    hits = _setUnion(hits, next_hits);
+    hits = setUnion(hits, next_hits);
   } else if (elem === AND) {
-    hits = _setIntersection(hits, next_hits);
+    hits = setIntersection(hits, next_hits);
   } else {
     throw new Error(`Expected '${AND}' or '${OR}' got '${elem}'`);
   }
@@ -170,15 +170,19 @@ function _searchProvenanceOperator(
   return hits;
 }
 
-function _searchProvKey(key: Array<string>, value: any): Set<string> {
+function _searchProvKey(
+  key: Array<string>,
+  value: any,
+  jsonMAP: BiMap<string, {}>,
+): Set<string> {
   let hits = new Set<string>();
 
   if (value === null || value.constructor !== Array) {
     // Need to check this first because null.constructor is an error
-    hits = provenanceModel.searchJSON(key, value);
+    hits = searchJSONMap(key, value, jsonMAP);
   } else {
     // value.constructor === Array
-    hits = _searchProvKeyValue(key, value, 0);
+    hits = _searchProvKeyValue(key, value, 0, jsonMAP);
   }
 
   return hits;
@@ -188,18 +192,19 @@ function _searchProvKeyValue(
   key: Array<string>,
   values: Array<any>,
   index: number,
+  jsonMAP: BiMap<string, {}>,
 ): Set<string> {
   const elem = values[index];
   let hits = new Set<string>();
 
   if (elem.constructor === Array) {
-    hits = _searchProvKeyValue(key, elem, 0);
+    hits = _searchProvKeyValue(key, elem, 0, jsonMAP);
   } else {
-    hits = _searchProvKey(key, elem);
+    hits = _searchProvKey(key, elem, jsonMAP);
   }
 
   if (index < values.length - 1) {
-    hits = _searchProvKeyOperator(key, values, index + 1, hits);
+    hits = _searchProvKeyOperator(key, values, index + 1, hits, jsonMAP);
   }
 
   return hits;
@@ -210,14 +215,15 @@ function _searchProvKeyOperator(
   values: Array<any>,
   index: number,
   hits: Set<string>,
+  jsonMAP: BiMap<string, {}>,
 ): Set<string> {
   const elem = values[index];
-  const next_hits = _searchProvKeyValue(key, values, index + 1);
+  const next_hits = _searchProvKeyValue(key, values, index + 1, jsonMAP);
 
   if (elem === OR) {
-    hits = _setUnion(hits, next_hits);
+    hits = setUnion(hits, next_hits);
   } else if (elem === AND) {
-    hits = _setIntersection(hits, next_hits);
+    hits = setIntersection(hits, next_hits);
   } else {
     throw new Error(`Expected '${AND}' or '${OR}' got '${elem}'`);
   }
@@ -225,13 +231,150 @@ function _searchProvKeyOperator(
   return hits;
 }
 
-export function searchProvenance(searchValue: string) {
-  console.log(searchValue)
+/**
+ * Searches the values of the provided jsonMAP for json with keys matching the
+ * key param with a value matching the searchValue param then returns a set of
+ * their keys in the jsonMAP
+ *
+ * @param {Array<string>} key - The key, or nested sequence of keys, to check
+ * for our value
+ * @param {any} searchValue - The value we are searching for in the JSON
+ * @param {BiMap<string, {}>} jsonMAP - A mapping of
+ *
+ * @returns {Set<string>} - A set of the uuids of all actions/results that
+ * were hit by the search
+ */
+function searchJSONMap(
+  key: Array<string>,
+  searchValue: any,
+  jsonMAP: BiMap<string, {}>,
+): Set<string> {
+  const hits = new Set<string>();
+  let hit: string | undefined;
+
+  for (const json of jsonMAP.values()) {
+    const keys: Array<Array<string>> = [];
+
+    getAllObjectKeysRecursively(json, [], keys);
+    for (const _key of keys) {
+      const terminal = _key.slice(-key.length);
+
+      if (JSON.stringify(terminal) === JSON.stringify(key)) {
+        if (searchValue === undefined) {
+          // We had a key with no value, so we only search the key
+          hit = jsonMAP.getKey(json);
+        } else {
+          let value = json[_key[0]];
+
+          for (let i = 1; i < _key.length; i++) {
+            value = value[_key[i]];
+          }
+
+          if (typeof value == "string" && typeof searchValue === "string") {
+            hit = _matchString(searchValue, value, json, jsonMAP);
+          } else if (
+            searchValue !== null &&
+            searchValue.constructor === _Number
+          ) {
+            hit = _matchNumber(searchValue, value, json, jsonMAP);
+          } else if (value === searchValue) {
+            // For bools and nulls match on equality
+            hit = jsonMAP.getKey(json);
+          }
+        }
+
+        if (hit !== undefined) {
+          hits.add(hit);
+        }
+      }
+    }
+  }
+
+  return hits;
+}
+
+function _matchString(
+  searchValue: any,
+  value: string,
+  json: {},
+  jsonMAP: BiMap<string, {}>,
+): string | undefined {
+  // For strings, we need to get fiddly with the matching
+  if (
+    searchValue.startsWith(START_ANCHOR) &&
+    searchValue.endsWith(END_ANCHOR) &&
+    !searchValue.endsWith(ESCAPED_END_ANCHOR)
+  ) {
+    // Start anchor and end anchor match on equality
+    if (value === searchValue.slice(1, -1)) {
+      return jsonMAP.getKey(json);
+    }
+  } else if (searchValue.startsWith(START_ANCHOR)) {
+    // Start anchor match on starts with
+    if (value.startsWith(searchValue.slice(1))) {
+      return jsonMAP.getKey(json);
+    }
+  } else if (
+    searchValue.endsWith(END_ANCHOR) &&
+    !searchValue.endsWith(ESCAPED_END_ANCHOR)
+  ) {
+    // End anchor match on ends with
+    if (value.endsWith(searchValue.slice(0, -1))) {
+      return jsonMAP.getKey(json);
+    }
+  } else if (value.includes(searchValue)) {
+    // No anchor match on includes
+    return jsonMAP.getKey(json);
+  }
+}
+
+function _matchNumber(
+  searchValue: any,
+  value: string,
+  json: {},
+  jsonMAP: BiMap<string, {}>,
+): string | undefined {
+  // For numbers match based on value and operator
+  switch (searchValue.operator) {
+    case "=":
+      if (value === searchValue.value) {
+        return jsonMAP.getKey(json);
+      }
+      break;
+    case ">":
+      if (value > searchValue.value) {
+        return jsonMAP.getKey(json);
+      }
+      break;
+    case ">=":
+      if (value >= searchValue.value) {
+        return jsonMAP.getKey(json);
+      }
+      break;
+    case "<":
+      if (value < searchValue.value) {
+        return jsonMAP.getKey(json);
+      }
+      break;
+    case "<=":
+      if (value <= searchValue.value) {
+        return jsonMAP.getKey(json);
+      }
+      break;
+  }
+}
+
+export function transformQuery(searchValue: string): Array<string> {
   const parser = get_parser();
   const myTransformer = new MyTransformer();
 
   const ast = parser.parse(searchValue);
-  const json = myTransformer.transform(ast);
-  console.log(json)
-  return Array.from(_searchProvenanceValue(json, 0));
+  return myTransformer.transform(ast);
+}
+
+export function searchProvenance(
+  searchQuery: Array<string>,
+  jsonMAP: BiMap<string, {}>,
+): Set<string> {
+  return _searchProvenanceValue(searchQuery, 0, jsonMAP);
 }

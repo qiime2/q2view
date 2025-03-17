@@ -1,7 +1,7 @@
 <script lang="ts">
   import "../../app.css";
   import cytoscape from "cytoscape";
-  import { searchProvenance } from "$lib/scripts/provSearchUtils";
+  import { searchProvenance, transformQuery } from "$lib/scripts/provSearchUtils";
   import { onMount } from "svelte";
   import Panel from "./Panel.svelte";
   import provenanceModel from "$lib/models/provenanceModel";
@@ -43,7 +43,8 @@
     searchIndex = 0;
 
     try {
-      searchHits = searchProvenance(value);
+      const searchQuery = transformQuery(value);
+      searchHits = Array.from(searchProvenance(searchQuery, provenanceModel.nodeIDToJSON));
       if (searchHits.length === 0) {
         throw new Error("No search hits found");
       }

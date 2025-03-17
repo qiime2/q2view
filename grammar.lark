@@ -34,7 +34,7 @@ value: STRING
 
 value_group: "(" value [((AND | OR) value)*] ")"
 
-STRING: ESCAPED_STRING
+STRING: /"(.*?)"/
 NUMBER: COMPARISON? SIGNED_NUMBER
 
 COMPARISON: ">"
@@ -49,7 +49,6 @@ NULL: "null"
 AND: "AND"
 OR: "OR"
 
-%import common.ESCAPED_STRING
 %import common.SIGNED_NUMBER
 %import common.WS
 %ignore WS

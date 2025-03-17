@@ -1,17 +1,17 @@
 import { expect, test } from "vitest";
 import BiMap from "$lib/scripts/biMap";
-import { searchProvenance } from "$lib/scripts/provSearchUtils";
-import provenanceModel from "$lib/models/provenanceModel";
+import { searchProvenance, transformQuery } from "$lib/scripts/provSearchUtils";
 
 const stringJSON = {
   uuid: "string",
   key: "42",
-  keyNum: 42,
+  keyNum: 40,
 };
 
 const altStringJSON = {
   uuid: "altString",
   key: "135",
+  keyNum: 42,
 };
 
 const numberJSON = {
@@ -80,73 +80,135 @@ const testMap = new BiMap(
     ["reversedAnchors", reversedAnchorsJSON],
   ]),
 );
-provenanceModel.nodeIDToJSON = testMap;
 
 test("test string", () => {
-  const hits = searchProvenance(
+  const searchQuery = transformQuery(
     'key: "42" OR key: "true" OR key: "false" OR key: "null"',
   );
-  expect(hits.toString() === '["string"]');
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("string");
 });
 
 test("test number", () => {
-  const hits = searchProvenance("key: 42");
-  expect(hits.toString() === '["number"]');
+  const searchQuery = transformQuery("key: 42");
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("number");
 });
 
 test("test true", () => {
-  const hits = searchProvenance("key: true");
-  expect(hits.toString() === '["true"]');
+  const searchQuery = transformQuery("key: true");
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("true");
 });
 
 test("test false", () => {
-  const hits = searchProvenance("key: false");
-  expect(hits.toString() === '["false"]');
+  const searchQuery = transformQuery("key: false");
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("false");
 });
 
 test("test null", () => {
-  const hits = searchProvenance("key: null");
-  expect(hits.toString() === '["null"]');
+  const searchQuery = transformQuery("key: null");
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("null");
 });
 
 test("test nested key", () => {
-  const hits = searchProvenance('nested.key: "nested"');
-  expect(hits.toString() === '["nested"]');
+  const searchQuery = transformQuery('nested.key: "nested"');
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("nested");
 });
 
 test("test escaped key", () => {
-  const hits = searchProvenance('escap\.ed.key: "escaped"');
-  expect(hits.toString() === '["escaoed"]');
+  const searchQuery = transformQuery('escap\\.ed.key: "escaped"');
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("escaped");
 });
 
 test("test value list", () => {
-  const hits = searchProvenance('key: (("4" AND "2") OR "3")');
-  expect(hits.toString() === '["string", "altString"]');
+  const searchQuery = transformQuery('key: (("4" AND "2") OR "3")');
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("string,altString");
 });
 
 test("test query list", () => {
-  const hits = searchProvenance(
-    '(key: "42" AND keyNum: 42) OR nested.key: "nested"',
+  const searchQuery = transformQuery(
+    '(key: "42" AND keyNum: 40) OR nested.key: "nested"',
   );
-  expect(hits.toString() === '["string", "nested"]');
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("string,nested");
 });
 
 test("test start anchor", () => {
-  const hits = searchProvenance('anchorKey: "^start"');
-  expect(hits.toString() === '["anchor"]');
+  const searchQuery = transformQuery('anchorKey: "^start"');
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("anchor");
 });
 
 test("test end anchor", () => {
-  const hits = searchProvenance('anchorKey: "end$"');
-  expect(hits.toString() === '["anchor"]');
+  const searchQuery = transformQuery('anchorKey: "end$"');
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("anchor");
 });
 
 test("test both anchors", () => {
-  const hits = searchProvenance('anchorKey: "^start and end$"');
-  expect(hits.toString() === '["anchor"]');
+  const searchQuery = transformQuery('anchorKey: "^start and end$"');
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("anchor");
 });
 
 test("test escaped anchors", () => {
-  const hits = searchProvenance('anchorKey: "\^start and end\$"');
-  expect(hits.toString() === '["escapedAnchors"]');
+  const searchQuery = transformQuery(
+    String.raw`anchorKey: "\^start and end\$"`,
+  );
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("escapedAnchors");
+});
+
+test("test get key", () => {
+  const searchQuery = transformQuery("anchorKey");
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("anchor,escapedAnchors,reversedAnchors");
+});
+
+test("test get >", () => {
+  const searchQuery = transformQuery("keyNum: >40");
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("altString");
+});
+
+test("test get >=", () => {
+  const searchQuery = transformQuery("keyNum: >=40");
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("string,altString");
+});
+
+test("test get <", () => {
+  const searchQuery = transformQuery("keyNum: <42");
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("string");
+});
+
+test("test get <=", () => {
+  const searchQuery = transformQuery("keyNum: <=42");
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("string,altString");
 });

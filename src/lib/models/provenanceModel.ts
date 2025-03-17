@@ -6,16 +6,10 @@ import JSZip from "jszip";
 
 import BiMap from "$lib/scripts/biMap";
 import { getYAML } from "$lib/scripts/fileutils";
-import { getAllObjectKeysRecursively } from "$lib/scripts/util";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
 import { _Number } from "$lib/scripts/provSearchUtils";
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
-
-// Define anchor constants for searching
-const START_ANCHOR = "^";
-const END_ANCHOR = "$";
-const ESCAPED_END_ANCHOR = "\\$";
 
 let currentMetadata: Set<string>;
 
@@ -50,7 +44,7 @@ class ProvenanceModel {
 
   // Search JSON
   jsonKeysToJSON = new Map();
-  nodeIDToJSON = new BiMap();
+  nodeIDToJSON: BiMap<string, {}> = new BiMap();
   keys: Set<string> = new Set();
 
   searchError: any = null;
@@ -586,106 +580,6 @@ class ProvenanceModel {
       this.uuid,
       this.zipReader,
     );
-  }
-
-  /**
-   * Searches the JSON of all provenance in the graph
-   *
-   * @param {Array<string>} key - The key, or nested sequence of keys, to check
-   * for our value
-   * @param {any} searchValue - The value we are searching for in the JSON
-   *
-   * @returns {Set<string>} - A set of the uuids of all actions/results that
-   * were hit by the search
-   */
-  searchJSON(key: Array<string>, searchValue: any): Set<string> {
-    const hits = new Set<string>();
-
-    for (const json of this.nodeIDToJSON.values()) {
-      const keys: Array<Array<string>> = [];
-
-      getAllObjectKeysRecursively(json, [], keys);
-      for (const _key of keys) {
-        const terminal = _key.slice(-key.length);
-
-        if (JSON.stringify(terminal) === JSON.stringify(key)) {
-          if (searchValue === undefined) {
-            // We had a key with no value, so we only search the key
-            hits.add(this.nodeIDToJSON.getKey(json));
-          } else {
-            let value = json[_key[0]];
-
-            for (let i = 1; i < _key.length; i++) {
-              value = value[_key[i]];
-            }
-
-            if (typeof value == "string" && typeof searchValue === "string") {
-              // For strings, we need to get fiddly with the matching
-              if (
-                searchValue.startsWith(START_ANCHOR) &&
-                searchValue.endsWith(END_ANCHOR) &&
-                !searchValue.endsWith(ESCAPED_END_ANCHOR)
-              ) {
-                // Start anchor and end anchor match on equality
-                if (value === searchValue.slice(1, -1)) {
-                  hits.add(this.nodeIDToJSON.getKey(json));
-                }
-              } else if (searchValue.startsWith(START_ANCHOR)) {
-                // Start anchor match on starts with
-                if (value.startsWith(searchValue.slice(1))) {
-                  hits.add(this.nodeIDToJSON.getKey(json));
-                }
-              } else if (
-                searchValue.endsWith(END_ANCHOR) &&
-                !searchValue.endsWith(ESCAPED_END_ANCHOR)
-              ) {
-                // End anchor match on ends with
-                if (value.endsWith(searchValue.slice(0, -1))) {
-                  hits.add(this.nodeIDToJSON.getKey(json));
-                }
-              } else if (value.includes(searchValue)) {
-                // No anchor match on includes
-                hits.add(this.nodeIDToJSON.getKey(json));
-              }
-            } else if (searchValue !== null && searchValue.constructor === _Number) {
-              // For numbers match based on value and operator
-              switch (searchValue.operator) {
-                case "=":
-                  if (value === searchValue.value) {
-                    hits.add(this.nodeIDToJSON.getKey(json));
-                  }
-                  break;
-                case ">":
-                  if (value > searchValue.value) {
-                    hits.add(this.nodeIDToJSON.getKey(json));
-                  }
-                  break;
-                case ">=":
-                  if (value >= searchValue.value) {
-                    hits.add(this.nodeIDToJSON.getKey(json));
-                  }
-                  break;
-                case "<":
-                  if (value < searchValue.value) {
-                    hits.add(this.nodeIDToJSON.getKey(json));
-                  }
-                  break;
-                case "<=":
-                  if (value <= searchValue.value) {
-                    hits.add(this.nodeIDToJSON.getKey(json));
-                  }
-                  break;
-              }
-            } else if (value === searchValue) {
-              // For bools and nulls match on equality
-              hits.add(this.nodeIDToJSON.getKey(json));
-            }
-          }
-        }
-      }
-    }
-
-    return hits;
   }
 }
 
