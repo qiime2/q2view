@@ -6,7 +6,7 @@
   import provenanceModel from "$lib/models/provenanceModel";
   import cytoscape from "cytoscape";
   import ProvSearchbar from "./ProvSearchbar.svelte";
-    import { getScrollBarWidth } from "$lib/scripts/util";
+  import { getScrollBarWidth } from "$lib/scripts/util";
 
   let self: HTMLDivElement;
   let cy: cytoscape.Core;
