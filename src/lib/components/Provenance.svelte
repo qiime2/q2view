@@ -38,7 +38,7 @@
           <p class="pt-3 leading-5">Strings can use the start and end of string anchors "^" and "$"</p><span class="example">type: "^FeatureData"</span><p class="leading-5">will match all types that start with "FeatureData"</p><span class="example">type: "FeatureData$"</span><p class="leading-5">will match all types that end with "FeatureData"</p><span class="example">type: "^FeatureData[Taxonomy]$"</span><p class="leading-5">will only match exactly "FeatureData[Taxonomy]"</p>
           <p class="pt-3 leading-5">If your search value starts with "^" or ends with "$" you will have to escape them with "\"</p><span class="example">key: "\^String starts and ends with anchors\$"</span>
           <p class="pt-3 leading-5">Numerical values can use the comparison operators &gt;, &gt;=, &lt;, &lt;=</p><span class="example">sampling_depth: &gt;=1000</span><p class="leading-5">will match all sampling_depths greater than or equal to 1000</p>
-          <p class="pt-3 leading-5">You can also combine values with AND and OR. You must wrap these clauses in parenthses</p><span class="example">uuid: (("^6" AND "5$") OR "ee")</span><p class="leading-5">will match all uuids that start with 6 and end with 5 or contain "ee"</p>
+          <p class="pt-3 leading-5">You can also combine values with AND and OR. You must wrap these clauses in parentheses</p><span class="example">uuid: (("^6" AND "5$") OR "ee")</span><p class="leading-5">will match all uuids that start with 6 and end with 5 or contain "ee"</p>
         </div>
       {/if}
     </Panel>
