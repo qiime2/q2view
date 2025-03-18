@@ -58,6 +58,16 @@ const escapedAnchorsJSON = {
   anchorKey: "^start and end$",
 };
 
+const escapedStartJSON = {
+  uuid: "escapedStart",
+  anchorKey: "^start and end",
+};
+
+const escapedEndJSON = {
+  uuid: "escapedEnd",
+  anchorKey: "start and end$",
+};
+
 const reversedAnchorsJSON = {
   uuid: "reversedAnchors",
   anchorKey: "end and start",
@@ -77,6 +87,8 @@ const testMap = new BiMap(
     ["escaped", escapedJSON],
     ["anchor", anchorJSON],
     ["escapedAnchors", escapedAnchorsJSON],
+    ["escapedStart", escapedStartJSON],
+    ["escapedEnd", escapedEndJSON],
     ["reversedAnchors", reversedAnchorsJSON],
   ]),
 );
@@ -152,14 +164,14 @@ test("test start anchor", () => {
   const searchQuery = transformQuery('anchorKey: "^start"');
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
-  expect(hits.toString()).toBe("anchor");
+  expect(hits.toString()).toBe("anchor,escapedEnd");
 });
 
 test("test end anchor", () => {
   const searchQuery = transformQuery('anchorKey: "end$"');
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
-  expect(hits.toString()).toBe("anchor");
+  expect(hits.toString()).toBe("anchor,escapedStart");
 });
 
 test("test both anchors", () => {
@@ -178,11 +190,29 @@ test("test escaped anchors", () => {
   expect(hits.toString()).toBe("escapedAnchors");
 });
 
+test("test escaped start", () => {
+  const searchQuery = transformQuery(
+    String.raw`anchorKey: "\^start and end$"`,
+  );
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("escapedStart");
+});
+
+test("test escaped end", () => {
+  const searchQuery = transformQuery(
+    String.raw`anchorKey: "^start and end\$"`,
+  );
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("escapedEnd");
+});
+
 test("test get key", () => {
   const searchQuery = transformQuery("anchorKey");
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
-  expect(hits.toString()).toBe("anchor,escapedAnchors,reversedAnchors");
+  expect(hits.toString()).toBe("anchor,escapedAnchors,escapedStart,escapedEnd,reversedAnchors");
 });
 
 test("test get >", () => {

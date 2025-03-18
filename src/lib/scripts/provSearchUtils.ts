@@ -8,6 +8,7 @@ const AND = "&";
 
 // Define anchor constants for searching
 const START_ANCHOR = "^";
+const ESCAPED_START_ANCHOR = "\\^";
 const END_ANCHOR = "$";
 const ESCAPED_END_ANCHOR = "\\$";
 
@@ -299,6 +300,21 @@ function _matchString(
   json: {},
   jsonMAP: BiMap<string, {}>,
 ): string | undefined {
+  let unescapedStart = searchValue;
+  let unescapedEnd = searchValue;
+  let unescapedSearchValue = searchValue;
+
+  // Unescape any escaped anchors
+  if (searchValue.startsWith(ESCAPED_START_ANCHOR)) {
+    unescapedStart = "^" + searchValue.slice(2);
+    unescapedSearchValue = "^" + unescapedSearchValue.slice(2);
+  }
+
+  if (searchValue.endsWith(ESCAPED_END_ANCHOR)) {
+    unescapedEnd = searchValue.slice(0, -2) + "$";
+    unescapedSearchValue = unescapedSearchValue.slice(0, -2) + "$";
+  }
+
   // For strings, we need to get fiddly with the matching
   if (
     searchValue.startsWith(START_ANCHOR) &&
@@ -309,20 +325,20 @@ function _matchString(
     if (value === searchValue.slice(1, -1)) {
       return jsonMAP.getKey(json);
     }
-  } else if (searchValue.startsWith(START_ANCHOR)) {
+  } else if (unescapedEnd.startsWith(START_ANCHOR)) {
     // Start anchor match on starts with
-    if (value.startsWith(searchValue.slice(1))) {
+    if (value.startsWith(unescapedEnd.slice(1))) {
       return jsonMAP.getKey(json);
     }
   } else if (
-    searchValue.endsWith(END_ANCHOR) &&
-    !searchValue.endsWith(ESCAPED_END_ANCHOR)
+    unescapedStart.endsWith(END_ANCHOR) &&
+    !unescapedStart.endsWith(ESCAPED_END_ANCHOR)
   ) {
     // End anchor match on ends with
-    if (value.endsWith(searchValue.slice(0, -1))) {
+    if (value.endsWith(unescapedStart.slice(0, -1))) {
       return jsonMAP.getKey(json);
     }
-  } else if (value.includes(searchValue)) {
+  } else if (value.includes(unescapedSearchValue)) {
     // No anchor match on includes
     return jsonMAP.getKey(json);
   }
