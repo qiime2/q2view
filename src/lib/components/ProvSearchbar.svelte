@@ -35,6 +35,9 @@
   function _formatSearchError() {
     let error = "ERROR: ";
 
+    console.log($provenanceModel.searchError)
+    console.log($provenanceModel.searchError.constructor)
+    console.log($provenanceModel.searchError.constructor.name)
     if (value === "") {
       error += "No search value entered.";
     } else if (
