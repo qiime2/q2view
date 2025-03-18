@@ -191,18 +191,14 @@ test("test escaped anchors", () => {
 });
 
 test("test escaped start", () => {
-  const searchQuery = transformQuery(
-    String.raw`anchorKey: "\^start and end$"`,
-  );
+  const searchQuery = transformQuery(String.raw`anchorKey: "\^start and end$"`);
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
   expect(hits.toString()).toBe("escapedStart");
 });
 
 test("test escaped end", () => {
-  const searchQuery = transformQuery(
-    String.raw`anchorKey: "^start and end\$"`,
-  );
+  const searchQuery = transformQuery(String.raw`anchorKey: "^start and end\$"`);
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
   expect(hits.toString()).toBe("escapedEnd");
@@ -212,7 +208,9 @@ test("test get key", () => {
   const searchQuery = transformQuery("anchorKey");
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
-  expect(hits.toString()).toBe("anchor,escapedAnchors,escapedStart,escapedEnd,reversedAnchors");
+  expect(hits.toString()).toBe(
+    "anchor,escapedAnchors,escapedStart,escapedEnd,reversedAnchors",
+  );
 });
 
 test("test get >", () => {
