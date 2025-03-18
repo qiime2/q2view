@@ -1,7 +1,10 @@
 <script lang="ts">
   import "../../app.css";
   import cytoscape from "cytoscape";
-  import { searchProvenance, transformQuery } from "$lib/scripts/provSearchUtils";
+  import {
+    searchProvenance,
+    transformQuery,
+  } from "$lib/scripts/provSearchUtils";
   import { onMount } from "svelte";
   import Panel from "./Panel.svelte";
   import provenanceModel from "$lib/models/provenanceModel";
@@ -14,7 +17,7 @@
   let searchHits: Array<string> = [];
 
   const LARK_MAP: Map<string, string> = new Map([
-    ["$END", '"$END"'],
+    ["$END", '"End of input"'],
     ["COLON", '":"'],
     ["KEY_SEP", '"."'],
     ["NUMBER", "number"],
@@ -26,8 +29,30 @@
     ["LPAR", '"("'],
     ["RPAR", '")"'],
     ["AND", '"AND"'],
-    ["OR", '"OR"']
+    ["OR", '"OR"'],
   ]);
+
+  function _formatSearchError() {
+    let error = "ERROR: ";
+
+    if (value === "") {
+      error += "No search value entered.";
+    } else if (
+      $provenanceModel.searchError.constructor.name ===
+        "UnexpectedCharacters" &&
+      $provenanceModel.searchError.char === '"'
+    ) {
+      error += "Missing close quote.";
+    } else if (
+      $provenanceModel.searchError.constructor.name === "UnexpectedToken"
+    ) {
+      error += `received ${LARK_MAP.get($provenanceModel.searchError.token.type)} expected one of ${_formatExpected($provenanceModel.searchError.expected)}`;
+    } else {
+      error += $provenanceModel.searchError.message;
+    }
+
+    return error;
+  }
 
   function _formatExpected(expected: Set<string>) {
     let mapped = [];
@@ -44,7 +69,9 @@
 
     try {
       const searchQuery = transformQuery(value);
-      searchHits = Array.from(searchProvenance(searchQuery, provenanceModel.nodeIDToJSON));
+      searchHits = Array.from(
+        searchProvenance(searchQuery, provenanceModel.nodeIDToJSON),
+      );
       if (searchHits.length === 0) {
         throw new Error("No search hits found");
       }
@@ -93,8 +120,8 @@
       // Pan to put the focused node near the top of the viewport
       cy.panBy({
         x: 0,
-        y: ((height - 2) / 2) * -105
-      })
+        y: ((height - 2) / 2) * -105,
+      });
     }
   }
 
@@ -139,70 +166,60 @@
   onMount(() => {
     // re-init this when mounting a new DAG
     _clearSearch();
-  })
+  });
 </script>
 
 <Panel header="Search Provenance">
   <form on:submit|preventDefault={_handleProvenanceSearch}>
-    <input class="roundInput" placeholder='type: ("FeatureData" OR "SampleData")' bind:value />
+    <input
+      class="roundInput"
+      placeholder='type: ("FeatureData" OR "SampleData")'
+      bind:value
+    />
   </form>
   <div class="flex mt-2" style="align-items: center">
-    <button
-      on:click={_decrementSearchIndex}
-      class="roundButton"
-    >
-      <svg fill="none"
-        width="10"
-        height="10">
+    <button on:click={_decrementSearchIndex} class="roundButton">
+      <svg fill="none" width="10" height="10">
         <path
           stroke-width="3"
           stroke="rgb(119, 119, 119)"
-          d="m8 0L3 5a0,2 0 0 1 1,1M3 5L8 10"/>
+          d="m8 0L3 5a0,2 0 0 1 1,1M3 5L8 10"
+        />
       </svg>
     </button>
     <!-- Show 0/0 when no results -->
     {searchHits.length > 0 ? searchIndex + 1 : searchIndex}/{searchHits.length}
-    <button
-      on:click={_incrementSearchIndex}
-      class="roundButton"
-    >
-      <svg fill="none"
-        width="10"
-        height="10">
+    <button on:click={_incrementSearchIndex} class="roundButton">
+      <svg fill="none" width="10" height="10">
         <path
           stroke-width="3"
           stroke="rgb(119, 119, 119)"
-          d="m3 0L8 5a0,2 0 0 1 1,1M8 5L3 10"/>
+          d="m3 0L8 5a0,2 0 0 1 1,1M8 5L3 10"
+        />
       </svg>
     </button>
-    <button
-      on:click={_selectSearchHit}
-      class="roundButton textButton"
-    >
+    <button on:click={_selectSearchHit} class="roundButton textButton">
       Center on Result
     </button>
-    <button
-      on:click={_clearSearch}
-      class="roundButton textButton"
-    >
+    <button on:click={_clearSearch} class="roundButton textButton">
       Clear Search
     </button>
-    {#if $provenanceModel.searchError !== null}
-      <div class="border border-red-300 rounded-md bg-red-100 py-1 px-3 ml-auto w-2/3">
-        {#if $provenanceModel.searchError.constructor.name === "UnexpectedToken"}
-          Error: UnexpectedToken, received {LARK_MAP.get($provenanceModel.searchError.token.type)} expected one of {_formatExpected($provenanceModel.searchError.expected)}
-        {:else}
-          Error: {$provenanceModel.searchError.message}
-        {/if}
-      </div>
-    {/if}
+    {#key $provenanceModel.searchError}
+      {#if $provenanceModel.searchError !== null}
+        <div
+          class="border border-red-300 rounded-md bg-red-100 py-1 px-3 ml-auto w-2/3"
+        >
+          {_formatSearchError()}
+        </div>
+      {/if}
+    {/key}
   </div>
 </Panel>
 
 <style lang="postcss">
   input {
     width: 100%;
-    @apply mb-2
+    @apply mb-2;
   }
 
   .textButton {
