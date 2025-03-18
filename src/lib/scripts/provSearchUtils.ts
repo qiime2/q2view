@@ -254,21 +254,24 @@ function searchJSONMap(
   let hit: string | undefined;
 
   for (const json of jsonMAP.values()) {
-    const keys: Array<Array<string>> = [];
+    const jsonKeys: Array<Array<string>> = [];
 
-    getAllObjectKeysRecursively(json, [], keys);
-    for (const _key of keys) {
-      const terminal = _key.slice(-key.length);
+    getAllObjectKeysRecursively(json, [], jsonKeys);
+    for (const jsonKey of jsonKeys) {
+      const terminal = jsonKey.slice(-key.length);
 
+      // If the end of the key path matches the provided key
       if (JSON.stringify(terminal) === JSON.stringify(key)) {
         if (searchValue === undefined) {
           // We had a key with no value, so we only search the key
           hit = jsonMAP.getKey(json);
         } else {
-          let value = json[_key[0]];
+          // Dig through the json to get the actual value at the end of the key
+          // path
+          let value = json[jsonKey[0]];
 
-          for (let i = 1; i < _key.length; i++) {
-            value = value[_key[i]];
+          for (let i = 1; i < jsonKey.length; i++) {
+            value = value[jsonKey[i]];
           }
 
           if (typeof value == "string" && typeof searchValue === "string") {
