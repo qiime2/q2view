@@ -35,21 +35,18 @@
   function _formatSearchError() {
     let error = "ERROR: ";
 
-    console.log($provenanceModel.searchError)
-    console.log($provenanceModel.searchError.constructor)
-    console.log($provenanceModel.searchError.constructor.name)
+    // The error types from the very large parser.js file get minified, so I am
+    // dispatching this logic on inferred error types based on what attributes
+    // the error has
     if (value === "") {
       error += "No search value entered.";
-    } else if (
-      $provenanceModel.searchError.constructor.name ===
-        "UnexpectedCharacters" &&
-      $provenanceModel.searchError.char === '"'
-    ) {
-      error += "Missing close quote.";
-    } else if (
-      $provenanceModel.searchError.constructor.name === "UnexpectedToken"
-    ) {
-      error += `received ${LARK_MAP.get($provenanceModel.searchError.token.type)} expected one of ${_formatExpected($provenanceModel.searchError.expected)}`;
+    } else if ("char" in $provenanceModel.searchError) {
+      // UnexpectedCharacters error
+      error += `Missing ${$provenanceModel.searchError.char}`;
+    } else if ("token" in $provenanceModel.searchError) {
+      // UnexpectedToken error
+      error += `received ${LARK_MAP.get($provenanceModel.searchError.token.type)}` +
+               ` expected one of ${_formatExpected($provenanceModel.searchError.expected)}.`;
     } else {
       error += $provenanceModel.searchError.message;
     }
