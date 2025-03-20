@@ -1,5 +1,4 @@
 import { get_parser, Transformer } from "$lib/scripts/parser";
-import provenanceModel from "$lib/models/provenanceModel";
 import { getAllObjectKeysRecursively, setUnion, setIntersection } from "./util";
 import BiMap from "./biMap";
 
@@ -114,7 +113,7 @@ class _Pair {
 
 class _Key<T> extends Array {}
 
-export class _Number {
+class _Number {
   operator: "=" | ">=" | ">" | "<=" | "<";
   value: number;
 

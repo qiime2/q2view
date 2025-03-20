@@ -7,7 +7,6 @@ import JSZip from "jszip";
 import BiMap from "$lib/scripts/biMap";
 import { getYAML } from "$lib/scripts/fileutils";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
-import { _Number } from "$lib/scripts/provSearchUtils";
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
 
