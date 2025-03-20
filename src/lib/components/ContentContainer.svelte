@@ -16,10 +16,9 @@
   import About from "$lib/components/About.svelte";
   import Error from "$lib/components/Error.svelte";
   import Loading from "$lib/components/Loading.svelte";
-  import provenanceModel from "$lib/models/provenanceModel";
 
   let loadingComponent: undefined | HTMLElement;
-</script>
+ </script>
 
 <div id="positioned-container" class='px-4'>
   <div id="content-container" class="max-width">

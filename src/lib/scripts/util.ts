@@ -114,3 +114,41 @@ export function getScrollBarWidth() {
   // Return difference in widths, this is the width of the scrollbar
   return withoutScrollWidth - withScrollWidth;
 }
+
+export function getAllObjectKeysRecursively(
+  targetObject: object,
+  currentkeyAccumulator: Array<string>,
+  globalKeySet: Array<Array<string>>,
+) {
+  if (targetObject !== null && targetObject !== undefined) {
+    for (const key of Object.keys(targetObject)) {
+      const newKeyAccumulator = [...currentkeyAccumulator, key];
+
+      // Some terminal values, such as the start and end times, will parse as objects, but they do not have keys of their own
+      const next = targetObject[key as keyof object];
+      if (
+        typeof next === "object" &&
+        next !== null &&
+        next !== undefined &&
+        Object.keys(next).length !== 0
+      ) {
+        getAllObjectKeysRecursively(next, newKeyAccumulator, globalKeySet);
+      } else {
+        globalKeySet.push(newKeyAccumulator);
+      }
+    }
+  }
+}
+
+//*****************************************************************************
+// Unbelievably Set.Union and Set.Intersection were only added to the
+// ECMAScript standard in 2024, so I'm going to implement them here in ways
+// that will work on older js.
+//****************************************************************************/
+export function setUnion(setA: Set<string>, setB: Set<string>) {
+  return new Set([...setA, ...setB]);
+}
+
+export function setIntersection(setA: Set<string>, setB: Set<string>) {
+  return new Set([...setA].filter((elem) => setB.has(elem)));
+}

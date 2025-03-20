@@ -43,9 +43,10 @@ class ProvenanceModel {
 
   // Search JSON
   jsonKeysToJSON = new Map();
-  nodeIDToJSON = new BiMap();
+  nodeIDToJSON: BiMap<string, {}> = new BiMap();
   keys: Set<string> = new Set();
 
+  searchError: any = null;
   seenMetadata: Set<string> = new Set();
   metadata: Array<Array<string>> = [];
 
@@ -104,6 +105,7 @@ class ProvenanceModel {
     this.nodeIDToJSON.clear();
     this.keys = new Set();
 
+    this.searchError = null;
     this.seenMetadata = new Set();
     this.metadata = [];
 
