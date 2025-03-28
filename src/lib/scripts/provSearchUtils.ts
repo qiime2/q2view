@@ -25,7 +25,7 @@ export function searchProvenance(
   searchQuery: Array<string>,
   jsonMAP: BiMap<string, {}>,
 ): Set<string> {
-  return _searchProvenanceValue(searchQuery, 0, jsonMAP);
+  return _searchProvValue(searchQuery, 0, jsonMAP);
 }
 
 // Sentinel class to see that we have a pair
@@ -153,7 +153,7 @@ class MyTransformer extends Transformer {
   }
 }
 
-function _searchProvenanceValue(
+function _searchProvValue(
   json: Array<any>,
   index: number,
   jsonMAP: BiMap<string, {}>,
@@ -162,7 +162,7 @@ function _searchProvenanceValue(
   let hits = new Set<string>();
 
   if (elem.constructor === Array) {
-    hits = _searchProvenanceValue(elem, 0, jsonMAP);
+    hits = _searchProvValue(elem, 0, jsonMAP);
   } else if (elem.constructor === _Pair) {
     hits = _searchProvKey(elem.key, elem.value, jsonMAP);
   } else if (elem.constructor === _Key) {
@@ -174,20 +174,20 @@ function _searchProvenanceValue(
   }
 
   if (index < json.length - 1) {
-    hits = _searchProvenanceOperator(json, index + 1, hits, jsonMAP);
+    hits = _searchProvOperator(json, index + 1, hits, jsonMAP);
   }
 
   return hits;
 }
 
-function _searchProvenanceOperator(
+function _searchProvOperator(
   json: Array<any>,
   index: number,
   hits: Set<string>,
   jsonMAP: BiMap<string, {}>,
 ): Set<string> {
   const elem = json[index];
-  const next_hits = _searchProvenanceValue(json, index + 1, jsonMAP);
+  const next_hits = _searchProvValue(json, index + 1, jsonMAP);
 
   if (elem === OR) {
     hits = setUnion(hits, next_hits);
@@ -212,13 +212,13 @@ function _searchProvKey(
     hits = searchJSONMap(key, value, jsonMAP);
   } else {
     // value.constructor === Array
-    hits = _searchProvKeyValue(key, value, 0, jsonMAP);
+    hits = _searchProvKeyComponent(key, value, 0, jsonMAP);
   }
 
   return hits;
 }
 
-function _searchProvKeyValue(
+function _searchProvKeyComponent(
   key: Array<string>,
   values: Array<any>,
   index: number,
@@ -228,7 +228,7 @@ function _searchProvKeyValue(
   let hits = new Set<string>();
 
   if (elem.constructor === Array) {
-    hits = _searchProvKeyValue(key, elem, 0, jsonMAP);
+    hits = _searchProvKeyComponent(key, elem, 0, jsonMAP);
   } else {
     hits = _searchProvKey(key, elem, jsonMAP);
   }
@@ -248,7 +248,7 @@ function _searchProvKeyOperator(
   jsonMAP: BiMap<string, {}>,
 ): Set<string> {
   const elem = values[index];
-  const next_hits = _searchProvKeyValue(key, values, index + 1, jsonMAP);
+  const next_hits = _searchProvKeyComponent(key, values, index + 1, jsonMAP);
 
   if (elem === OR) {
     hits = setUnion(hits, next_hits);
