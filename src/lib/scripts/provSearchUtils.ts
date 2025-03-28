@@ -1,5 +1,5 @@
 import { get_parser, Transformer } from "$lib/scripts/parser";
-import { getAllObjectKeysRecursively, setUnion, setIntersection } from "./util";
+import { getAllObjectKeyPathsRecursively, setUnion, setIntersection } from "./util";
 import BiMap from "./biMap";
 
 const OR = "|";
@@ -256,7 +256,7 @@ function searchJSONMap(
   for (const json of jsonMAP.values()) {
     const jsonKeys: Array<Array<string>> = [];
 
-    getAllObjectKeysRecursively(json, [], jsonKeys);
+    getAllObjectKeyPathsRecursively(json, [], jsonKeys);
     for (const jsonKey of jsonKeys) {
       const terminal = jsonKey.slice(-key.length);
 

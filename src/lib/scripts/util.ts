@@ -120,10 +120,20 @@ export function getScrollBarWidth() {
   return withoutScrollWidth - withScrollWidth;
 }
 
-export function getAllObjectKeysRecursively(
+/**
+ * Recursively acquire every full key path in the object and add each of them
+ * to a list of all key paths the object has.
+ *
+ * @param {object} targetObject - The object we are parsing all key paths from
+ * @param {Array<string>} currentkeyAccumulator - The key path we are currently
+ * building up
+ * @param {Array<Array<string>>} objectKeyPaths - An Array of all key paths on
+ * the object
+ */
+export function getAllObjectKeyPathsRecursively(
   targetObject: object,
   currentkeyAccumulator: Array<string>,
-  globalKeySet: Array<Array<string>>,
+  objectKeyPaths: Array<Array<string>>,
 ) {
   if (targetObject !== null && targetObject !== undefined) {
     for (const key of Object.keys(targetObject)) {
@@ -137,9 +147,9 @@ export function getAllObjectKeysRecursively(
         next !== null &&
         Object.keys(next).length !== 0
       ) {
-        getAllObjectKeysRecursively(next, newKeyAccumulator, globalKeySet);
+        getAllObjectKeyPathsRecursively(next, newKeyAccumulator, objectKeyPaths);
       } else {
-        globalKeySet.push(newKeyAccumulator);
+        objectKeyPaths.push(newKeyAccumulator);
       }
     }
   }
