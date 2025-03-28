@@ -5,13 +5,14 @@
   import JSONTree from "svelte-json-tree";
   import Dag from "./Dag.svelte";
   import provenanceModel from "$lib/models/provenanceModel";
+    import { getScrollBarWidth } from "$lib/scripts/util";
 </script>
 
 {#key $provenanceModel.uuid}
   <Dag />
 {/key}
 {#key $provenanceModel.provData}
-  <div class="pr-2" id="provDetails">
+  <div class="mb-2 {getScrollBarWidth() == 0 ? "pr-2" : ""}" id="provDetails">
     <Panel header={$provenanceModel.provTitle} customHeaderClass="rounded-t-none" customPanelClass="p-4 rounded-b-none">
       {#if provenanceModel.provData !== undefined}
         <div class="JSONTree">

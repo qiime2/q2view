@@ -109,10 +109,12 @@
         console.warn("Failed to get provSearchBar div");
       }
     } else {
-      const provDetailsStyle = window.getComputedStyle(provDetails);
+      // We want to also factor in the margins of the prov searchBar above us
+      // into the amount we subtract, but we only want to base our height off
+      // the content height of the details we don't care about the margins.
       const provSearchBarStyle = window.getComputedStyle(provSearchBar);
 
-      const provDetailsHeight = provDetails.offsetHeight + parseInt(provDetailsStyle.marginTop) + parseInt(provDetailsStyle.marginBottom);
+      const provDetailsHeight = provDetails.offsetHeight;
       const provSearchBarHeight = provSearchBar.offsetHeight + parseInt(provSearchBarStyle.marginTop) + parseInt(provSearchBarStyle.marginBottom);
 
       defaultHeight = provDetailsHeight - provSearchBarHeight;
