@@ -1,5 +1,10 @@
 import readerModel from "$lib/models/readerModel";
 
+// This value is multiplied by the height of the graph in nodes to get the
+// height of the graph in pixels. It is the height of a node in the graph plus
+// a bit of padding on top and bottom.
+export const HEIGHT_MULTIPLIER_PIXELS = 105;
+
 export const readBlobAsText = (blob) =>
   new Promise((resolve, reject) => {
     // eslint-disable-line no-unused-vars

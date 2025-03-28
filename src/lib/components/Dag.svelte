@@ -6,7 +6,7 @@
   import provenanceModel from "$lib/models/provenanceModel";
   import cytoscape from "cytoscape";
   import ProvSearchbar from "./ProvSearchbar.svelte";
-  import { getScrollBarWidth } from "$lib/scripts/util";
+  import { getScrollBarWidth, HEIGHT_MULTIPLIER_PIXELS } from "$lib/scripts/util";
 
   let self: HTMLDivElement;
   let cy: cytoscape.Core;
@@ -93,7 +93,7 @@
 
   onMount(() => {
     // Set this height so we center the DAG based on this height
-    let displayHeight = (provenanceModel.height + 1) * 105;
+    let displayHeight = (provenanceModel.height + 1) * HEIGHT_MULTIPLIER_PIXELS;
     self.style.setProperty("height", `${displayHeight}px`);
 
     let lock = false; // used to prevent recursive event storms

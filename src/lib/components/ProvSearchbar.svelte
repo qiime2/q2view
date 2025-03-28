@@ -8,6 +8,7 @@
   import { onMount } from "svelte";
   import Panel from "./Panel.svelte";
   import provenanceModel from "$lib/models/provenanceModel";
+  import { HEIGHT_MULTIPLIER_PIXELS } from "$lib/scripts/util";
 
   export let height: number;
   export let cy: cytoscape.Core;
@@ -126,7 +127,7 @@
       // Pan to put the focused node near the top of the viewport
       cy.panBy({
         x: 0,
-        y: ((height - 2) / 2) * -105,
+        y: ((height - 2) / 2) * -HEIGHT_MULTIPLIER_PIXELS,
       });
     }
   }
