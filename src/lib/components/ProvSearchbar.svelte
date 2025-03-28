@@ -110,7 +110,7 @@
     const hitUUID = searchHits[searchIndex];
 
     if (hitUUID === undefined) {
-      // This will happen if there are no searc hits
+      // This will happen if there are no search hits
       return;
     } else {
       const elem = cy.$id(hitUUID);
