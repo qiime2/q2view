@@ -5,7 +5,7 @@
   import JSONTree from "svelte-json-tree";
   import Dag from "./Dag.svelte";
   import provenanceModel from "$lib/models/provenanceModel";
-    import { getScrollBarWidth } from "$lib/scripts/util";
+  import { getScrollBarWidth } from "$lib/scripts/util";
 </script>
 
 {#key $provenanceModel.uuid}
