@@ -143,7 +143,6 @@
     @apply lg:absolute
     lg:grid
     lg:grid-cols-[70%_30%]
-    w-full
     gap-2;
   }
 
