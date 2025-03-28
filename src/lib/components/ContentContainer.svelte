@@ -78,8 +78,8 @@
       <!-- Extra class baggage to make this tab fullscreen -->
       <div
         class={$url.pathname.replaceAll("/", "") === "provenance" && $loading.status !== "LOADING"
-          ? `tab provenance`
-          : "hidden-tab"}
+          ? "tab provenance"
+          : "hidden-tab provenance"}
       >
         <Provenance />
       </div>
@@ -143,6 +143,7 @@
     @apply lg:absolute
     lg:grid
     lg:grid-cols-[70%_30%]
+    w-full
     gap-2;
   }
 
