@@ -129,12 +129,12 @@ export function getAllObjectKeysRecursively(
     for (const key of Object.keys(targetObject)) {
       const newKeyAccumulator = [...currentkeyAccumulator, key];
 
-      // Some terminal values, such as the start and end times, will parse as objects, but they do not have keys of their own
+      // Some terminal values, such as the start and end times, will parse as
+      // objects, but they do not have keys of their own
       const next = targetObject[key as keyof object];
       if (
         typeof next === "object" &&
         next !== null &&
-        next !== undefined &&
         Object.keys(next).length !== 0
       ) {
         getAllObjectKeysRecursively(next, newKeyAccumulator, globalKeySet);
