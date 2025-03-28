@@ -93,8 +93,34 @@
 
   onMount(() => {
     // Set this height so we center the DAG based on this height
-    let displayHeight = (provenanceModel.height + 1) * HEIGHT_MULTIPLIER_PIXELS;
-    self.style.setProperty("height", `${displayHeight}px`);
+    const provDetails = document.getElementById("provDetails");
+    const provSearchBar = document.getElementById("provSearchBar");
+
+    // Attempt to calculate the height such that it lines up with the details
+    // panel. If we cannot get any part of the information needed to calculate
+    // this, just say screw it and use the screen height here.
+    let defaultHeight = screen.height;
+    if (provDetails === null || provSearchBar === null) {
+      if (provDetails === null) {
+        console.warn("Failed to get provDetails div");
+      }
+
+      if (provSearchBar === null) {
+        console.warn("Failed to get provSearchBar div");
+      }
+    } else {
+      const provDetailsStyle = window.getComputedStyle(provDetails);
+      const provSearchBarStyle = window.getComputedStyle(provSearchBar);
+
+      const provDetailsHeight = provDetails.offsetHeight + parseInt(provDetailsStyle.marginTop) + parseInt(provDetailsStyle.marginBottom);
+      const provSearchBarHeight = provSearchBar.offsetHeight + parseInt(provSearchBarStyle.marginTop) + parseInt(provSearchBarStyle.marginBottom);
+
+      defaultHeight = provDetailsHeight - provSearchBarHeight;
+    }
+
+    // Compute the height based on the prov DAG as well
+    const dimensionBasedHeight = (provenanceModel.height + 1) * HEIGHT_MULTIPLIER_PIXELS;
+    self.style.setProperty("height", `${dimensionBasedHeight}px`);
 
     let lock = false; // used to prevent recursive event storms
     let selectedExists = false;
@@ -142,17 +168,20 @@
       }
     });
 
-    // Now center the DAG in the small canvas
+    // Now center the DAG in the canvas with height calculated based on the DAG
+    // height. We do this because if the dimensionBasedHeight is smaller than
+    // the default height, then we wan to center based on that smaller height
+    // so the DAG ends up at the top center of the canvas not dead center
     cy.center();
 
-    // Centering on the prior displayHeight should put the dag at top center.
-    // Now set the height appropriately based on the height of the dag.
-    self.style.setProperty("height", `max(calc(100vh - 100px), ${displayHeight}px)`);
+    // Now we set the canvas size to whichever was larger. The height to line up
+    // with the bottom of the default details panel, or the height needed to
+    // fit the entire DAG
+    self.style.setProperty("height", `max(${defaultHeight}px, ${dimensionBasedHeight}px)`);
   });
 </script>
 
-<div class="{getScrollBarWidth() == 0 ? "pl-4" : ""}">
-  <div>
+<div class="{getScrollBarWidth() == 0 ? "pl-2" : ""}">  <div id="provSearchBar" class="mb-2">
     <ProvSearchbar height={provenanceModel.height} {cy}/>
   </div>
   <div

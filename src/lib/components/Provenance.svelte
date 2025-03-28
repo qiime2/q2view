@@ -11,8 +11,8 @@
   <Dag />
 {/key}
 {#key $provenanceModel.provData}
-  <div class="pr-4">
-    <Panel header={$provenanceModel.provTitle}>
+  <div class="pr-2" id="provDetails">
+    <Panel header={$provenanceModel.provTitle} customHeaderClass="rounded-t-none" customPanelClass="p-4 rounded-b-none">
       {#if provenanceModel.provData !== undefined}
         <div class="JSONTree">
           <JSONTree

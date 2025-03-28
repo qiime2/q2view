@@ -12,6 +12,7 @@
 
   export let height: number;
   export let cy: cytoscape.Core;
+  const cyDiv = document.getElementById("cy");
 
   let value: string = "";
   let searchIndex: number = 0;
@@ -122,13 +123,22 @@
     } else {
       const elem = cy.$id(hitUUID);
       elem.select();
+      // Set this height so we center the DAG based on this height
+      // let displayHeight = (provenanceModel.height + 1) * HEIGHT_MULTIPLIER_PIXELS;
+      // cyDiv?.style.setProperty("height", `${displayHeight}px`);
+
       cy.center(elem);
+
+      const height = cyDiv?.style.getPropertyValue("height");
+      console.log(height)
 
       // Pan to put the focused node near the top of the viewport
       cy.panBy({
         x: 0,
-        y: ((height - 2) / 2) * -HEIGHT_MULTIPLIER_PIXELS,
+        y: ((height - 2 * HEIGHT_MULTIPLIER_PIXELS) / 2) * -HEIGHT_MULTIPLIER_PIXELS,
       });
+
+      // cyDiv?.style.setProperty("height", `max(calc(100vh - 100px), ${displayHeight}px)`);
     }
   }
 
@@ -176,7 +186,7 @@
   });
 </script>
 
-<Panel header="Search Provenance">
+<Panel header="Search Provenance" customHeaderClass="rounded-t-none" customPanelClass="p-4 rounded-b-none">
   <form on:submit|preventDefault={_handleProvenanceSearch}>
     <input
       class="roundInput"
