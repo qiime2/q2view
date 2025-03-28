@@ -119,14 +119,22 @@
       // This will happen if there are no search hits
       return;
     } else {
+      const containerHeight = cy.container()?.offsetHeight;
       const elem = cy.$id(hitUUID);
 
+      // Center on the selected node
       elem.select();
       cy.center(elem);
+
       // Pan to put the focused node near the top of the viewport
+      // The linter whines that containerHeight could be undefined, but that's
+      // only if we are headless... which won't happen
+      //
+      // This pans the viewport to put the focused node in the top center of
+      // viewport ~one node height from the top of the viewport
       cy.panBy({
         x: 0,
-        y: ((height - 2) / 2) * -HEIGHT_MULTIPLIER_PIXELS,
+        y: -((containerHeight / 2) - (HEIGHT_MULTIPLIER_PIXELS)),
       });
     }
   }
