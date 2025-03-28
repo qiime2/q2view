@@ -179,6 +179,8 @@
     // Now we set the canvas size to whichever was larger. The height to line up
     // with the bottom of the default details panel, or the height needed to
     // fit the entire DAG
+    //
+    // TODO: This doesn't quite work rn and it's driving me nuts
     self.style.setProperty("height", `max(${defaultHeight}px, ${dimensionBasedHeight}px)`);
   });
 </script>
