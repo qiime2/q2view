@@ -113,14 +113,14 @@
   }
 
   function _selectSearchHit() {
-    const hitUUID = searchHits[searchIndex];
+    const hitID = searchHits[searchIndex];
 
-    if (hitUUID === undefined) {
+    if (hitID === undefined) {
       // This will happen if there are no search hits
       return;
     } else {
       const containerHeight = cy.container()?.offsetHeight;
-      const elem = cy.$id(hitUUID);
+      const elem = cy.$id(hitID);
 
       // Center on the selected node
       elem.select();
