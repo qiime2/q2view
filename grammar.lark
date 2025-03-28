@@ -20,10 +20,10 @@ pair: pair_single
 pair_single: key ":" value
 pair_group: "(" [pair ((AND | OR) pair)*] ")"
 
-key: KEY_VALUE (KEY_SEP KEY_VALUE)*
+key: KEY_COMPONENT (KEY_SEP KEY_COMPONENT)*
 
 KEY_SEP: "."
-KEY_VALUE: /([\w\d\_\-]+(\\\.)*)+/
+KEY_COMPONENT: /([\w\d\_\-]+(\\\.)*)+/
 
 value: STRING
     | NUMBER

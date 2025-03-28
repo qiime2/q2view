@@ -22,7 +22,7 @@
     ["KEY_SEP", '"."'],
     ["NUMBER", "number"],
     ["STRING", '"string"'],
-    ["KEY_VALUE", '"key"'],
+    ["KEY_COMPONENT", '"key"'],
     ["FALSE", "false"],
     ["TRUE", "true"],
     ["NULL", "null"],

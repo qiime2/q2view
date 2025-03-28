@@ -11,15 +11,65 @@ const ESCAPED_START_ANCHOR = "\\^";
 const END_ANCHOR = "$";
 const ESCAPED_END_ANCHOR = "\\$";
 
+// Parse our query and transform it into something usable
+export function transformQuery(searchValue: string): Array<string> {
+  const parser = get_parser();
+  const myTransformer = new MyTransformer();
+
+  const ast = parser.parse(searchValue);
+  return myTransformer.transform(ast);
+}
+
+// Search provenance for anything matching our query
+export function searchProvenance(
+  searchQuery: Array<string>,
+  jsonMAP: BiMap<string, {}>,
+): Set<string> {
+  return _searchProvenanceValue(searchQuery, 0, jsonMAP);
+}
+
+// Sentinel class to see that we have a pair
+class _Pair {
+  key: _Key<string>;
+  value: any;
+
+  constructor(key: _Key<string>, value: any) {
+    this.key = key;
+    this.value = value;
+  }
+}
+
+// Sentinel class to see that we have akKey
+class _Key<T> extends Array {}
+
+// Class storing a number its relevant operator together
+class _Number {
+  operator: "=" | ">=" | ">" | "<=" | "<";
+  value: number;
+
+  constructor(operator: "=" | ">=" | ">" | "<=" | "<", value: number) {
+    this.operator = operator;
+    this.value = value;
+  }
+}
+
+// Transform the AST produced by the lark parser into JSON we can use
 class MyTransformer extends Transformer {
+  // The entry point of the parser
   start(start) {
     return start;
   }
 
+  // pair can be either pair_single or pair_group. For some reason, when the
+  // lark parser sees a pair, it puts it in a list. This will always be a
+  // single element list containing the pair_single or pair_group it saw. Just
+  // get the element out of the list
   pair(pair) {
     return pair[0];
   }
 
+  // Pick the pair apart into a _Pair letting us know in the final JSON that
+  // this was indeed a pair
   pair_single(pair) {
     const key = pair[0];
     const value = pair[1];
@@ -28,11 +78,13 @@ class MyTransformer extends Transformer {
   }
 
   pair_group(pair_group) {
+    // Every individual pair in the group will be transformed, we don't need to
+    // care about the group
     return pair_group;
   }
 
-  value_group(list) {
-    return list;
+  value_group(value_group) {
+    return value_group;
   }
 
   // They key allows for the union of valid Python identifiers and valid
@@ -96,30 +148,8 @@ class MyTransformer extends Transformer {
     return;
   }
 
-  KEY_VALUE(key_value) {
-    return key_value.value;
-  }
-}
-
-class _Pair {
-  key: _Key<string>;
-  value: any;
-
-  constructor(key: _Key<string>, value: any) {
-    this.key = key;
-    this.value = value;
-  }
-}
-
-class _Key<T> extends Array {}
-
-class _Number {
-  operator: "=" | ">=" | ">" | "<=" | "<";
-  value: number;
-
-  constructor(operator: "=" | ">=" | ">" | "<=" | "<", value: number) {
-    this.operator = operator;
-    this.value = value;
+  KEY_COMPONENT(key_component) {
+    return key_component.value;
   }
 }
 
@@ -381,19 +411,4 @@ function _matchNumber(
       }
       break;
   }
-}
-
-export function transformQuery(searchValue: string): Array<string> {
-  const parser = get_parser();
-  const myTransformer = new MyTransformer();
-
-  const ast = parser.parse(searchValue);
-  return myTransformer.transform(ast);
-}
-
-export function searchProvenance(
-  searchQuery: Array<string>,
-  jsonMAP: BiMap<string, {}>,
-): Set<string> {
-  return _searchProvenanceValue(searchQuery, 0, jsonMAP);
 }
