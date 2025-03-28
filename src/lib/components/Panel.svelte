@@ -10,7 +10,7 @@
       {header}
     </div>
   {/if}
-  <div class="border border-gray-300 p-4 mb-4 {header === "" ? "rounded-md" : "rounded-b-md"} {customPanelClass}">
+  <div class="border border-gray-300 {header === "" ? "rounded-md" : "rounded-b-md"} {customPanelClass}">
     <slot>
     </slot>
   </div>

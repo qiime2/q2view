@@ -33,10 +33,10 @@
   }
 </script>
 
-<Panel header="Details of {$readerModel.name}">
+<Panel header="Details of {$readerModel.name}" customPanelClass="p-4 mb-4">
   <ResultDetails name={$readerModel.name} resultJSON={$readerModel.metadata}/>
 </Panel>
-<Panel header="Citations">
+<Panel header="Citations" customPanelClass="p-4 mb-4">
   <label for="citation-style">
     Citation Format:
     <!-- TODO: It takes a bit of time to react to changing this style. Feels a bit jank need some feedback -->
