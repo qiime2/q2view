@@ -101,6 +101,7 @@
         bNode = bNode.descendants()[0];
       }
 
+      // Now sort by row first then by column within a row
       if (aNode.data().row === bNode.data().row) {
         return aNode.data().col - bNode.data().col;
       }
