@@ -204,6 +204,9 @@
     <button on:click={_clearSearch} class="roundButton textButton">
       Clear Search
     </button>
+    <!-- The reactivity of $provenanceModel.searchError !== null only reacts
+     to searchError changing from or to null. We need the key to react to
+     the searchError changing from one error to a different error. -->
     {#key $provenanceModel.searchError}
       {#if $provenanceModel.searchError !== null}
         <div
