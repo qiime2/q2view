@@ -16,6 +16,7 @@
   let searchIndex: number = 0;
   let searchHits: Array<string> = [];
 
+  // Map the literaly Lark uses to more human readable things
   const LARK_MAP: Map<string, string> = new Map([
     ["$END", '"End of input"'],
     ["COLON", '":"'],
@@ -88,6 +89,10 @@
       let aNode: any = cy.$id(a);
       let bNode: any = cy.$id(b);
 
+      // We only set a row and column on the Result nodes in the graph not the
+      // Action nodes. Action nodes have Result nodes as children, so if a node
+      // has children we know it is an Action node and we sort it based on its
+      // first child which will be the furthest left Result node it contains.
       if (aNode.descendants().length > 0) {
         aNode = aNode.descendants()[0];
       }
