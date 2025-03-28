@@ -5,12 +5,10 @@
     searchProvenance,
     transformQuery,
   } from "$lib/scripts/provSearchUtils";
-  import { onMount } from "svelte";
   import Panel from "./Panel.svelte";
   import provenanceModel from "$lib/models/provenanceModel";
   import { HEIGHT_MULTIPLIER_PIXELS } from "$lib/scripts/util";
 
-  export let height: number;
   export let cy: cytoscape.Core;
   const cyDiv = document.getElementById("cy");
 
@@ -179,11 +177,6 @@
     provenanceModel.searchError = null;
     provenanceModel._dirty();
   }
-
-  onMount(() => {
-    // re-init this when mounting a new DAG
-    _clearSearch();
-  });
 </script>
 
 <Panel header="Search Provenance" customPanelClass="p-4">
