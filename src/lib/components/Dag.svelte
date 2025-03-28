@@ -180,7 +180,14 @@
     // with the bottom of the default details panel, or the height needed to
     // fit the entire DAG
     //
-    // TODO: This doesn't quite work rn and it's driving me nuts
+    // TODO: This doesn't quite work rn and it's driving me nuts. It has
+    // something to do with the fact that we mount all the pages at once and
+    // hide them and the first page is the iframe which it set up a bit
+    // different. When you actually select the prov page it slightly resizes
+    // the details panel.
+    //
+    // ALSO this will take even more work to make sure it does what I want if
+    // the resolution of the viewport changes
     self.style.setProperty("height", `max(${defaultHeight}px, ${dimensionBasedHeight}px)`);
   });
 </script>
