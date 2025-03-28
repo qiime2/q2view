@@ -239,7 +239,8 @@ function _searchProvKeyOperator(
  * @param {Array<string>} key - The key, or nested sequence of keys, to check
  * for our value
  * @param {any} searchValue - The value we are searching for in the JSON
- * @param {BiMap<string, {}>} jsonMAP - A mapping of
+ * @param {BiMap<string, {}>} jsonMAP - A mapping of node IDs in the graph to
+ * the provenane that goes along with that node
  *
  * @returns {Set<string>} - A set of the uuids of all actions/results that
  * were hit by the search
