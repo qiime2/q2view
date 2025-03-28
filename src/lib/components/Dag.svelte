@@ -193,7 +193,7 @@
 </script>
 
 <div class="{getScrollBarWidth() == 0 ? "pl-2" : ""}">  <div id="provSearchBar" class="mb-2">
-    <ProvSearchbar height={provenanceModel.height} {cy}/>
+    <ProvSearchbar {cy}/>
   </div>
   <div
     bind:this={self}

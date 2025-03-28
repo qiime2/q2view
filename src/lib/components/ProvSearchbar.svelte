@@ -9,7 +9,6 @@
   import provenanceModel from "$lib/models/provenanceModel";
   import { HEIGHT_MULTIPLIER_PIXELS } from "$lib/scripts/util";
 
-  export let height: number;
   export let cy: cytoscape.Core;
 
   let value: string = "";
