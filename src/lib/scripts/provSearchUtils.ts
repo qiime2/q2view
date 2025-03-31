@@ -29,7 +29,7 @@ export function searchProvenance(
   transformedQuery: Array<string>,
   provenanceMap: BiMap<string, {}>,
 ): Set<string> {
-  return _searchProvValue(transformedQuery, 0, provenanceMap);
+  return _searchProvComponent(transformedQuery, 0, provenanceMap);
 }
 
 // Sentinel class to see that we have a pair
@@ -157,7 +157,7 @@ class MyTransformer extends Transformer {
   }
 }
 
-function _searchProvValue(
+function _searchProvComponent(
   transformedQuery: Array<any>,
   queryIndex: number,
   provenanceMap: BiMap<string, {}>,
@@ -166,7 +166,7 @@ function _searchProvValue(
   let hits = new Set<string>();
 
   if (elem.constructor === Array) {
-    hits = _searchProvValue(elem, 0, provenanceMap);
+    hits = _searchProvComponent(elem, 0, provenanceMap);
   } else if (elem.constructor === _Pair) {
     hits = _searchProvKey(elem.key, elem.value, provenanceMap);
   } else if (elem.constructor === _Key) {
@@ -196,7 +196,7 @@ function _searchProvOperator(
   provenanceMap: BiMap<string, {}>,
 ): Set<string> {
   const elem = transformedQuery[queryIndex];
-  const next_hits = _searchProvValue(
+  const next_hits = _searchProvComponent(
     transformedQuery,
     queryIndex + 1,
     provenanceMap,
