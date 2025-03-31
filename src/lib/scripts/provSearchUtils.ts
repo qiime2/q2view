@@ -29,7 +29,7 @@ export function searchProvenance(
   transformedQuery: Array<string>,
   provenanceMap: BiMap<string, {}>,
 ): Set<string> {
-  return _searchProvComponent(transformedQuery, 0, provenanceMap);
+  return _searchProv(transformedQuery, 0, provenanceMap);
 }
 
 // Sentinel class to see that we have a pair
@@ -157,7 +157,7 @@ class MyTransformer extends Transformer {
   }
 }
 
-function _searchProvComponent(
+function _searchProv(
   transformedQuery: Array<any>,
   queryIndex: number,
   provenanceMap: BiMap<string, {}>,
@@ -166,10 +166,14 @@ function _searchProvComponent(
   let hits = new Set<string>();
 
   if (elem.constructor === Array) {
-    hits = _searchProvComponent(elem, 0, provenanceMap);
+    // If we see an Array here, then we have multiple search clauses anded or
+    // ored together
+    hits = _searchProv(elem, 0, provenanceMap);
   } else if (elem.constructor === _Pair) {
-    hits = _searchProvKey(elem.key, elem.value, provenanceMap);
+    // If we see a _Pair here, we could have a single pair, or a pair_group
+    hits = _searchProvPair(elem.key, elem.value, 0, provenanceMap);
   } else if (elem.constructor === _Key) {
+    // We have a bare key that we are searching for
     hits = searchJSONMap(elem, undefined, provenanceMap);
   } else {
     throw new Error(
@@ -196,60 +200,41 @@ function _searchProvOperator(
   provenanceMap: BiMap<string, {}>,
 ): Set<string> {
   const elem = transformedQuery[queryIndex];
-  const next_hits = _searchProvComponent(
+  const next_hits = _searchProv(
     transformedQuery,
     queryIndex + 1,
     provenanceMap,
   );
 
   if (elem === OR) {
-    hits = setUnion(hits, next_hits);
+    return setUnion(hits, next_hits);
   } else if (elem === AND) {
-    hits = setIntersection(hits, next_hits);
+    return setIntersection(hits, next_hits);
   } else {
     throw new Error(`Expected '${AND}' or '${OR}' got '${elem}'`);
   }
-
-  return hits;
 }
 
-function _searchProvKey(
+function _searchProvPair(
   key: Array<string>,
   value: any,
-  provenanceMap: BiMap<string, {}>,
-): Set<string> {
-  let hits = new Set<string>();
-
-  if (value === null || value.constructor !== Array) {
-    // Need to check this first because null.constructor is an error
-    hits = searchJSONMap(key, value, provenanceMap);
-  } else {
-    // value.constructor === Array
-    hits = _searchProvKeyComponent(key, value, 0, provenanceMap);
-  }
-
-  return hits;
-}
-
-function _searchProvKeyComponent(
-  key: Array<string>,
-  values: Array<any>,
   queryIndex: number,
   provenanceMap: BiMap<string, {}>,
 ): Set<string> {
-  const elem = values[queryIndex];
+
   let hits = new Set<string>();
 
-  if (elem.constructor === Array) {
-    hits = _searchProvKeyComponent(key, elem, 0, provenanceMap);
-  } else {
-    hits = _searchProvKey(key, elem, provenanceMap);
+  if (value === null || value.constructor !== Array) {
+    return searchJSONMap(key, value, provenanceMap);
   }
 
-  if (queryIndex < values.length - 1) {
-    hits = _searchProvKeyOperator(
+  const elem = value[queryIndex];
+  hits = _searchProvPair(key, elem, 0, provenanceMap);
+
+  if (queryIndex < value.length - 1) {
+    hits = _searchProvPairOperator(
       key,
-      values,
+      value,
       queryIndex + 1,
       hits,
       provenanceMap,
@@ -259,7 +244,7 @@ function _searchProvKeyComponent(
   return hits;
 }
 
-function _searchProvKeyOperator(
+function _searchProvPairOperator(
   key: Array<string>,
   values: Array<any>,
   queryIndex: number,
@@ -267,7 +252,7 @@ function _searchProvKeyOperator(
   provenanceMap: BiMap<string, {}>,
 ): Set<string> {
   const elem = values[queryIndex];
-  const next_hits = _searchProvKeyComponent(
+  const next_hits = _searchProvPair(
     key,
     values,
     queryIndex + 1,
@@ -275,14 +260,12 @@ function _searchProvKeyOperator(
   );
 
   if (elem === OR) {
-    hits = setUnion(hits, next_hits);
+    return setUnion(hits, next_hits);
   } else if (elem === AND) {
-    hits = setIntersection(hits, next_hits);
+    return setIntersection(hits, next_hits);
   } else {
     throw new Error(`Expected '${AND}' or '${OR}' got '${elem}'`);
   }
-
-  return hits;
 }
 
 /**
