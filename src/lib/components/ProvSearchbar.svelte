@@ -68,9 +68,9 @@
     searchIndex = 0;
 
     try {
-      const searchQuery = transformQuery(value);
+      const transformedSearchQuery = transformQuery(value);
       searchHits = Array.from(
-        searchProvenance(searchQuery, provenanceModel.nodeIDToJSON),
+        searchProvenance(transformedSearchQuery, provenanceModel.nodeIDToJSON),
       );
       if (searchHits.length === 0) {
         throw new Error("No search hits found");
