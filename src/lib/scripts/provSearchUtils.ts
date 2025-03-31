@@ -157,6 +157,21 @@ class MyTransformer extends Transformer {
   }
 }
 
+/**
+ * Handles the top level of search queries. Standalone keys, pairs, and arrays
+ * of the above.
+ *
+ * @param {Array<any>} transformedQuery - The query the user originally entered
+ * after being parsed and transformed
+ * @param {number} queryIndex - The index into the transformed query array of
+ * the element in the query we are currently handling
+ * @param {BiMap<string, {}>} provenanceMap - A mapping of all node uuids in
+ * the DAG to their provenance as json
+ *
+ * @returns {Set<string>} - A set of all node UUIDS hit by this search query.
+ * For nested queries, this set is built up by recursing through the query and
+ * intersecting/unioning together the results of any sub queries.
+ */
 function _searchProv(
   transformedQuery: Array<any>,
   queryIndex: number,
@@ -181,6 +196,9 @@ function _searchProv(
     );
   }
 
+  // We know we must start and end with queries and all queries must be
+  // seperated by operators, so if we aren't at the end yet the next value
+  // must be an operator
   if (queryIndex < transformedQuery.length - 1) {
     hits = _searchProvOperator(
       transformedQuery,
@@ -193,6 +211,24 @@ function _searchProv(
   return hits;
 }
 
+/**
+ * Handles the operators seperating different top level query elements from one
+ * another.
+ *
+ * @param {Array<any>} transformedQuery - The query the user originally entered
+ * after being parsed and transformed
+ * @param {number} queryIndex - The index into the transformed query array of
+ * the element in the query we are currently handling
+ * @param {BiMap<string, {}>} provenanceMap - A mapping of all node uuids in
+ * the DAG to their provenance as json
+ * @param {Set<string>} hits - The hits we have seen so far from prior sub
+ * queries
+ * @param {BiMap<string, {}>} provenanceMap - A mapping of all node uuids in
+ * the DAG to their provenance as json
+ *
+ * @returns {Set<string>} - The set of all uuids hit by sub queries so far
+ * combined via the specified operator with future sub queries
+ */
 function _searchProvOperator(
   transformedQuery: Array<any>,
   queryIndex: number,
@@ -200,6 +236,8 @@ function _searchProvOperator(
   provenanceMap: BiMap<string, {}>,
 ): Set<string> {
   const elem = transformedQuery[queryIndex];
+  // Get the results of the next sub query to combine via our operator with
+  // our current results
   const next_hits = _searchProv(
     transformedQuery,
     queryIndex + 1,
@@ -215,22 +253,41 @@ function _searchProvOperator(
   }
 }
 
+/**
+ * Handles a pair or pair group. A pair is just a key: value pair, a pair_group
+ * is key: value1 OR value2
+ *
+ * @param {Array<string>} key - The key we are searching represented as a list
+ * of the different levels of key in the json
+ * @param {any} value - The value we are trying to match this key against or
+ * the array of values connected by logical AND or OR
+ * @param {number} queryIndex - The index into the value array we are currently
+ * looking at, this is irrelevant if value is not an array.
+ * @param {BiMap<string, {}>} provenanceMap - A mapping of all node uuids in
+ * the DAG to their provenance as json
+ *
+ * @returns {Set<string>} - The set of all uuids hit by sub queries so far
+ */
 function _searchProvPair(
   key: Array<string>,
   value: any,
   queryIndex: number,
   provenanceMap: BiMap<string, {}>,
 ): Set<string> {
-
   let hits = new Set<string>();
 
+  // We have a terminal key: value pair, so return the hits from it
   if (value === null || value.constructor !== Array) {
     return searchJSONMap(key, value, provenanceMap);
   }
 
+  // We have a pair_group array, so recurse through it
   const elem = value[queryIndex];
   hits = _searchProvPair(key, elem, 0, provenanceMap);
 
+  // We know we must start and end with queries and all queries must be
+  // seperated by operators, so if we aren't at the end yet the next value
+  // must be an operator
   if (queryIndex < value.length - 1) {
     hits = _searchProvPairOperator(
       key,
@@ -244,17 +301,35 @@ function _searchProvPair(
   return hits;
 }
 
+/**
+ * Handles operators seperating pairs in a pair group.
+ *
+ * @param {Array<string>} key - The key we are searching represented as a list
+ * of the different levels of key in the json
+ * @param {any} value - The value we are trying to match this key against or
+ * the array of values connected by logical AND or OR
+ * @param {number} queryIndex - The index into the value array we are currently
+ * looking at, this is irrelevant if value is not an array.
+ * @param {BiMap<string, {}>} provenanceMap - A mapping of all node uuids in
+ * the DAG to their provenance as json
+ * @param {Set<string>} hits - The set of all uuids hit by sub queries so far
+ *
+ * @returns {Set<string>} - The set of all uuids hit by sub queries so far
+ * combined via the specified operator with future sub queries
+ */
 function _searchProvPairOperator(
   key: Array<string>,
-  values: Array<any>,
+  value: Array<any>,
   queryIndex: number,
   hits: Set<string>,
   provenanceMap: BiMap<string, {}>,
 ): Set<string> {
-  const elem = values[queryIndex];
+  const elem = value[queryIndex];
+  // Get the results of the next sub query to combine via our operator with
+  // our current results
   const next_hits = _searchProvPair(
     key,
-    values,
+    value,
     queryIndex + 1,
     provenanceMap,
   );
