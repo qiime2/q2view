@@ -1,5 +1,9 @@
 import { get_parser, Transformer } from "$lib/scripts/parser";
-import { getAllObjectKeyPathsRecursively, setUnion, setIntersection } from "./util";
+import {
+  getAllObjectKeyPathsRecursively,
+  setUnion,
+  setIntersection,
+} from "./util";
 import BiMap from "./biMap";
 
 const OR = "|";
@@ -22,10 +26,10 @@ export function transformQuery(searchValue: string): Array<string> {
 
 // Search provenance for anything matching our query
 export function searchProvenance(
-  searchQuery: Array<string>,
-  jsonMAP: BiMap<string, {}>,
+  transformedQuery: Array<string>,
+  provenanceMap: BiMap<string, {}>,
 ): Set<string> {
-  return _searchProvValue(searchQuery, 0, jsonMAP);
+  return _searchProvValue(transformedQuery, 0, provenanceMap);
 }
 
 // Sentinel class to see that we have a pair
@@ -154,40 +158,49 @@ class MyTransformer extends Transformer {
 }
 
 function _searchProvValue(
-  json: Array<any>,
-  index: number,
-  jsonMAP: BiMap<string, {}>,
+  transformedQuery: Array<any>,
+  queryIndex: number,
+  provenanceMap: BiMap<string, {}>,
 ): Set<string> {
-  const elem = json[index];
+  const elem = transformedQuery[queryIndex];
   let hits = new Set<string>();
 
   if (elem.constructor === Array) {
-    hits = _searchProvValue(elem, 0, jsonMAP);
+    hits = _searchProvValue(elem, 0, provenanceMap);
   } else if (elem.constructor === _Pair) {
-    hits = _searchProvKey(elem.key, elem.value, jsonMAP);
+    hits = _searchProvKey(elem.key, elem.value, provenanceMap);
   } else if (elem.constructor === _Key) {
-    hits = searchJSONMap(elem, undefined, jsonMAP);
+    hits = searchJSONMap(elem, undefined, provenanceMap);
   } else {
     throw new Error(
       `Expected Array, Pair, or Key. Got '${elem}' of type '${typeof elem}'`,
     );
   }
 
-  if (index < json.length - 1) {
-    hits = _searchProvOperator(json, index + 1, hits, jsonMAP);
+  if (queryIndex < transformedQuery.length - 1) {
+    hits = _searchProvOperator(
+      transformedQuery,
+      queryIndex + 1,
+      hits,
+      provenanceMap,
+    );
   }
 
   return hits;
 }
 
 function _searchProvOperator(
-  json: Array<any>,
-  index: number,
+  transformedQuery: Array<any>,
+  queryIndex: number,
   hits: Set<string>,
-  jsonMAP: BiMap<string, {}>,
+  provenanceMap: BiMap<string, {}>,
 ): Set<string> {
-  const elem = json[index];
-  const next_hits = _searchProvValue(json, index + 1, jsonMAP);
+  const elem = transformedQuery[queryIndex];
+  const next_hits = _searchProvValue(
+    transformedQuery,
+    queryIndex + 1,
+    provenanceMap,
+  );
 
   if (elem === OR) {
     hits = setUnion(hits, next_hits);
@@ -203,16 +216,16 @@ function _searchProvOperator(
 function _searchProvKey(
   key: Array<string>,
   value: any,
-  jsonMAP: BiMap<string, {}>,
+  provenanceMap: BiMap<string, {}>,
 ): Set<string> {
   let hits = new Set<string>();
 
   if (value === null || value.constructor !== Array) {
     // Need to check this first because null.constructor is an error
-    hits = searchJSONMap(key, value, jsonMAP);
+    hits = searchJSONMap(key, value, provenanceMap);
   } else {
     // value.constructor === Array
-    hits = _searchProvKeyComponent(key, value, 0, jsonMAP);
+    hits = _searchProvKeyComponent(key, value, 0, provenanceMap);
   }
 
   return hits;
@@ -221,20 +234,26 @@ function _searchProvKey(
 function _searchProvKeyComponent(
   key: Array<string>,
   values: Array<any>,
-  index: number,
-  jsonMAP: BiMap<string, {}>,
+  queryIndex: number,
+  provenanceMap: BiMap<string, {}>,
 ): Set<string> {
-  const elem = values[index];
+  const elem = values[queryIndex];
   let hits = new Set<string>();
 
   if (elem.constructor === Array) {
-    hits = _searchProvKeyComponent(key, elem, 0, jsonMAP);
+    hits = _searchProvKeyComponent(key, elem, 0, provenanceMap);
   } else {
-    hits = _searchProvKey(key, elem, jsonMAP);
+    hits = _searchProvKey(key, elem, provenanceMap);
   }
 
-  if (index < values.length - 1) {
-    hits = _searchProvKeyOperator(key, values, index + 1, hits, jsonMAP);
+  if (queryIndex < values.length - 1) {
+    hits = _searchProvKeyOperator(
+      key,
+      values,
+      queryIndex + 1,
+      hits,
+      provenanceMap,
+    );
   }
 
   return hits;
@@ -243,12 +262,17 @@ function _searchProvKeyComponent(
 function _searchProvKeyOperator(
   key: Array<string>,
   values: Array<any>,
-  index: number,
+  queryIndex: number,
   hits: Set<string>,
-  jsonMAP: BiMap<string, {}>,
+  provenanceMap: BiMap<string, {}>,
 ): Set<string> {
-  const elem = values[index];
-  const next_hits = _searchProvKeyComponent(key, values, index + 1, jsonMAP);
+  const elem = values[queryIndex];
+  const next_hits = _searchProvKeyComponent(
+    key,
+    values,
+    queryIndex + 1,
+    provenanceMap,
+  );
 
   if (elem === OR) {
     hits = setUnion(hits, next_hits);
@@ -269,7 +293,7 @@ function _searchProvKeyOperator(
  * @param {Array<string>} key - The key, or nested sequence of keys, to check
  * for our value
  * @param {any} searchValue - The value we are searching for in the JSON
- * @param {BiMap<string, {}>} jsonMAP - A mapping of node IDs in the graph to
+ * @param {BiMap<string, {}>} provenanceMap - A mapping of node IDs in the graph to
  * the provenane that goes along with that node
  *
  * @returns {Set<string>} - A set of the uuids of all actions/results that
@@ -278,12 +302,12 @@ function _searchProvKeyOperator(
 function searchJSONMap(
   key: Array<string>,
   searchValue: any,
-  jsonMAP: BiMap<string, {}>,
+  provenanceMap: BiMap<string, {}>,
 ): Set<string> {
   const hits = new Set<string>();
   let hit: string | undefined;
 
-  for (const json of jsonMAP.values()) {
+  for (const json of provenanceMap.values()) {
     const jsonKeys: Array<Array<string>> = [];
 
     getAllObjectKeyPathsRecursively(json, [], jsonKeys);
@@ -294,7 +318,7 @@ function searchJSONMap(
       if (JSON.stringify(terminal) === JSON.stringify(key)) {
         if (searchValue === undefined) {
           // We had a key with no value, so we only search the key
-          hit = jsonMAP.getKey(json);
+          hit = provenanceMap.getKey(json);
         } else {
           // Dig through the json to get the actual value at the end of the key
           // path
@@ -305,15 +329,15 @@ function searchJSONMap(
           }
 
           if (typeof value == "string" && typeof searchValue === "string") {
-            hit = _matchString(searchValue, value, json, jsonMAP);
+            hit = _matchString(searchValue, value, json, provenanceMap);
           } else if (
             searchValue !== null &&
             searchValue.constructor === _Number
           ) {
-            hit = _matchNumber(searchValue, value, json, jsonMAP);
+            hit = _matchNumber(searchValue, value, json, provenanceMap);
           } else if (value === searchValue) {
             // For bools and nulls match on equality
-            hit = jsonMAP.getKey(json);
+            hit = provenanceMap.getKey(json);
           }
         }
 
@@ -331,7 +355,7 @@ function _matchString(
   searchValue: any,
   value: string,
   json: {},
-  jsonMAP: BiMap<string, {}>,
+  provenanceMap: BiMap<string, {}>,
 ): string | undefined {
   let unescapedStart = searchValue;
   let unescapedEnd = searchValue;
@@ -356,12 +380,12 @@ function _matchString(
   ) {
     // Start anchor and end anchor match on equality
     if (value === searchValue.slice(1, -1)) {
-      return jsonMAP.getKey(json);
+      return provenanceMap.getKey(json);
     }
   } else if (unescapedEnd.startsWith(START_ANCHOR)) {
     // Start anchor match on starts with
     if (value.startsWith(unescapedEnd.slice(1))) {
-      return jsonMAP.getKey(json);
+      return provenanceMap.getKey(json);
     }
   } else if (
     unescapedStart.endsWith(END_ANCHOR) &&
@@ -369,11 +393,11 @@ function _matchString(
   ) {
     // End anchor match on ends with
     if (value.endsWith(unescapedStart.slice(0, -1))) {
-      return jsonMAP.getKey(json);
+      return provenanceMap.getKey(json);
     }
   } else if (value.includes(unescapedSearchValue)) {
     // No anchor match on includes
-    return jsonMAP.getKey(json);
+    return provenanceMap.getKey(json);
   }
 }
 
@@ -381,33 +405,33 @@ function _matchNumber(
   searchValue: any,
   value: string,
   json: {},
-  jsonMAP: BiMap<string, {}>,
+  provenanceMap: BiMap<string, {}>,
 ): string | undefined {
   // For numbers match based on value and operator
   switch (searchValue.operator) {
     case "=":
       if (value === searchValue.value) {
-        return jsonMAP.getKey(json);
+        return provenanceMap.getKey(json);
       }
       break;
     case ">":
       if (value > searchValue.value) {
-        return jsonMAP.getKey(json);
+        return provenanceMap.getKey(json);
       }
       break;
     case ">=":
       if (value >= searchValue.value) {
-        return jsonMAP.getKey(json);
+        return provenanceMap.getKey(json);
       }
       break;
     case "<":
       if (value < searchValue.value) {
-        return jsonMAP.getKey(json);
+        return provenanceMap.getKey(json);
       }
       break;
     case "<=":
       if (value <= searchValue.value) {
-        return jsonMAP.getKey(json);
+        return provenanceMap.getKey(json);
       }
       break;
   }
