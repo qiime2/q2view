@@ -327,12 +327,7 @@ function _searchProvPairOperator(
   const elem = value[queryIndex];
   // Get the results of the next sub query to combine via our operator with
   // our current results
-  const next_hits = _searchProvPair(
-    key,
-    value,
-    queryIndex + 1,
-    provenanceMap,
-  );
+  const next_hits = _searchProvPair(key, value, queryIndex + 1, provenanceMap);
 
   if (elem === OR) {
     return setUnion(hits, next_hits);
