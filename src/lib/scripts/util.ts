@@ -147,7 +147,11 @@ export function getAllObjectKeyPathsRecursively(
         next !== null &&
         Object.keys(next).length !== 0
       ) {
-        getAllObjectKeyPathsRecursively(next, newKeyAccumulator, objectKeyPaths);
+        getAllObjectKeyPathsRecursively(
+          next,
+          newKeyAccumulator,
+          objectKeyPaths,
+        );
       } else {
         objectKeyPaths.push(newKeyAccumulator);
       }
