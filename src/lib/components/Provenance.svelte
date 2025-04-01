@@ -28,6 +28,7 @@
           <p class="font-bold text-lg">Search Query Instructions:</p>
           <p class="leading-5">To search for a given key with a given value use the 'key: value' syntax</p><span class="example">sampling_depth: 1000</span>
           <p class="leading-5">To search for a given key with any value simply give the key on its own</p><span class="example">sampling_depth</span>
+          <p class="pt-3 leading-5"><span class="font-bold">NOTE: </span>The AND and OR operators described below are simply computed left to right. For complex queries, please use parentheses to indicate precedence.</p>
           <p class="pt-3 font-bold text-lg">Rules for Keys:</p>
           <p class="leading-5">You can specify multiple levels of key by seperating them with "."</p><span class="example">execution.uuid: "&lt;uuid&gt;"</span>
           <p class="pt-3 leading-5">If your key contains a "." you must escape it with "\"</p><span class="example">key.contains.per\.iod: "value"</span>
