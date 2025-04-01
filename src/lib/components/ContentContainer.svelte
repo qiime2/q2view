@@ -8,21 +8,23 @@
 
   import Iframe from "$lib/components/Iframe.svelte";
   import Gallery from "$lib/components/Gallery.svelte";
-  import Details from "$lib/components/Details.svelte";
+  import Citations from "$lib/components/Citations.svelte";
   import DropZone from "$lib/components/DropZone.svelte";
   import UrlInput from "$lib/components/UrlInput.svelte";
   import Provenance from "$lib/components/Provenance.svelte";
+  import Metadata from "$lib/components/Metadata.svelte";
   import About from "$lib/components/About.svelte";
   import Error from "$lib/components/Error.svelte";
   import Loading from "$lib/components/Loading.svelte";
+  import provenanceModel from "$lib/models/provenanceModel";
 
   export let vendored: boolean = false;
 
   let loadingComponent: undefined | HTMLElement;
 </script>
 
-<div id="positioned-container">
-  <div id="content-container">
+<div id="positioned-container" class='px-4'>
+  <div id="content-container" class="max-width">
     {#if !vendored}
       <div
         class={$url.pathname.replaceAll("/", "") === "" && $loading.status !== "LOADING" ? "tab" : "hidden-tab"}
@@ -64,7 +66,7 @@
     {#if $readerModel.indexPath}
       <div
         class={$url.pathname.replaceAll("/", "") === "visualization" && $loading.status !== "LOADING"
-          ? "tab"
+          ? "tab iframe"
           : "hidden-tab"}
       >
         <Iframe />
@@ -72,11 +74,11 @@
     {/if}
     {#if $readerModel.rawSrc}
       <div
-        class={$url.pathname.replaceAll("/", "") === "details" && $loading.status !== "LOADING"
+        class={$url.pathname.replaceAll("/", "") === "citations" && $loading.status !== "LOADING"
           ? "tab"
           : "hidden-tab"}
       >
-        <Details />
+        <Citations />
       </div>
       <!-- Extra class baggage to make this tab fullscreen -->
       <div
@@ -86,6 +88,13 @@
       >
         <Provenance />
       </div>
+      <div
+        class={$url.pathname.replaceAll("/", "") === "metadata" && $loading.status !== "LOADING"
+          ? "tab"
+          : "hidden-tab"}
+      >
+        <Metadata />
+      </div>
     {/if}
   </div>
 </div>
@@ -93,9 +102,9 @@
 <style lang="postcss">
   #positioned-container {
     position: absolute;
-    top: 50px;
+    top: 55px;
     width: 100%;
-    height: calc(100% - 50px);
+    height: calc(100% - 55px);
     overflow: auto;
     /* Prevent content from repositioning in Chromium when a scrollbar appears */
     scrollbar-gutter: stable both-edges;
@@ -104,8 +113,7 @@
   #content-container {
     display: grid;
     @apply mx-auto
-    px-10
-    max-w-7xl;
+    px-2;
   }
 
   /* If we need to slap an alert notice at the top of the page use this
@@ -121,14 +129,16 @@
   }
 
   .tab {
-    margin-top: 21px;
     grid-column: 1;
     grid-row: 1;
     visibility: visible;
     overflow: hidden;
     /* This padding is to accomodate the dropshadow on the DropZone */
     padding-right: 10px;
-    @apply mb-4;
+    @apply mb-4 pt-5;
+  }
+  .tab.iframe {
+    @apply pt-0;
   }
 
   /* Hoist this up here because the absolute will cause the scrollbar to persist

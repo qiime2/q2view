@@ -12,46 +12,46 @@
 </script>
 
 <div class="gallery-card">
-  <h3 style="font-size: 24px;" class="pb-2">{title}</h3>
-  <img src={img} alt={title} class="pb-2">
-  <p class="description">{desc}</p>
-  <button class="gallery-button" on:click={galleryButton}>
-    Try it!
+  <h3 class="pb-2 text-lg font-bold text-[#1a414c] shrink-0">{title}</h3>
+  <img src={img} alt={title} class="pb-2 flex-grow min-w-0 min-h-0">
+  <p class="description shrink-0 flex-grow pb-2">{desc}</p>
+  <button class="gallery-button shrink-0 grid grid-flow-col items-center gap-1" on:click={galleryButton}>
+    Start
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4">
+      <path d="M6.3 2.84A1.5 1.5 0 0 0 4 4.11v11.78a1.5 1.5 0 0 0 2.3 1.27l9.344-5.891a1.5 1.5 0 0 0 0-2.538L6.3 2.841Z" />
+    </svg>
   </button>
 </div>
 
 <style lang='postcss'>
   .gallery-card {
     position: relative;
-    height: 420px;
+    height: 400px;
     display: flex;
     flex-direction: column;
     @apply border
-    border-gray-300
     rounded-lg
-    p-2
-    pb-11;
+    bg-white
+    shadow-md
+    p-5 pt-3;
   }
 
   .description {
     font-size: 14px;
     flex: 1;
-    overflow: hidden;
   }
 
   .gallery-button {
-    position: absolute;
-    bottom: 8px;
-    right: 8px;
-    font-size: 14px;
-    @apply bg-blue-700
+    @apply bg-[#1a414c]
     text-white
+    self-end
+    w-max
     rounded-md
     py-1
-    px-4;
+    pl-3 pr-2;
   }
 
   .gallery-button:hover {
-    @apply bg-blue-800;
+    @apply bg-blue-600;
   }
 </style>

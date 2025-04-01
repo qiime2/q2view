@@ -10,7 +10,7 @@
   let numPages: number;
   // A 1440p screen fits two rows well. A 1080p screen JUST ABOUT fits one row.
   // There are 3 cards per row.
-  let cardsPerPage: number = screen.height >= 1440 ? 6 : 3;
+  let numRows: number = screen.height >= 1440 ? 2 : 1;
 
   let startIdx: number;
   let endIdx: number;
@@ -21,22 +21,25 @@
   // using tailwind breakpoints, but I wasn't sure how (or if that is even
   // possible), so I ended up using this instead.
   let numCols: number;
-  let numRows: number;
+  let cardsPerPage: number;
 
-  const LARGE_BREAKPOINT = 1024;
-  const MEDIUM_BREAKPOINT = 768;
+  const LARGE_BREAKPOINT = 1110;
+  const MEDIUM_BREAKPOINT = 980;
+  const SMALL_BREAKPOINT = 768;
 
   onMount(() => {
     function handleResize() {
       if (window.innerWidth >= LARGE_BREAKPOINT) {
-        numCols = 3;
+        numCols = 4;
       } else if (window.innerWidth >= MEDIUM_BREAKPOINT) {
+        numCols = 3;
+      } else if (window.innerWidth >= SMALL_BREAKPOINT) {
         numCols = 2;
       } else {
         numCols = 1;
       }
 
-      numRows = Math.ceil(cardsPerPage / numCols);
+      cardsPerPage = numCols * numRows;
     }
 
     handleResize();
@@ -47,7 +50,6 @@
     };
   });
 
-  // TODO: Expect 404s and other such errors to happen here and handle them
   async function getGalleryEntries() {
     let indexJSON;
 
@@ -71,10 +73,6 @@
 
       galleryEntries.push(galleryJSON);
     }
-
-    galleryEntries.sort(function(a: Object, b: Object) {
-      return a["title" as keyof Object] > b["title" as keyof Object] ? 1 : -1;
-    });
 
     filteredGalleryEntries.push(...galleryEntries);
 
@@ -125,7 +123,7 @@
   }
 </script>
 
-<h2>Gallery</h2>
+<h2 class="text-2xl text-[#1a414c] font-bold">Gallery</h2>
 <p class="pb-2">Don&apos;t have a QIIME 2 result of your own to view? Try one of these!</p>
 <input id="searchInput" placeholder="search" on:input={applySearchFilter}/>
 {#await getGalleryEntries()}
@@ -137,7 +135,7 @@
       the gallery might be down.
     </h3>
   {:else}
-    <div class="grid gap-4"
+    <div class="grid gap-6"
          style="grid-template-columns: repeat({numCols}, minmax(0, 1fr));
                 grid-template-rows: repeat({numRows}, minmax(0, 1fr));">
       {#each filteredGalleryEntries.slice((currentPage - 1) * cardsPerPage, currentPage * cardsPerPage) as galleryEntry}
@@ -146,7 +144,7 @@
     </div>
   {/if}
 {/await}
-<div id="pageControls">
+<div id="pageControls" class='mt-4'>
   <div></div>
   <div class="mx-auto">
     <button

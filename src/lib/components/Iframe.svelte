@@ -14,7 +14,6 @@
 <!-- Position this manually so it takes up basically the entire viewport -->
 <style lang="postcss">
   #iframe {
-    margin-top: -21px;
     @apply absolute
     w-full
     h-full;

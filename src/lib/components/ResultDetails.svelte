@@ -1,50 +1,44 @@
 
 <script lang="ts">
-  interface ResultDetails {
-    uuid: string;
-    type: string;
-    format: string | null;
-  }
-
   export let name: string | null = null;
-  export let resultJSON: ResultDetails;
+  export let resultJSON: {};
 </script>
 
 <ul>
   {#if name !== null}
     <li>
-      <label>
+      <span>
         name:
-      </label>
+      </span>
       "{name}"
     </li>
   {/if}
   <li>
-    <label>
+    <span>
       uuid:
-    </label>
+    </span>
     "{resultJSON.uuid}"
   </li>
   <li>
-    <label>
+    <span>
       type:
-    </label>
+    </span>
     "{resultJSON.type}"
   </li>
 <!-- TODO: This way of styling this sucks. I need to more generically
   style strings vs non-strings in these json dumps -->
 {#if resultJSON.format === null}
   <li id="null">
-    <label>
+    <span>
       format:
-    </label>
+    </span>
     {resultJSON.format}
   </li>
 {:else}
   <li>
-    <label>
+    <span>
       format:
-    </label>
+    </span>
     "{resultJSON.format}"
   </li>
 {/if}
@@ -55,7 +49,7 @@
     @apply text-green-700;
   }
 
-  label {
+  span {
     @apply text-blue-700;
   }
 
