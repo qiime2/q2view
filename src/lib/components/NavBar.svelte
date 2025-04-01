@@ -55,7 +55,7 @@
     // It's easiest to just calculate this here. If we do it at the top of the
     // page then we will likely do it before index path is set.
     const logoTarget = vendored ? ($readerModel.indexPath ? "/visualization/" : "/citations/") : "/";
-  
+
     if (event.ctrlKey || event.metaKey) {
       return;
     } else {
@@ -88,7 +88,9 @@
 
 
 <nav id="navbar" use:melt={$root}>
-  <NavBanner/>
+  {#if !vendored}
+    <NavBanner/>
+  {/if}
   <div class="nav-wrapper mx-2">
     <div id="nav-container" class="max-width">
       <button on:click={navLogoClicked} class='ml-1'>
