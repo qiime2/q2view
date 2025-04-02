@@ -252,14 +252,14 @@ test("test get <=", () => {
 });
 
 test('test get "', () => {
-  const searchQuery = transformQuery('key: "\\\""');
+  const searchQuery = transformQuery(String.raw`key: "\""`);
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
   expect(hits.toString()).toBe("quoteInString");
 });
 
 test("test get \\", () => {
-  const searchQuery = transformQuery('key: "\\\\"');
+  const searchQuery = transformQuery(String.raw`key: "\\"`);
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
   expect(hits.toString()).toBe("escapeInString");
