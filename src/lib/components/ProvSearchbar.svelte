@@ -42,7 +42,7 @@
       error += "No search value entered.";
     } else if ("char" in $provenanceModel.searchError) {
       // UnexpectedCharacters error
-      error += `Missing ${$provenanceModel.searchError.char}`;
+      error += `Received unexpected ${$provenanceModel.searchError.char}`;
     } else if ("token" in $provenanceModel.searchError) {
       // UnexpectedToken error
       error += `received ${LARK_MAP.get($provenanceModel.searchError.token.type)}` +
@@ -69,13 +69,7 @@
 
     try {
       const transformedSearchQuery = transformQuery(value);
-      searchHits = Array.from(
-        searchProvenance(transformedSearchQuery, provenanceModel.nodeIDToJSON),
-      );
-      if (searchHits.length === 0) {
-        throw new Error("No search hits found");
-      }
-
+      searchHits = searchProvenance(transformedSearchQuery, provenanceModel.nodeIDToJSON);
       provenanceModel.searchError = null;
     } catch (error) {
       provenanceModel.searchError = error;
