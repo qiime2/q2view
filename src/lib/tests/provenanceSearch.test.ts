@@ -73,6 +73,11 @@ const reversedAnchorsJSON = {
   anchorKey: "end and start",
 };
 
+const quoteInStringJSON = {
+  uuid: "quoteInString",
+  key: 'qu"ote',
+}
+
 // TS screams about this as if the Map doesn't have a constructor matching this
 // but it's wrong the Map instantiates fine.
 const testMap = new BiMap(
@@ -90,6 +95,7 @@ const testMap = new BiMap(
     ["escapedStart", escapedStartJSON],
     ["escapedEnd", escapedEndJSON],
     ["reversedAnchors", reversedAnchorsJSON],
+    ["quoteInString", quoteInStringJSON],
   ]),
 );
 
@@ -239,4 +245,11 @@ test("test get <=", () => {
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
   expect(hits.toString()).toBe("string,altString");
+});
+
+test('test get "', () => {
+  const searchQuery = transformQuery('key: \"');
+  const hits = Array.from(searchProvenance(searchQuery, testMap));
+
+  expect(hits.toString()).toBe("quoteInString");
 });
