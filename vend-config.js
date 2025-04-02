@@ -14,7 +14,8 @@ const config = {
     // See https://kit.svelte.dev/docs/adapters for more information about adapters.
     adapter: adapter({
       fallback: "index.html",
-      pages: process.env.npm_config_vendor_dir,
+      // Put this in vendored by default if the vendor_dir arg was not supplied
+      pages: process.env.npm_config_vendor_dir ? process.env.npm_config_vendor_dir : "vendored",
     }),
     files: {
       routes: "src/routes-vend",
