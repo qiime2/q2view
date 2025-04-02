@@ -53,18 +53,18 @@ const anchorJSON = {
   anchorKey: "start and end",
 };
 
-const escapedAnchorsJSON = {
-  uuid: "escapedAnchors",
+const containsAnchorsJSON = {
+  uuid: "containsAnchors",
   anchorKey: "^start and end$",
 };
 
-const escapedStartJSON = {
-  uuid: "escapedStart",
+const containsStartJSON = {
+  uuid: "containsStart",
   anchorKey: "^start and end",
 };
 
-const escapedEndJSON = {
-  uuid: "escapedEnd",
+const containsEndJSON = {
+  uuid: "containsEnd",
   anchorKey: "start and end$",
 };
 
@@ -96,9 +96,9 @@ const testMap = new BiMap(
     ["nested", nestedJSON],
     ["escaped", escapedJSON],
     ["anchor", anchorJSON],
-    ["escapedAnchors", escapedAnchorsJSON],
-    ["escapedStart", escapedStartJSON],
-    ["escapedEnd", escapedEndJSON],
+    ["containsAnchors", containsAnchorsJSON],
+    ["containsStart", containsStartJSON],
+    ["containsEnd", containsEndJSON],
     ["reversedAnchors", reversedAnchorsJSON],
     ["quoteInString", quoteInStringJSON],
     ["escapeInString", escapeInStringJSON],
@@ -173,47 +173,46 @@ test("test query list", () => {
 });
 
 test("test start anchor", () => {
-  const searchQuery = transformQuery('anchorKey: "^start"');
+  const searchQuery = transformQuery('anchorKey: ^"start"');
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
-  expect(hits.toString()).toBe("anchor,escapedEnd");
+  expect(hits.toString()).toBe("anchor,containsEnd");
 });
 
 test("test end anchor", () => {
-  const searchQuery = transformQuery('anchorKey: "end$"');
+  const searchQuery = transformQuery('anchorKey: "end"$');
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
-  expect(hits.toString()).toBe("anchor,escapedStart");
+  expect(hits.toString()).toBe("anchor,containsStart");
 });
 
 test("test both anchors", () => {
-  const searchQuery = transformQuery('anchorKey: "^start and end$"');
+  const searchQuery = transformQuery('anchorKey: ^"start and end"$');
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
   expect(hits.toString()).toBe("anchor");
 });
 
 test("test escaped anchors", () => {
-  const searchQuery = transformQuery(
-    String.raw`anchorKey: "\^start and end\$"`,
+  const searchQuery = transformQuery('anchorKey: "^start and end$"',
   );
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
-  expect(hits.toString()).toBe("escapedAnchors");
+  expect(hits.toString()).toBe("containsAnchors");
 });
 
 test("test escaped start", () => {
-  const searchQuery = transformQuery(String.raw`anchorKey: "\^start and end$"`);
+  const searchQuery = transformQuery('anchorKey: "^start and end"$');
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
-  expect(hits.toString()).toBe("escapedStart");
+  expect(hits.toString()).toBe("containsStart");
 });
 
 test("test escaped end", () => {
-  const searchQuery = transformQuery(String.raw`anchorKey: "^start and end\$"`);
+  const searchQuery = transformQuery('anchorKey: ^"start and end$"');
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
-  expect(hits.toString()).toBe("escapedEnd");
+  expect(hits.toString()).toBe("containsEnd");
 });
 
 test("test get key", () => {
@@ -221,7 +220,7 @@ test("test get key", () => {
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
   expect(hits.toString()).toBe(
-    "anchor,escapedAnchors,escapedStart,escapedEnd,reversedAnchors",
+    "anchor,containsAnchors,containsStart,containsEnd,reversedAnchors",
   );
 });
 

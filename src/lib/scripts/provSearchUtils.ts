@@ -11,9 +11,7 @@ const AND = "&";
 
 // Define anchor constants for searching
 const START_ANCHOR = "^";
-const ESCAPED_START_ANCHOR = "\\^";
 const END_ANCHOR = "$";
-const ESCAPED_END_ANCHOR = "\\$";
 
 // Parse our query and transform it into something usable
 export function transformQuery(searchValue: string): Array<string> {
@@ -54,6 +52,19 @@ class _Number {
   constructor(operator: "=" | ">=" | ">" | "<=" | "<", value: number) {
     this.operator = operator;
     this.value = value;
+  }
+}
+
+// Class storing a string value and any anchors it contains together
+class _String {
+  value: string;
+  startAnchor: boolean;
+  endAnchor: boolean;
+
+  constructor(value: string, startAnchor: boolean, endAnchor: boolean) {
+    this.value = value;
+    this.startAnchor = startAnchor;
+    this.endAnchor = endAnchor;
   }
 }
 
@@ -114,18 +125,33 @@ class MyTransformer extends Transformer {
   }
 
   STRING(string) {
+    let stringValue = string.value;
+    let startAnchor = false;
+    let endAnchor = false;
+
+    // Handle the start anchor and end anchor if either was provided
+    if (stringValue.startsWith(START_ANCHOR)) {
+      startAnchor = true;
+      stringValue = stringValue.slice(1);
+    }
+
+    if (stringValue.endsWith(END_ANCHOR)) {
+      endAnchor = true;
+      stringValue = stringValue.slice(0, -1);
+    }
+
     // The string will have the start and end quotes they entered. Remove those
-    const unquoted_string = string.value.slice(1, -1)
+    const unquotedStringValue = stringValue.slice(1, -1)
 
     // If they had any quotes they needed to escape mid string, we need to
     // unescape those so we don't have the \ in our final search query
-    const unescape_quotes = unquoted_string.replace("\\\"", "\"");
+    const unescapedQuotes = unquotedStringValue.replace("\\\"", "\"");
 
     // Finally, if they had any \ mid string they needed to escape, we want to
     // unescape those so we only have one \ in our final query not \\.
-    const unescape_slashes = unescape_quotes.replace("\\\\", "\\");
+    const unescapedSlashes = unescapedQuotes.replace("\\\\", "\\");
 
-    return unescape_slashes;
+    return new _String(unescapedSlashes, startAnchor, endAnchor);
   }
 
   NUMBER(number) {
@@ -391,9 +417,12 @@ function searchJSONMap(
             value = value[jsonKey[i]];
           }
 
-          if (typeof value == "string" && typeof searchValue === "string") {
+          if (typeof value === "string" &&
+              searchValue !== null &&
+              searchValue.constructor === _String) {
             hit = _matchString(searchValue, value, json, provenanceMap);
           } else if (
+            typeof value === "number" &&
             searchValue !== null &&
             searchValue.constructor === _Number
           ) {
@@ -415,58 +444,37 @@ function searchJSONMap(
 }
 
 function _matchString(
-  searchValue: any,
+  searchValue: _String,
   value: string,
   json: {},
   provenanceMap: BiMap<string, {}>,
 ): string | undefined {
-  let unescapedStart = searchValue;
-  let unescapedEnd = searchValue;
-  let unescapedSearchValue = searchValue;
-
-  // Unescape any escaped anchors
-  if (searchValue.startsWith(ESCAPED_START_ANCHOR)) {
-    unescapedStart = "^" + searchValue.slice(2);
-    unescapedSearchValue = "^" + unescapedSearchValue.slice(2);
-  }
-
-  if (searchValue.endsWith(ESCAPED_END_ANCHOR)) {
-    unescapedEnd = searchValue.slice(0, -2) + "$";
-    unescapedSearchValue = unescapedSearchValue.slice(0, -2) + "$";
-  }
-
-  // For strings, we need to get fiddly with the matching
-  if (
-    searchValue.startsWith(START_ANCHOR) &&
-    searchValue.endsWith(END_ANCHOR) &&
-    !searchValue.endsWith(ESCAPED_END_ANCHOR)
-  ) {
-    // Start anchor and end anchor match on equality
-    if (value === searchValue.slice(1, -1)) {
+  if (searchValue.startAnchor && searchValue.endAnchor) {
+    // Both anchors, match on equality
+    if (value === searchValue.value) {
+      return provenanceMap.getKey(json)
+    }
+  } else if (searchValue.startAnchor) {
+    // Start anchor, match on starts with
+    if (value.startsWith(searchValue.value)) {
       return provenanceMap.getKey(json);
     }
-  } else if (unescapedEnd.startsWith(START_ANCHOR)) {
-    // Start anchor match on starts with
-    if (value.startsWith(unescapedEnd.slice(1))) {
+  } else if (searchValue.endAnchor) {
+    // End anchor, match on ends with
+    if (value.endsWith(searchValue.value)) {
       return provenanceMap.getKey(json);
     }
-  } else if (
-    unescapedStart.endsWith(END_ANCHOR) &&
-    !unescapedStart.endsWith(ESCAPED_END_ANCHOR)
-  ) {
-    // End anchor match on ends with
-    if (value.endsWith(unescapedStart.slice(0, -1))) {
+  } else {
+    // No anchors, match on includes
+    if (value.includes(searchValue.value)) {
       return provenanceMap.getKey(json);
     }
-  } else if (value.includes(unescapedSearchValue)) {
-    // No anchor match on includes
-    return provenanceMap.getKey(json);
   }
 }
 
 function _matchNumber(
-  searchValue: any,
-  value: string,
+  searchValue: _Number,
+  value: number,
   json: {},
   provenanceMap: BiMap<string, {}>,
 ): string | undefined {

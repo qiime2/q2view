@@ -34,9 +34,11 @@ value: STRING
 
 value_group: "(" value [((AND | OR) value)*] ")"
 
-STRING: /"(?:\\.|[^\\])*?"/
-NUMBER: COMPARISON? SIGNED_NUMBER
+STRING: /\^?"(?:\\.|[^\\])*?"\$?/
+START_ANCHOR: "^"
+END_ANCHOR: "$"
 
+NUMBER: COMPARISON? SIGNED_NUMBER
 COMPARISON: ">"
           | ">="
           | "<"
