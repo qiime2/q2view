@@ -114,8 +114,18 @@ class MyTransformer extends Transformer {
   }
 
   STRING(string) {
-    // slice the quotes off
-    return string.value.slice(1, -1);
+    // The string will have the start and end quotes they entered. Remove those
+    const unquoted_string = string.value.slice(1, -1)
+
+    // If they had any quotes they needed to escape mid string, we need to
+    // unescape those so we don't have the \ in our final search query
+    const unescape_quotes = unquoted_string.replace("\\\"", "\"");
+
+    // Finally, if they had any \ mid string they needed to escape, we want to
+    // unescape those so we only have one \ in our final query not \\.
+    const unescape_slashes = unescape_quotes.replace("\\\\", "\\");
+
+    return unescape_slashes;
   }
 
   NUMBER(number) {
