@@ -141,11 +141,11 @@ class MyTransformer extends Transformer {
     }
 
     // The string will have the start and end quotes they entered. Remove those
-    const unquotedStringValue = stringValue.slice(1, -1)
+    const unquotedStringValue = stringValue.slice(1, -1);
 
     // If they had any quotes they needed to escape mid string, we need to
     // unescape those so we don't have the \ in our final search query
-    const unescapedQuotes = unquotedStringValue.replace("\\\"", "\"");
+    const unescapedQuotes = unquotedStringValue.replace('\\"', '"');
 
     // Finally, if they had any \ mid string they needed to escape, we want to
     // unescape those so we only have one \ in our final query not \\.
@@ -417,9 +417,11 @@ function searchJSONMap(
             value = value[jsonKey[i]];
           }
 
-          if (typeof value === "string" &&
-              searchValue !== null &&
-              searchValue.constructor === _String) {
+          if (
+            typeof value === "string" &&
+            searchValue !== null &&
+            searchValue.constructor === _String
+          ) {
             hit = _matchString(searchValue, value, json, provenanceMap);
           } else if (
             typeof value === "number" &&
@@ -452,7 +454,7 @@ function _matchString(
   if (searchValue.startAnchor && searchValue.endAnchor) {
     // Both anchors, match on equality
     if (value === searchValue.value) {
-      return provenanceMap.getKey(json)
+      return provenanceMap.getKey(json);
     }
   } else if (searchValue.startAnchor) {
     // Start anchor, match on starts with

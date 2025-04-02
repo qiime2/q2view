@@ -76,12 +76,12 @@ const reversedAnchorsJSON = {
 const quoteInStringJSON = {
   uuid: "quoteInString",
   key: 'qu"ote',
-}
+};
 
 const escapeInStringJSON = {
   uuid: "escapeInString",
-  key: 'esca\\ped',
-}
+  key: "esca\\ped",
+};
 
 // TS screams about this as if the Map doesn't have a constructor matching this
 // but it's wrong the Map instantiates fine.
@@ -194,8 +194,7 @@ test("test both anchors", () => {
 });
 
 test("test escaped anchors", () => {
-  const searchQuery = transformQuery('anchorKey: "^start and end$"',
-  );
+  const searchQuery = transformQuery('anchorKey: "^start and end$"');
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
   expect(hits.toString()).toBe("containsAnchors");
@@ -259,7 +258,7 @@ test('test get "', () => {
   expect(hits.toString()).toBe("quoteInString");
 });
 
-test('test get \\', () => {
+test("test get \\", () => {
   const searchQuery = transformQuery('key: "\\\\"');
   const hits = Array.from(searchProvenance(searchQuery, testMap));
 
