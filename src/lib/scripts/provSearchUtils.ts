@@ -27,7 +27,9 @@ export function searchProvenance(
   transformedQuery: Array<string>,
   provenanceMap: BiMap<string, {}>,
 ): Array<string> {
-  const searchHits = Array.from(_searchProv(transformedQuery, 0, provenanceMap));
+  const searchHits = Array.from(
+    _searchProv(transformedQuery, 0, provenanceMap),
+  );
 
   if (searchHits.length === 0) {
     throw new Error("No search hits found");

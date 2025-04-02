@@ -267,5 +267,7 @@ test("test get \\", () => {
 
 test("no hits", () => {
   const searchQuery = transformQuery("notAKey");
-  expect(() => searchProvenance(searchQuery, testMap)).toThrowError("No search hits found")
-})
+  expect(() => searchProvenance(searchQuery, testMap)).toThrowError(
+    "No search hits found",
+  );
+});
