@@ -41,7 +41,7 @@
           <p class="pt-3 leading-5">If your search value contains a '"' you will need to escape it with "\"</p><span class="example">type: "\""</span><p class="leading-5">will match all types that contain a double quote</p>
           <p class="pt-3 leading-5">The same is true if your string contains a "\"</p><span class="example">type: "\\"</span><p class="leading-5">will match all types that contain a backslash</p>
           <p class="pt-3 leading-5">Numerical values can use the comparison operators &gt;, &gt;=, &lt;, &lt;=</p><span class="example">sampling_depth: &gt;=1000</span><p class="leading-5">will match all sampling_depths greater than or equal to 1000</p>
-          <p class="pt-3 leading-5">You can also combine values with AND and OR. You must wrap these clauses in parentheses</p><span class="example">uuid: (("^6" AND "5$") OR "ee")</span><p class="leading-5">will match all uuids that start with 6 and end with 5 or contain "ee"</p>
+          <p class="pt-3 leading-5">You can also combine values with AND and OR. You must wrap these clauses in parentheses</p><span class="example">uuid: ((^"6" AND "5"$) OR "ee")</span><p class="leading-5">will match all uuids that start with 6 and end with 5 or contain "ee"</p>
         </div>
       {/if}
     </Panel>
