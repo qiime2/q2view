@@ -136,25 +136,32 @@ export function getAllObjectKeyPathsRecursively(
   objectKeyPaths: Array<Array<string>>,
 ) {
   if (targetObject !== null && targetObject !== undefined) {
-    for (const key of Object.keys(targetObject)) {
-      const newKeyAccumulator = [...currentkeyAccumulator, key];
+    for (const nextKey of Object.keys(targetObject)) {
+      const nextObject = targetObject[nextKey as keyof object];
+
+      // Add our new key to the accumulator
+      currentkeyAccumulator.push(nextKey)
 
       // Some terminal values, such as the start and end times, will parse as
       // objects, but they do not have keys of their own
-      const next = targetObject[key as keyof object];
       if (
-        typeof next === "object" &&
-        next !== null &&
-        Object.keys(next).length !== 0
+        typeof nextObject === "object" &&
+        nextObject !== null &&
+        Object.keys(nextObject).length !== 0
       ) {
         getAllObjectKeyPathsRecursively(
-          next,
-          newKeyAccumulator,
-          objectKeyPaths,
-        );
+          nextObject,
+          currentkeyAccumulator,
+          objectKeyPaths
+        )
       } else {
-        objectKeyPaths.push(newKeyAccumulator);
+        // Need to spread here because js arrays are pass by reference
+        objectKeyPaths.push([...currentkeyAccumulator]);
       }
+
+      // Remove our new key from the accumulator ready to add the next one in
+      // its place
+      currentkeyAccumulator.pop();
     }
   }
 }
