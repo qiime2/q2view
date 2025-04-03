@@ -407,6 +407,8 @@ function searchJSONMap(
   for (const json of provenanceMap.values()) {
     const jsonKeys: Array<Array<string>> = [];
 
+    // NOTE: This works fast enough that we can just do it on demand, but it
+    // may be worth it to memoize it.
     getAllObjectKeyPathsRecursively(json, [], jsonKeys);
     for (const jsonKey of jsonKeys) {
       const terminal = jsonKey.slice(-key.length);
