@@ -1,5 +1,10 @@
 import readerModel from "$lib/models/readerModel";
 
+// This value is multiplied by the height of the graph in nodes to get the
+// height of the graph in pixels. It is the height of a node in the graph plus
+// a bit of padding on top and bottom.
+export const HEIGHT_MULTIPLIER_PIXELS = 105;
+
 export const readBlobAsText = (blob) =>
   new Promise((resolve, reject) => {
     // eslint-disable-line no-unused-vars
@@ -113,4 +118,63 @@ export function getScrollBarWidth() {
 
   // Return difference in widths, this is the width of the scrollbar
   return withoutScrollWidth - withScrollWidth;
+}
+
+/**
+ * Recursively acquire every full key path in the object and add each of them
+ * to a list of all key paths the object has.
+ *
+ * @param {object} targetObject - The object we are parsing all key paths from
+ * @param {Array<string>} currentkeyAccumulator - The key path we are currently
+ * building up
+ * @param {Array<Array<string>>} objectKeyPaths - An Array of all key paths on
+ * the object
+ */
+export function getAllObjectKeyPathsRecursively(
+  targetObject: object,
+  currentkeyAccumulator: Array<string>,
+  objectKeyPaths: Array<Array<string>>,
+) {
+  if (targetObject !== null && targetObject !== undefined) {
+    for (const nextKey of Object.keys(targetObject)) {
+      const nextObject = targetObject[nextKey as keyof object];
+
+      // Add our new key to the accumulator
+      currentkeyAccumulator.push(nextKey)
+
+      // Some terminal values, such as the start and end times, will parse as
+      // objects, but they do not have keys of their own
+      if (
+        typeof nextObject === "object" &&
+        nextObject !== null &&
+        Object.keys(nextObject).length !== 0
+      ) {
+        getAllObjectKeyPathsRecursively(
+          nextObject,
+          currentkeyAccumulator,
+          objectKeyPaths
+        )
+      } else {
+        // Need to spread here because js arrays are pass by reference
+        objectKeyPaths.push([...currentkeyAccumulator]);
+      }
+
+      // Remove our new key from the accumulator ready to add the next one in
+      // its place
+      currentkeyAccumulator.pop();
+    }
+  }
+}
+
+//*****************************************************************************
+// Unbelievably Set.Union and Set.Intersection were only added to the
+// ECMAScript standard in 2024, so I'm going to implement them here in ways
+// that will work on older js.
+//****************************************************************************/
+export function setUnion(setA: Set<string>, setB: Set<string>) {
+  return new Set([...setA, ...setB]);
+}
+
+export function setIntersection(setA: Set<string>, setB: Set<string>) {
+  return new Set([...setA].filter((elem) => setB.has(elem)));
 }

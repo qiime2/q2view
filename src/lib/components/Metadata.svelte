@@ -7,7 +7,7 @@
   import readerModel from "$lib/models/readerModel";
 </script>
 
-<Panel header="Warning: Do not include confidential information in your metadata.">
+<Panel header="Warning: Do not include confidential information in your metadata." customPanelClass="p-4 mb-4">
   <p>
     QIIME 2 goes to great lengths to ensure that your bioinformatics workflow
     will be reproducible. This includes recording information about your analysis

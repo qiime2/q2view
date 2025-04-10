@@ -42,12 +42,12 @@
   </p>
   <h2 id="troubleshooting">Troubleshooting</h2>
   <p>This section is for common errors you may encounter when using q2view.</p>
-  <Panel>
+  <Panel customPanelClass="p-4 mb-4">
     <div class="grid grid-cols-2">
-      <div class="danger-panel">
+      <div class="border border-red-300 rounded-md bg-red-100 p-4 mr-2">
         TypeError: Failed to fetch
       </div>
-      <div class="danger-panel">
+      <div class="border border-red-300 rounded-md bg-red-100 p-4">
         TypeError: NetworkError when attempting to fetch resource.
       </div>
     </div>
@@ -57,8 +57,8 @@
       support CORS and must set the <a href="#headers">required headers</a>.
     </p>
   </Panel>
-  <Panel>
-    <div class="danger-panel">
+  <Panel customPanelClass="p-4 mb-4">
+    <div class="border border-red-300 rounded-md bg-red-100 p-4">
       Error: Can&apos;t find end of central directory : is this a zip file ?
       If it is, see http://stuk.github.io/jszip/documentation/howto/read_zip.html
     </div>
@@ -69,8 +69,8 @@
       instead.
     </p>
   </Panel>
-  <Panel>
-    <div class="danger-panel">Error: Not a valid QIIME 2 archive.</div>
+  <Panel customPanelClass="p-4 mb-4">
+    <div class="border border-red-300 rounded-md bg-red-100 p-4">Error: Not a valid QIIME 2 archive.</div>
     <p class="pt-4">
       The file you have provided is a .zip file, not a .qza or .qzv file (or there is
       something terribly wrong with your .qza/.qzv file). This interface only works

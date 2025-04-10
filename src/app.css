@@ -42,6 +42,26 @@ p {
   font-size: 18px;
 }
 
+.roundInput {
+  @apply border
+  border-solid
+  rounded
+  border-gray-300
+  mr-auto
+  mt-auto
+  pl-2
+  mb-4;
+}
+
+.roundButton {
+  @apply p-2
+  rounded-md;
+}
+
+.roundButton:hover {
+  @apply bg-gray-300;
+}
+
 a:link {
   text-decoration: underline;
   cursor: pointer;

@@ -1,9 +1,9 @@
 // Two way map class minimal implementation for what is currently needed
-export default class BiMap {
-  keyToValue: Map<any, any>;
-  valueToKey: Map<any, any>;
+export default class BiMap<T, P> {
+  keyToValue: Map<T, P>;
+  valueToKey: Map<P, T>;
 
-  constructor(keyToValue: Map<any, any> | undefined = undefined) {
+  constructor(keyToValue: Map<T, P> | undefined = undefined) {
     if (keyToValue === undefined) {
       this.keyToValue = new Map();
       this.valueToKey = new Map();
@@ -13,31 +13,34 @@ export default class BiMap {
     }
   }
 
-  _reverseMap(map: Map<any, any>) {
-    const reversedMap: Map<any, any> = new Map();
+  _reverseMap(map: Map<T, P>) {
+    const reversedMap: Map<P, T> = new Map();
 
     for (const key of map.keys()) {
       const value = map.get(key);
-      reversedMap.set(value, key);
+
+      if (value !== undefined) {
+        reversedMap.set(value, key);
+      }
     }
 
     return reversedMap;
   }
 
-  set(key: any, value: any) {
+  set(key: T, value: P) {
     this.keyToValue.set(key, value);
     this.valueToKey.set(value, key);
   }
 
-  get(key: any): any {
+  get(key: T): P | undefined {
     return this.keyToValue.get(key);
   }
 
-  getKey(value: any): any {
+  getKey(value: P): T | undefined {
     return this.valueToKey.get(value);
   }
 
-  values(): any {
+  values(): MapIterator<P> {
     return this.keyToValue.values();
   }
 

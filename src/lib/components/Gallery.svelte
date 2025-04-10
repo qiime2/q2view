@@ -125,7 +125,7 @@
 
 <h2 class="text-2xl text-[#1a414c] font-bold">Gallery</h2>
 <p class="pb-2">Don&apos;t have a QIIME 2 result of your own to view? Try one of these!</p>
-<input id="searchInput" placeholder="search" on:input={applySearchFilter}/>
+<input class="roundInput" id="searchInput" placeholder="search" on:input={applySearchFilter}/>
 {#await getGalleryEntries()}
   <h3>Fetching Gallery...</h3>
 {:then}
@@ -153,7 +153,7 @@
               currentPage--;
           }
       }}
-      class="pageButton"
+      class="roundButton"
     >
      <svg fill="none"
         width="10"
@@ -171,7 +171,7 @@
           currentPage++;
         }
       }}
-      class="pageButton"
+      class="roundButton"
     >
       <svg fill="none"
         width="10"
@@ -186,6 +186,7 @@
   <div class="ml-auto">
     <span>Per Page:&nbsp;</span>
     <input
+      class="roundInput"
       id="setCardsPerPage"
       type="number"
       value={cardsPerPage}
@@ -196,29 +197,9 @@
 </div>
 
 <style lang="postcss">
-  input {
-    @apply border
-    border-solid
-    rounded
-    border-gray-300
-    mr-auto
-    mt-auto
-    pl-2
-    mb-4;
-  }
-
   #pageControls {
     @apply grid
     grid-cols-3
     pt-4;
-  }
-
-  .pageButton {
-    @apply p-2
-    rounded-md;
-  }
-
-  button:hover {
-    @apply bg-gray-300;
   }
 </style>
