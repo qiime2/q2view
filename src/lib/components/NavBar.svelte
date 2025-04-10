@@ -13,6 +13,8 @@
   import { slide, fly } from "svelte/transition";
   import NavBanner from "./NavBanner.svelte";
 
+  export let vendored: boolean = false;
+
   onMount(() => {
     const nav_dropdown = document.getElementById("nav-dropdown") as Element;
     observer.observe(nav_dropdown);
@@ -50,6 +52,10 @@
   }
 
   function navLogoClicked(event: MouseEvent) {
+    // It's easiest to just calculate this here. If we do it at the top of the
+    // page then we will likely do it before index path is set.
+    const logoTarget = vendored ? ($readerModel.indexPath ? "/visualization/" : "/citations/") : "/";
+
     if (event.ctrlKey || event.metaKey) {
       return;
     } else {
@@ -59,15 +65,15 @@
     if ($loading.status === "LOADING") {
       // If we are in the loading state go back to root and reload to force the
       // loading to stop
-      history.pushState({}, "", "/");
+      history.pushState({}, "", logoTarget);
       location.reload();
     } else if ($url.pathname.replaceAll("/", "") === "error") {
       // If we are navigating away from the error page then we want to clean out
       // the errored state and push clean state
       readerModel.clear();
-      history.pushState({}, "", "/");
+      history.pushState({}, "", logoTarget);
     } else {
-      history.pushState({}, "", "/" + window.location.search);
+      history.pushState({}, "", logoTarget + window.location.search);
     }
   }
 </script>
@@ -82,7 +88,9 @@
 
 
 <nav id="navbar" use:melt={$root}>
-  <NavBanner/>
+  {#if !vendored}
+    <NavBanner/>
+  {/if}
   <div class="nav-wrapper mx-2">
     <div id="nav-container" class="max-width">
       <button on:click={navLogoClicked} class='ml-1'>
@@ -93,7 +101,7 @@
           <li id="file-text">
             File: <span class='font-bold'>{$readerModel.name}</span>
           </li>
-          {#if $readerModel.indexPath || $readerModel.rawSrc}
+          {#if !vendored && ($readerModel.indexPath || $readerModel.rawSrc)}
             <li>
               <button title="Unload File" id="close-button" on:click={() => {
                   readerModel.clear();
