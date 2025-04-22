@@ -17,6 +17,7 @@
 
   onMount(() => {
     const nav_dropdown = document.getElementById("nav-dropdown") as Element;
+
     observer.observe(nav_dropdown);
   });
 
@@ -33,6 +34,7 @@
   } = createDropdownMenu({});
 
   function updateNavDropdownHeight() {
+    const nav_bar = document.getElementById("navbar");
     const nav_dropdown = document.getElementById("nav-dropdown");
     const positioned_container = document.getElementById("positioned-container");
 
@@ -43,7 +45,10 @@
     }
 
     const nav_dropdown_height = nav_dropdown.clientHeight;
-    const offset = 78 + nav_dropdown_height;
+    // If we are vendored we won't have the top navbanner that links off to
+    // other sites, so the offset does not need to account for that
+    const nav_bar_height = nav_bar?.clientHeight;
+    const offset = nav_bar_height + nav_dropdown_height;
 
     if (positioned_container !== null) {
       positioned_container.style.top = `${offset}px`;
@@ -88,9 +93,7 @@
 
 
 <nav id="navbar" use:melt={$root}>
-  {#if !vendored}
-    <NavBanner/>
-  {/if}
+  <NavBanner {vendored}/>
   <div class="nav-wrapper mx-2">
     <div id="nav-container" class="max-width">
       <button on:click={navLogoClicked} class='ml-1'>
