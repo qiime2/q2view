@@ -35,20 +35,20 @@
 
   function updateNavDropdownHeight() {
     const nav_bar = document.getElementById("navbar");
-    const nav_dropdown = document.getElementById("nav-dropdown");
+    // const nav_dropdown = document.getElementById("nav-dropdown");
     const positioned_container = document.getElementById("positioned-container");
 
     // This entire function is predicated on this element existing and using
     // its height to offset other elements
-    if (nav_dropdown === null) {
+    if (nav_bar === null) {
       return;
     }
 
-    const nav_dropdown_height = nav_dropdown.clientHeight;
+    // const nav_dropdown_height = nav_dropdown.clientHeight;
     // If we are vendored we won't have the top navbanner that links off to
     // other sites, so the offset does not need to account for that
-    const nav_bar_height = nav_bar?.clientHeight;
-    const offset = nav_bar_height + nav_dropdown_height;
+    const nav_bar_height = nav_bar.clientHeight;
+    const offset = nav_bar_height;
 
     if (positioned_container !== null) {
       positioned_container.style.top = `${offset}px`;
