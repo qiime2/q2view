@@ -1,6 +1,4 @@
 <script lang='ts'>
-    import Vendored from "./Vendored.svelte";
-
     export let autohide = false;
     export let vendored = false;
 </script>
