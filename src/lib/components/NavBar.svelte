@@ -34,25 +34,21 @@
   } = createDropdownMenu({});
 
   function updateNavDropdownHeight() {
-    const nav_bar = document.getElementById("navbar");
-    // const nav_dropdown = document.getElementById("nav-dropdown");
-    const positioned_container = document.getElementById("positioned-container");
+    // Get the height of the navbar to use as an offset for the content. This
+    // height can change if they have compressed the page enough for the navbar
+    // to become a dropdown
+    const nav_bar_height = document.getElementById("navbar")?.clientHeight;
 
-    // This entire function is predicated on this element existing and using
-    // its height to offset other elements
-    if (nav_bar === null) {
+    if (nav_bar_height === undefined) {
       return;
     }
 
-    // const nav_dropdown_height = nav_dropdown.clientHeight;
-    // If we are vendored we won't have the top navbanner that links off to
-    // other sites, so the offset does not need to account for that
-    const nav_bar_height = nav_bar.clientHeight;
-    const offset = nav_bar_height;
+    const positioned_container = document.getElementById("positioned-container");
 
+    // Offset the container based on the current height of the navbar
     if (positioned_container !== null) {
-      positioned_container.style.top = `${offset}px`;
-      positioned_container.style.height = `calc(100% - ${offset}px)`;
+      positioned_container.style.top = `${nav_bar_height}px`;
+      positioned_container.style.height = `calc(100% - ${nav_bar_height}px)`;
     }
   }
 
