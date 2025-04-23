@@ -4,7 +4,7 @@
   import readerModel from "$lib/models/readerModel";
   import loading from "$lib/scripts/loading"
 
-  import { onMount } from "svelte";
+  import { afterUpdate } from 'svelte';
   import url from "$lib/scripts/url-store";
 
   import NavButtons from "$lib/components/NavButtons.svelte";
@@ -18,14 +18,6 @@
   // Height of the navbar is bound to this var
   let nav_bar_height: number;
 
-  onMount(() => {
-    const nav_dropdown = document.getElementById("nav-dropdown") as Element;
-
-    observer.observe(nav_dropdown);
-  });
-
-  const observer = new ResizeObserver(updateNavDropdownHeight);
-
   const {
     elements: { root, content, trigger: triggerCollapsible },
     states: { open: openCollapsible },
@@ -36,8 +28,7 @@
     states: { open: openDropdown },
   } = createDropdownMenu({});
 
-  function updateNavDropdownHeight() {
-
+  afterUpdate(() => {
     const positioned_container = document.getElementById("positioned-container");
 
     // Offset the container based on the current height of the navbar
@@ -45,7 +36,7 @@
       positioned_container.style.top = `${nav_bar_height}px`;
       positioned_container.style.height = `calc(100% - ${nav_bar_height}px)`;
     }
-  }
+  });
 
   function navLogoClicked(event: MouseEvent) {
     // It's easiest to just calculate this here. If we do it at the top of the
@@ -81,7 +72,6 @@
   <title>QIIME 2 View</title>
   {/if}
 </svelte:head>
-
 
 <nav id="navbar" use:melt={$root} bind:offsetHeight={nav_bar_height}>
   {#if !vendored}
