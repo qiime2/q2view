@@ -1,21 +1,18 @@
 <script lang='ts'>
     export let autohide = false;
-    export let vendored = false;
 </script>
 <header class="header" class:autohide>
   <div class="contents max-width">
-    {#if !vendored}
-      <nav class="title">
-        <a href="https://qiime2.org"><h2>QIIME 2</h2></a>
-      </nav>
-      <nav class="links">
-        <ul>
-            <li><a href="https://library.qiime2.org">Library</a></li>
-            <li><a href="https://view.qiime2.org">View</a></li>
-            <li><a href="https://forum.qiime2.org">Forum</a></li>
-        </ul>
-      </nav>
-    {/if}
+    <nav class="title">
+      <a href="https://qiime2.org"><h2>QIIME 2</h2></a>
+    </nav>
+    <nav class="links">
+      <ul>
+          <li><a href="https://library.qiime2.org">Library</a></li>
+          <li><a href="https://view.qiime2.org">View</a></li>
+          <li><a href="https://forum.qiime2.org">Forum</a></li>
+      </ul>
+    </nav>
   </div>
 </header>
 

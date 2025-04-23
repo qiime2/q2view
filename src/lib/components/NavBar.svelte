@@ -84,7 +84,9 @@
 
 
 <nav id="navbar" use:melt={$root} bind:offsetHeight={nav_bar_height}>
-  <NavBanner {vendored}/>
+  {#if vendored}
+    <NavBanner/>
+  {/if}
   <div class="nav-wrapper mx-2">
     <div id="nav-container" class="max-width">
       <button on:click={navLogoClicked} class='ml-1'>
