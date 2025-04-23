@@ -15,6 +15,9 @@
 
   export let vendored: boolean = false;
 
+  // Height of the navbar is bound to this var
+  let nav_bar_height: number;
+
   onMount(() => {
     const nav_dropdown = document.getElementById("nav-dropdown") as Element;
 
@@ -34,14 +37,6 @@
   } = createDropdownMenu({});
 
   function updateNavDropdownHeight() {
-    // Get the height of the navbar to use as an offset for the content. This
-    // height can change if they have compressed the page enough for the navbar
-    // to become a dropdown
-    const nav_bar_height = document.getElementById("navbar")?.clientHeight;
-
-    if (nav_bar_height === undefined) {
-      return;
-    }
 
     const positioned_container = document.getElementById("positioned-container");
 
@@ -88,7 +83,7 @@
 </svelte:head>
 
 
-<nav id="navbar" use:melt={$root}>
+<nav id="navbar" use:melt={$root} bind:offsetHeight={nav_bar_height}>
   <NavBanner {vendored}/>
   <div class="nav-wrapper mx-2">
     <div id="nav-container" class="max-width">
