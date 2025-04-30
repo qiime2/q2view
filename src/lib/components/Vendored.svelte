@@ -26,12 +26,13 @@
   async function getFileFromServer() {
     try {
       const fileName = $url.searchParams.get('file');
+      const vendoredSession = $url.searchParams.get('session');
 
       if (fileName === null) {
         throw new Error('File searchParam not found. No file to load.');
       }
 
-      const response = await fetch(`${window.location.origin}${fileName}`, {
+      const response = await fetch(`${window.location.origin}/${vendoredSession}`, {
         method: 'GET',
       });
 
