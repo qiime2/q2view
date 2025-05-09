@@ -1,7 +1,11 @@
 
 <script lang="ts">
-  export let name: string | null = null;
-  export let resultJSON: {};
+  interface Props {
+    name?: string | null;
+    resultJSON: {};
+  }
+
+  let { name = null, resultJSON }: Props = $props();
 </script>
 
 <ul>

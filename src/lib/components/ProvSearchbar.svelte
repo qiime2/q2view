@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { preventDefault } from 'svelte/legacy';
+
   import "../../app.css";
   import cytoscape from "cytoscape";
   import {
@@ -9,11 +11,15 @@
   import provenanceModel from "$lib/models/provenanceModel";
   import { HEIGHT_MULTIPLIER_PIXELS } from "$lib/scripts/util";
 
-  export let cy: cytoscape.Core;
+  interface Props {
+    cy: cytoscape.Core;
+  }
 
-  let value: string = "";
-  let searchIndex: number = 0;
-  let searchHits: Array<string> = [];
+  let { cy }: Props = $props();
+
+  let value: string = $state("");
+  let searchIndex: number = $state(0);
+  let searchHits: Array<string> = $state([]);
 
   // Map the literaly Lark uses to more human readable things
   const LARK_MAP: Map<string, string> = new Map([
@@ -172,7 +178,7 @@
 </script>
 
 <Panel header="Search Provenance" customPanelClass="p-4">
-  <form on:submit|preventDefault={_handleProvenanceSearch}>
+  <form onsubmit={preventDefault(_handleProvenanceSearch)}>
     <input
       class="roundInput"
       placeholder='type: ("FeatureData" OR "SampleData")'
@@ -180,7 +186,7 @@
     />
   </form>
   <div class="flex mt-2" style="align-items: center">
-    <button on:click={_decrementSearchIndex} class="roundButton">
+    <button onclick={_decrementSearchIndex} class="roundButton">
       <svg fill="none" width="10" height="10">
         <path
           stroke-width="3"
@@ -191,7 +197,7 @@
     </button>
     <!-- Show 0/0 when no results -->
     {searchHits.length > 0 ? searchIndex + 1 : searchIndex}/{searchHits.length}
-    <button on:click={_incrementSearchIndex} class="roundButton">
+    <button onclick={_incrementSearchIndex} class="roundButton">
       <svg fill="none" width="10" height="10">
         <path
           stroke-width="3"
@@ -200,10 +206,10 @@
         />
       </svg>
     </button>
-    <button on:click={_selectSearchHit} class="roundButton textButton">
+    <button onclick={_selectSearchHit} class="roundButton textButton">
       Center on Result
     </button>
-    <button on:click={_clearSearch} class="roundButton textButton">
+    <button onclick={_clearSearch} class="roundButton textButton">
       Clear Search
     </button>
     <!-- The reactivity of $provenanceModel.searchError !== null only reacts

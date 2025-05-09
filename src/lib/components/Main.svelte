@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   // Global styling
   import "../../app.css";
   import readerModel from "$lib/models/readerModel";
@@ -34,7 +36,7 @@
   //
   // Case 4, The src changed and it is now empty:
   //  Reset the readerModel because we no longer have data.
-  $: {
+  run(() => {
     const newSrc = $url.searchParams.get("src");
     const newTab = $url.pathname.replaceAll("/", "");
 
@@ -69,7 +71,7 @@
         }
       }
     }
-  }
+  });
 </script>
 
 <NavBar />

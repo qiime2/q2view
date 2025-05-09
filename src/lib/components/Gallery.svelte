@@ -1,13 +1,15 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import GalleryCard from "$lib/components/GalleryCard.svelte";
   import { onMount } from 'svelte';
   const GALLERY_URL = "https://q2view-gallery.pages.dev/gallery/";
 
   let galleryEntries: Array<Object> = [];
-  let filteredGalleryEntries: Array<Object> = [];
+  let filteredGalleryEntries: Array<Object> = $state([]);
 
-  let currentPage: number = 1;
-  let numPages: number;
+  let currentPage: number = $state(1);
+  let numPages: number = $state();
   // A 1440p screen fits two rows well. A 1080p screen JUST ABOUT fits one row.
   // There are 3 cards per row.
   let numRows: number = screen.height >= 1440 ? 2 : 1;
@@ -20,8 +22,8 @@
   // the number of cards per page. I wanted to do this in a more clever way
   // using tailwind breakpoints, but I wasn't sure how (or if that is even
   // possible), so I ended up using this instead.
-  let numCols: number;
-  let cardsPerPage: number;
+  let numCols: number = $state();
+  let cardsPerPage: number = $state();
 
   const LARGE_BREAKPOINT = 1110;
   const MEDIUM_BREAKPOINT = 980;
@@ -106,7 +108,7 @@
     }
   }
 
-  $: {
+  run(() => {
     const _num_pages = Math.ceil(filteredGalleryEntries.length / cardsPerPage);
 
     if (_num_pages === 0) {
@@ -120,12 +122,12 @@
     if (currentPage > numPages) {
       currentPage = numPages;
     }
-  }
+  });
 </script>
 
 <h2 class="text-2xl text-[#1a414c] font-bold">Gallery</h2>
 <p class="pb-2">Don&apos;t have a QIIME 2 result of your own to view? Try one of these!</p>
-<input class="roundInput" id="searchInput" placeholder="search" on:input={applySearchFilter}/>
+<input class="roundInput" id="searchInput" placeholder="search" oninput={applySearchFilter}/>
 {#await getGalleryEntries()}
   <h3>Fetching Gallery...</h3>
 {:then}
@@ -148,7 +150,7 @@
   <div></div>
   <div class="mx-auto">
     <button
-      on:click={() => {
+      onclick={() => {
           if (currentPage > 1) {
               currentPage--;
           }
@@ -166,7 +168,7 @@
     </button>
     {currentPage}/{numPages}
     <button
-      on:click={() => {
+      onclick={() => {
         if (currentPage < numPages) {
           currentPage++;
         }
@@ -191,7 +193,7 @@
       type="number"
       value={cardsPerPage}
       min="1"
-      on:change={changeCardsPerPage}
+      onchange={changeCardsPerPage}
     />
   </div>
 </div>
