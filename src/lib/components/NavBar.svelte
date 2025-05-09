@@ -81,7 +81,7 @@ https://svelte.dev/e/attribute_invalid_event_handler -->
   {/if}
   <div class="nav-wrapper mx-2">
     <div id="nav-container" class="max-width">
-      <button on:click={navLogoClicked} class='ml-1'>
+      <button onclick={navLogoClicked} class='ml-1'>
         <a href='/'><img id="navlogo" src="/images/q2view.png" alt="QIIME 2 view logo" /></a>
       </button>
       {#if $readerModel.name}
@@ -91,7 +91,7 @@ https://svelte.dev/e/attribute_invalid_event_handler -->
           </li>
           {#if !vendored && ($readerModel.indexPath || $readerModel.rawSrc)}
             <li>
-              <button title="Unload File" id="close-button" on:click={() => {
+              <button title="Unload File" id="close-button" onclick={() => {
                   readerModel.clear();
                   history.pushState({}, "", "/");
                 }}>
@@ -167,13 +167,13 @@ https://svelte.dev/e/attribute_invalid_event_handler -->
                     readOnly
                     value={$url.toString()}
                     type="text"
-                    on:select={e => e.stopPropagation()}
+                    onselect={e => e.stopPropagation()}
                 />
               </div>
             {/if}
           </li>
           <li>
-            <button class="nav-button" onclick="location.href='{String($readerModel.rawSrc)}'" type="button">
+            <button class="nav-button" onclick={() => location.href='{String($readerModel.rawSrc)}'} type="button">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
               </svg>

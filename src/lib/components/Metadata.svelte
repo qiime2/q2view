@@ -43,7 +43,7 @@ https://svelte.dev/e/node_invalid_placement -->
         <td class="p-1">{executionUUID}</td>
         <td class="p-1">{metadataFile}</td>
         <td class="p-1 text-blue-700">
-          <button on:click={async () => {
+          <button onclick={async () => {
               let metadataFilePath;
 
               if (artifactUUID === provenanceModel.uuid) {
