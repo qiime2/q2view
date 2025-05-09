@@ -4,6 +4,7 @@
 </script>
 
 <iframe
+  title="visualization"
   id="iframe"
   frameborder="0"
   src={$readerModel.indexPath}

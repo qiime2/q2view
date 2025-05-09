@@ -36,8 +36,8 @@
           This interface can view .qza and .qzv files directly in your browser
           without uploading to a server.
           <a
-            href="#"
-            onclick={() =>
+            href="#/"
+            on:click={() =>
               history.pushState({}, "", "/about/" + window.location.search)}
             >Click here to learn more.
           </a>
@@ -117,18 +117,6 @@
     display: grid;
     @apply mx-auto
     px-2;
-  }
-
-  /* If we need to slap an alert notice at the top of the page use this
-     class */
-  #notice-banner {
-    @apply text-center
-    bg-red-200
-    border
-    border-red-300
-    mb-4
-    py-4
-    rounded-lg;
   }
 
   .tab {
