@@ -64,6 +64,15 @@
     return mapped.join(", ");
   }
 
+  // Get Errors:
+  //
+  // Get whatever the database of known errors looks like
+  // Put all queries through the search thing
+  // Get map of each issue mapped to UUIDs of all affected actions
+  // Scream about it very overtly if there is a serious issue
+  // Otherwise put a list of them... Somewhere? TBD exactly where logged errors
+  // are to be stored/displayed
+
   function _handleProvenanceSearch() {
     searchIndex = 0;
 
