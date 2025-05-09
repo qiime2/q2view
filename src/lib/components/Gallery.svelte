@@ -156,6 +156,7 @@
           }
       }}
       class="roundButton"
+      aria-label="Previous Gallery Page"
     >
      <svg fill="none"
         width="10"
@@ -174,6 +175,7 @@
         }
       }}
       class="roundButton"
+      aria-label="Next Gallery Page"
     >
       <svg fill="none"
         width="10"

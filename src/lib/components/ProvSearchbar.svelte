@@ -186,7 +186,7 @@
     />
   </form>
   <div class="flex mt-2" style="align-items: center">
-    <button onclick={_decrementSearchIndex} class="roundButton">
+    <button onclick={_decrementSearchIndex} class="roundButton" aria-label="Previous Search Result">
       <svg fill="none" width="10" height="10">
         <path
           stroke-width="3"
@@ -197,7 +197,7 @@
     </button>
     <!-- Show 0/0 when no results -->
     {searchHits.length > 0 ? searchIndex + 1 : searchIndex}/{searchHits.length}
-    <button onclick={_incrementSearchIndex} class="roundButton">
+    <button onclick={_incrementSearchIndex} class="roundButton" aria-label="Next Search Result">
       <svg fill="none" width="10" height="10">
         <path
           stroke-width="3"
