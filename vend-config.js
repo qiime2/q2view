@@ -15,7 +15,9 @@ const config = {
     adapter: adapter({
       fallback: "index.html",
       // Put this in vendored by default if the vendor_dir arg was not supplied
-      pages: process.env.npm_config_vendor_dir ? process.env.npm_config_vendor_dir : "vendored",
+      pages: process.env.npm_config_vendor_dir
+        ? process.env.npm_config_vendor_dir
+        : "vendored",
     }),
     files: {
       routes: "src/routes-vend",
