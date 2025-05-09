@@ -21,7 +21,8 @@
     </div>
   {/if}
   <div class="border border-gray-300 {header === "" ? "rounded-md" : "rounded-b-md"} {customPanelClass}">
-    {#if children}{@render children()}{:else}
+    {#if children}
+      {@render children()}
     {/if}
   </div>
 </div>
