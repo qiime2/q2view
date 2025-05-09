@@ -37,7 +37,7 @@
           without uploading to a server.
           <a
             href="#/"
-            on:click={() =>
+            onclick={() =>
               history.pushState({}, "", "/about/" + window.location.search)}
             >Click here to learn more.
           </a>
