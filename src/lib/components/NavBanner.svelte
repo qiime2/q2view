@@ -1,5 +1,9 @@
 <script lang='ts'>
-    export let autohide = false;
+  interface Props {
+    autohide?: boolean;
+  }
+
+  let { autohide = false }: Props = $props();
 </script>
 <header class="header" class:autohide>
   <div class="contents max-width">

@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import readerModel from "$lib/models/readerModel";
 
-  let files: FileList;
-  let isDragging = false;
+  let files: FileList = $state();
+  let isDragging = $state(false);
   let isSelected = false;
 
   function onDragOver(event: DragEvent) {
@@ -30,19 +32,21 @@
     event.target.value = null;
   }
 
-  $: if (files) {
-    if (files.length < 1) {
-      // Do nothing.
-      //
-      // If you open the file input window then close it, you get an empty file
-      // list which can trigger this code. If this code was triggered with no
-      // files just ignore it
-    } else if (files.length > 1) {
-      alert("Please only provide a single file.");
-    } else {
-      readerModel.readData(files[0]);
+  run(() => {
+    if (files) {
+      if (files.length < 1) {
+        // Do nothing.
+        //
+        // If you open the file input window then close it, you get an empty file
+        // list which can trigger this code. If this code was triggered with no
+        // files just ignore it
+      } else if (files.length > 1) {
+        alert("Please only provide a single file.");
+      } else {
+        readerModel.readData(files[0]);
+      }
     }
-  }
+  });
 </script>
 
 <!-- I couldn"t find a good answer for what ARIA role to give this, but the
@@ -51,13 +55,13 @@
   id="dropzone"
   class:isDragging
   class:isSelected
-  on:dragover={onDragOver}
-  on:dragleave={onDragLeave}
-  on:drop={onDrop}
+  ondragover={onDragOver}
+  ondragleave={onDragLeave}
+  ondrop={onDrop}
   role="button"
   tabindex="0"
 >
-  <input id="dropinput" bind:files on:change={(event) => fileChange(event)} type="file" accept=".qza, .qzv"/>
+  <input id="dropinput" bind:files onchange={(event) => fileChange(event)} type="file" accept=".qza, .qzv"/>
   <div class="text-xl text-gray-700 text-center">
     <h1 class="mt-2.5 mb-1 text-4xl">Drag and drop or click here</h1>
     to view a QIIME 2 Artifact or Visualization (.qza/.qzv) from your computer.

@@ -8,7 +8,7 @@
   <li>
     <button
         class={$url.pathname.replaceAll("/", "") === "visualization" ? "selected-nav-button nav-button" : "nav-button"}
-        on:click={() => (history.pushState({}, "", "/visualization/"+window.location.search))}
+        onclick={() => (history.pushState({}, "", "/visualization/"+window.location.search))}
         title='Visualization'
     >
       Visualization
@@ -19,7 +19,7 @@
   <li>
     <button
         class={$url.pathname.replaceAll("/", "") === "citations" ? "selected-nav-button nav-button" : "nav-button"}
-        on:click={() => (history.pushState({}, "", "/citations/"+window.location.search))}
+        onclick={() => (history.pushState({}, "", "/citations/"+window.location.search))}
         title='Citations'
     >
       Citations
@@ -28,7 +28,7 @@
   <li>
     <button
         class={$url.pathname.replaceAll("/", "") === "provenance" ? "selected-nav-button nav-button" : "nav-button"}
-        on:click={() => (history.pushState({}, "", "/provenance/"+window.location.search))}
+        onclick={() => (history.pushState({}, "", "/provenance/"+window.location.search))}
         title='Provenance'
     >
       Provenance
@@ -37,7 +37,7 @@
   <li>
     <button
         class={$url.pathname.replaceAll("/", "") === "metadata" ? "selected-nav-button nav-button" : "nav-button"}
-        on:click={() => (history.pushState({}, "", "/metadata/"+window.location.search))}
+        onclick={() => (history.pushState({}, "", "/metadata/"+window.location.search))}
         title='Metadata'
     >
       Metadata

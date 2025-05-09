@@ -1,7 +1,17 @@
 <script lang="ts">
-  export let header: string = "";
-  export let customHeaderClass: string  = "";
-  export let customPanelClass: string  = "";
+  interface Props {
+    header?: string;
+    customHeaderClass?: string;
+    customPanelClass?: string;
+    children?: import('svelte').Snippet;
+  }
+
+  let {
+    header = "",
+    customHeaderClass = "",
+    customPanelClass = "",
+    children
+  }: Props = $props();
 </script>
 
 <div>
@@ -11,8 +21,9 @@
     </div>
   {/if}
   <div class="border border-gray-300 {header === "" ? "rounded-md" : "rounded-b-md"} {customPanelClass}">
-    <slot>
-    </slot>
+    {#if children}
+      {@render children()}
+    {/if}
   </div>
 </div>
 

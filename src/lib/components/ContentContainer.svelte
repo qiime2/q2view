@@ -17,9 +17,13 @@
   import Error from "$lib/components/Error.svelte";
   import Loading from "$lib/components/Loading.svelte";
 
-  export let vendored: boolean = false;
+  interface Props {
+    vendored?: boolean;
+  }
 
-  let loadingComponent: undefined | HTMLElement;
+  let { vendored = false }: Props = $props();
+
+  let loadingComponent: undefined | HTMLElement = $state();
  </script>
 
 <div id="positioned-container" class='px-4'>
@@ -33,7 +37,7 @@
           without uploading to a server.
           <a
             href="#/"
-            on:click={() =>
+            onclick={() =>
               history.pushState({}, "", "/about/" + window.location.search)}
             >Click here to learn more.
           </a>

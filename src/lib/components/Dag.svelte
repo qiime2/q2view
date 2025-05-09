@@ -8,8 +8,8 @@
   import ProvSearchbar from "./ProvSearchbar.svelte";
   import { getScrollBarWidth, HEIGHT_MULTIPLIER_PIXELS } from "$lib/scripts/util";
 
-  let self: HTMLDivElement;
-  let cy: cytoscape.Core;
+  let self: HTMLDivElement = $state();
+  let cy: cytoscape.Core = $state();
 
   const cytoscapeConfig = {
     boxSelectionEnabled: true,
@@ -189,7 +189,7 @@
   <div
     bind:this={self}
     id="cy"
-  />
+></div>
 </div>
 
 <style lang="postcss">
