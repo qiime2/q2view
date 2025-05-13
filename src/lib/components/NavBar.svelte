@@ -1,12 +1,9 @@
-<!-- @migration-task Error while migrating Svelte code: Event attribute must be a JavaScript expression, not a string
-https://svelte.dev/e/attribute_invalid_event_handler -->
 <script lang="ts">
   import "../../app.css";
 
   import readerModel from "$lib/models/readerModel";
   import loading from "$lib/scripts/loading"
 
-  import { afterUpdate } from 'svelte';
   import url from "$lib/scripts/url-store";
 
   import NavButtons from "$lib/components/NavButtons.svelte";
@@ -15,10 +12,14 @@ https://svelte.dev/e/attribute_invalid_event_handler -->
   import { slide, fly } from "svelte/transition";
   import NavBanner from "./NavBanner.svelte";
 
-  export let vendored: boolean = false;
+  interface Props {
+    vendored?: boolean;
+  }
+
+  let { vendored = false }: Props = $props();
 
   // Height of the navbar is bound to this var
-  let nav_bar_height: number;
+  let nav_bar_height: number | undefined = $state();
 
   const {
     elements: { root, content, trigger: triggerCollapsible },
@@ -30,7 +31,7 @@ https://svelte.dev/e/attribute_invalid_event_handler -->
     states: { open: openDropdown },
   } = createDropdownMenu({});
 
-  afterUpdate(() => {
+  $effect(() => {
     const positioned_container = document.getElementById("positioned-container");
 
     // Offset the container based on the current height of the navbar

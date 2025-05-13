@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
 
   import readerModel from "$lib/models/readerModel";
 
@@ -32,7 +31,7 @@
     event.target.value = null;
   }
 
-  run(() => {
+  $effect(() => {
     if (files) {
       if (files.length < 1) {
         // Do nothing.
