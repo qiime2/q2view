@@ -1,6 +1,9 @@
 // Source: https://svelte.dev/repl/5abaac000b164aa1aacc6051d5c4f584?version=3.59.2
 import { derived, writable } from "svelte/store";
 
+// TODO: SvelteKit claims that calling history.pushstate and history.replacestate
+// causes problems for its routing. This may be true with some more advanced use cases
+// but doesn't seem to be a problem for us
 export function createUrlStore() {
   const href = writable(window.location.href);
 
