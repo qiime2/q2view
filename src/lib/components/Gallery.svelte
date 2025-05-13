@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import GalleryCard from "$lib/components/GalleryCard.svelte";
   import { onMount } from 'svelte';
   const GALLERY_URL = "https://q2view-gallery.pages.dev/gallery/";
@@ -108,7 +106,7 @@
     }
   }
 
-  run(() => {
+  $effect(() => {
     const _num_pages = Math.ceil(filteredGalleryEntries.length / cardsPerPage);
 
     if (_num_pages === 0) {
