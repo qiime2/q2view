@@ -1,38 +1,37 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import Panel from "$lib/components/Panel.svelte";
   import readerModel from "$lib/models/readerModel";
   import citationsModel from "$lib/models/citationsModel";
   import ResultDetails from "$lib/components/ResultDetails.svelte";
 
-  let citations: HTMLElement = $state();
+  let renderedCitations: HTMLElement | undefined = $state();
 
   // If the user refreshes then we need to react to the citations being set
   // when we are already on this page
   //
   // They will be undefined for a sec and it will flash "No Citations" then
   // when they are actually loaded by the ReaderModel this will react to that
-  run(() => {
-    if ($citationsModel.citations !== undefined) {
+  $effect(() => {
+    if (citationsModel.citations !== undefined) {
       citationsModel.formatCitations();
     }
   });
 
-  // If the citation style is changed we need to update the DOM
-  run(() => {
-    if (citations !== undefined) {
-      let newInnerHTML = "";
-
-      if ($citationsModel.citationStyle === 'bib' || $citationsModel.citationStyle === 'ris') {
-        newInnerHTML = "<pre>" + citationsModel.formattedCitations + "</pre>";
-      } else {
-        newInnerHTML = citationsModel.formattedCitations;
-      }
-
-      citations.innerHTML = newInnerHTML;
+  function _updateCitations() {
+    if (renderedCitations === undefined) {
+      return;
     }
-  });
+
+    let newInnerHTML = "";
+
+    if (citationsModel.citationStyle === 'bib' || citationsModel.citationStyle === 'ris') {
+      newInnerHTML = "<pre>" + citationsModel.formattedCitations + "</pre>";
+    } else {
+      newInnerHTML = citationsModel.formattedCitations;
+    }
+
+    renderedCitations.innerHTML = newInnerHTML;
+  }
 </script>
 
 <Panel header="Details of {$readerModel.name}" customPanelClass="p-4 mb-4">
@@ -55,7 +54,11 @@
   </label>
   {#if $citationsModel.citations !== undefined}
     <a href={$citationsModel.downloadableFile} download={`${$citationsModel.uuid}.${$citationsModel.fileExt}`} style="float: right">Download</a>
-    <div id="citations" bind:this={citations}></div>
+    <div id="citations" bind:this={renderedCitations}>
+      {#key $citationsModel.citationStyle}
+        {_updateCitations()}
+      {/key}
+    </div>
   {:else}
     <pre id="citations">No Citations</pre>
   {/if}
