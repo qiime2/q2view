@@ -6,7 +6,6 @@ https://svelte.dev/e/attribute_invalid_event_handler -->
   import readerModel from "$lib/models/readerModel";
   import loading from "$lib/scripts/loading"
 
-  import { afterUpdate } from 'svelte';
   import url from "$lib/scripts/url-store";
 
   import NavButtons from "$lib/components/NavButtons.svelte";
@@ -15,10 +14,10 @@ https://svelte.dev/e/attribute_invalid_event_handler -->
   import { slide, fly } from "svelte/transition";
   import NavBanner from "./NavBanner.svelte";
 
-  export let vendored: boolean = false;
+  let { vendored } = $props();
 
   // Height of the navbar is bound to this var
-  let nav_bar_height: number;
+  let nav_bar_height: number | undefined = $state();
 
   const {
     elements: { root, content, trigger: triggerCollapsible },
@@ -30,7 +29,7 @@ https://svelte.dev/e/attribute_invalid_event_handler -->
     states: { open: openDropdown },
   } = createDropdownMenu({});
 
-  afterUpdate(() => {
+  $effect(() => {
     const positioned_container = document.getElementById("positioned-container");
 
     // Offset the container based on the current height of the navbar
