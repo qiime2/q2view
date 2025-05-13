@@ -303,7 +303,11 @@ class ReaderModel {
       switch (event.data.type) {
         case "GET_DATA":
           // decode should go in the SW, but that'd require an upgrade
-          getFile(decodeURIComponent(event.data.filename), this.uuid, this.zipReader)
+          getFile(
+            decodeURIComponent(event.data.filename),
+            this.uuid,
+            this.zipReader,
+          )
             .then((data) => {
               // the request should provide a port for later response
               event.ports[0].postMessage(data);
