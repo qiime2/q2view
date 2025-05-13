@@ -12,7 +12,11 @@
   import { slide, fly } from "svelte/transition";
   import NavBanner from "./NavBanner.svelte";
 
-  let { vendored } = $props();
+  interface Props {
+    vendored?: boolean;
+  }
+
+  let { vendored = false }: Props = $props();
 
   // Height of the navbar is bound to this var
   let nav_bar_height: number | undefined = $state();
