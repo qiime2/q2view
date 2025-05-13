@@ -1,24 +1,26 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import Panel from "$lib/components/Panel.svelte";
   import readerModel from "$lib/models/readerModel";
   import citationsModel from "$lib/models/citationsModel";
   import ResultDetails from "$lib/components/ResultDetails.svelte";
 
-  let citations: HTMLElement;
+  let citations: HTMLElement = $state();
 
   // If the user refreshes then we need to react to the citations being set
   // when we are already on this page
   //
   // They will be undefined for a sec and it will flash "No Citations" then
   // when they are actually loaded by the ReaderModel this will react to that
-  $: {
+  run(() => {
     if ($citationsModel.citations !== undefined) {
       citationsModel.formatCitations();
     }
-  }
+  });
 
   // If the citation style is changed we need to update the DOM
-  $: {
+  run(() => {
     if (citations !== undefined) {
       let newInnerHTML = "";
 
@@ -30,7 +32,7 @@
 
       citations.innerHTML = newInnerHTML;
     }
-  }
+  });
 </script>
 
 <Panel header="Details of {$readerModel.name}" customPanelClass="p-4 mb-4">
@@ -40,7 +42,7 @@
   <label for="citation-style">
     Citation Format:
     <!-- TODO: It takes a bit of time to react to changing this style. Feels a bit jank need some feedback -->
-    <select bind:value={citationsModel.citationStyle} id="citation-style" on:change={() => citationsModel.formatCitations()}>
+    <select bind:value={citationsModel.citationStyle} id="citation-style" onchange={() => citationsModel.formatCitations()}>
       <option value="apa">APA</option>
       <option value="asm">ASM</option>
       <option value="bib">BibTex</option>
