@@ -17,9 +17,13 @@
   import Error from "$lib/components/Error.svelte";
   import Loading from "$lib/components/Loading.svelte";
 
-  export let vendored: boolean = false;
+  interface Props {
+    vendored?: boolean;
+  }
 
-  let loadingComponent: undefined | HTMLElement;
+  let { vendored = false }: Props = $props();
+
+  let loadingComponent: undefined | HTMLElement = $state();
  </script>
 
 <div id="positioned-container" class='px-4'>
@@ -32,8 +36,8 @@
           This interface can view .qza and .qzv files directly in your browser
           without uploading to a server.
           <a
-            href="#"
-            on:click={() =>
+            href="#/"
+            onclick={() =>
               history.pushState({}, "", "/about/" + window.location.search)}
             >Click here to learn more.
           </a>
@@ -113,18 +117,6 @@
     display: grid;
     @apply mx-auto
     px-2;
-  }
-
-  /* If we need to slap an alert notice at the top of the page use this
-     class */
-  #notice-banner {
-    @apply text-center
-    bg-red-200
-    border
-    border-red-300
-    mb-4
-    py-4
-    rounded-lg;
   }
 
   .tab {

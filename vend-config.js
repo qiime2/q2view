@@ -1,5 +1,5 @@
 import adapter from "@sveltejs/adapter-static";
-import { vitePreprocess } from "@sveltejs/kit/vite";
+import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import { preprocessMeltUI, sequence } from "@melt-ui/pp";
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -15,7 +15,9 @@ const config = {
     adapter: adapter({
       fallback: "index.html",
       // Put this in vendored by default if the vendor_dir arg was not supplied
-      pages: process.env.npm_config_vendor_dir ? process.env.npm_config_vendor_dir : "vendored",
+      pages: process.env.npm_config_vendor_dir
+        ? process.env.npm_config_vendor_dir
+        : "vendored",
     }),
     files: {
       routes: "src/routes-vend",

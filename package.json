@@ -14,19 +14,20 @@
   },
   "devDependencies": {
     "@melt-ui/pp": "^0.3.2",
-    "@melt-ui/svelte": "^0.76.3",
-    "@sveltejs/adapter-auto": "^2.1.1",
-    "@sveltejs/adapter-static": "^2.0.3",
-    "@sveltejs/kit": "^1.30.4",
+    "@melt-ui/svelte": "^0.86.6",
+    "@sveltejs/adapter-auto": "^3.0.0",
+    "@sveltejs/adapter-static": "^3.0.0",
+    "@sveltejs/kit": "^2.5.27",
+    "@sveltejs/vite-plugin-svelte": "^4.0.0",
     "@types/cytoscape": "^3.21.8",
     "@types/js-yaml": "^3.12.10",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
-    "svelte-check": "^3.8.6",
+    "svelte-check": "^4.0.0",
     "tailwindcss": "^3.4.13",
     "tslib": "^2.7.0",
     "typescript": "^5.6.2",
-    "vite": "^4.5.5",
+    "vite": "^5.4.4",
     "vitest": "^3.0.7"
   },
   "type": "module",
@@ -36,8 +37,9 @@
     "js-search": "^2.0.1",
     "js-yaml": "^3.14.1",
     "jszip": "^3.10.1",
+    "melt": "^0.31.0",
     "prettier": "^3.3.3",
-    "svelte": "^4.2.19",
+    "svelte": "^5.0.0",
     "svelte-json-tree": "^2.2.0"
   }
 }

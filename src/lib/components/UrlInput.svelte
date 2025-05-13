@@ -1,5 +1,7 @@
 <script lang="ts">
-  let inputMode = 0;
+  import { preventDefault } from 'svelte/legacy';
+
+  let inputMode = $state(0);
 
   function resolveURL() {
     const inputElement = document.getElementById("URLInput") as HTMLInputElement;
@@ -24,16 +26,16 @@
     {#if inputMode === 0}
       <p>
         You can also provide a link to
-        a <a href="#" on:click|preventDefault={() => {inputMode = 1}} role="button" >
+        a <a href="#/" onclick={preventDefault(() => {inputMode = 1})} role="button" >
           file on Dropbox</a>,
-        a <a href="#" on:click|preventDefault={() => {inputMode = 2}} role="button" >
+        a <a href="#/" onclick={preventDefault(() => {inputMode = 2})} role="button" >
           file on Zenodo</a>, or
-        a <a href="#" on:click|preventDefault={() => {inputMode = 3}} role="button">
+        a <a href="#/" onclick={preventDefault(() => {inputMode = 3})} role="button">
           file from the web</a>.
       </p>
     {:else}
       <div id="input">
-        <button id="cancel-button" type="button" on:click={() => {inputMode = 0}}>cancel</button>
+        <button id="cancel-button" type="button" onclick={() => {inputMode = 0}}>cancel</button>
         {#if inputMode === 1}
           <input id="URLInput" placeholder="Shared link to a .qza/.qzv file on Dropbox" />
         {:else if inputMode === 2}
@@ -41,7 +43,7 @@
         {:else if inputMode === 3}
           <input id="URLInput" placeholder="URL to a .qza/.qzv file on the web" />
         {/if}
-        <button id="submit-button" type="submit" on:click={() => resolveURL()}>Go!</button>
+        <button id="submit-button" type="submit" onclick={() => resolveURL()}>Go!</button>
       </div>
     {/if}
   </div>
