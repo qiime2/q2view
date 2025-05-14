@@ -9,8 +9,6 @@
   } from "$lib/scripts/provSearchUtils";
   import Panel from "./Panel.svelte";
   import provenanceModel from "$lib/models/provenanceModel";
-  import { HEIGHT_MULTIPLIER_PIXELS } from "$lib/scripts/util";
-  // import centerOnSelected from "$lib/components/Dag.svelte";
 
   interface Props {
     cy: cytoscape.Core;
