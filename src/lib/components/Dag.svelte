@@ -14,7 +14,6 @@
 
   function centerOnSelected() {
     if (selectedNodeState.selectedNode === undefined) {
-      // TODO: Make this call the function to properly recenter entire graph
       return;
     }
 
