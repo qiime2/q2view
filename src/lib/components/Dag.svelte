@@ -119,15 +119,12 @@
     const provDetails = document.getElementById("provDetails");
 
     // Attempt to calculate the height such that it lines up with the details
-    // panel. If we cannot get any part of the information needed to calculate
-    // this, just say screw it and use the screen height here.
+    // panel. If we cannot get the information need to calculate this, just
+    // say screw it and use the screen height here.
     let defaultHeight = screen.height;
     if (provDetails === null) {
        console.warn("Failed to get provDetails div");
     } else {
-      // We want to also factor in the margins of the prov searchBar above us
-      // into the amount we subtract, but we only want to base our height off
-      // the content height of the details we don't care about the margins.
       defaultHeight = provDetails.offsetHeight;
     }
 
