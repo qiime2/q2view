@@ -218,7 +218,7 @@
     {#key $provenanceModel.searchError}
       {#if $provenanceModel.searchError !== null}
         <div
-          class="border border-red-300 rounded-md bg-red-100 py-1 px-3 ml-auto w-2/3"
+          class="border border-red-300 rounded-md bg-red-100 py-1 px-3 ml-auto"
         >
           {_formatSearchError()}
         </div>
