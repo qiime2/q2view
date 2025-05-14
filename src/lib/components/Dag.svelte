@@ -10,6 +10,25 @@
 
   let self: HTMLDivElement = $state();
   let cy: cytoscape.Core = $state();
+  let selectedNodeState: { selectedNode: cytoscape.NodeSingular | undefined } = $state({ selectedNode : undefined });
+
+  function centerOnSelected() {
+    console.log(selectedNodeState)
+    const containerHeight = cy.container()?.offsetHeight;
+    // Center on the selected node
+    cy.center(selectedNodeState.selectedNode);
+
+    // Pan to put the focused node near the top of the viewport
+    // The linter whines that containerHeight could be undefined, but that's
+    // only if we are headless... which won't happen
+    //
+    // This pans the viewport to put the focused node in the top center of
+    // viewport ~one node height from the top of the viewport
+    cy.panBy({
+      x: 0,
+      y: -((containerHeight / 2) - (HEIGHT_MULTIPLIER_PIXELS)),
+    });
+  }
 
   const cytoscapeConfig = {
     boxSelectionEnabled: true,
@@ -144,6 +163,7 @@
         const edges = node.edgesTo("node");
         cy.elements("node, edge").unselect();
         node.select();
+        selectedNodeState.selectedNode = node;
         edges.select();
 
         lock = false;
@@ -152,6 +172,7 @@
 
     cy.on("unselect", "node, edge", (event) => {  // eslint-disable-line no-unused-vars
       cy.elements("node, edge").unselect();
+      selectedNodeState.selectedNode = undefined;
       if (!lock && selectedExists) {
         clearSelection();
         selectedExists = false;
@@ -173,7 +194,7 @@
 
 <div class="{getScrollBarWidth() == 0 ? "pl-2" : ""}">
   <div id="provSearchBar" class="mb-2 absolute z-10 bg-white">
-    <ProvSearchbar {cy}/>
+    <ProvSearchbar {cy} selectedNode={selectedNodeState} {centerOnSelected}/>
   </div>
   <div
     bind:this={self}
