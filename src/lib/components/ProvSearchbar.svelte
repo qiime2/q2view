@@ -181,7 +181,7 @@
   <form onsubmit={preventDefault(_handleProvenanceSearch)}>
     <input
       class="roundInput"
-      placeholder='type: ("FeatureData" OR "SampleData")'
+      placeholder='Search Provenance'
       bind:value
     />
   </form>
