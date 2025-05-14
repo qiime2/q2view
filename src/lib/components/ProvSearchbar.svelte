@@ -22,7 +22,7 @@
   let searchIndex: number = $state(0);
   let searchHits: Array<string> = $state([]);
 
-  // Map the literaly Lark uses to more human readable things
+  // Map the literals Lark uses to more human readable things
   const LARK_MAP: Map<string, string> = new Map([
     ["$END", '"End of input"'],
     ["COLON", '":"'],
