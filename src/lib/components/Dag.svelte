@@ -198,7 +198,7 @@
 
 <div class="{getScrollBarWidth() == 0 ? "pl-2" : ""}">
   <div id="provSearchBar" class="mb-2 absolute z-10 bg-white">
-    <ProvSearchbar {cy} selectedNode={selectedNodeState} {centerOnSelected}/>
+    <ProvSearchbar {cy} {selectedNodeState} {centerOnSelected}/>
   </div>
   <div
     bind:this={self}
