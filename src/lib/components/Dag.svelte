@@ -19,18 +19,30 @@
     }
 
     const containerHeight = cy.container()?.offsetHeight;
+
+    const provSearchBar = document.getElementById("provSearchBar");
+    const provSearchBarHeight = provSearchBar?.offsetHeight;
+
+    if (containerHeight === undefined || provSearchBarHeight === undefined) {
+      if (containerHeight === undefined) {
+        console.warn("Could not get container height");
+      }
+
+      if (provSearchBarHeight === undefined) {
+        console.warn("Could not get search bar height");
+      }
+
+      return;
+    }
+
     // Center on the selected node
     cy.center(selectedNodeState.selectedNode);
 
-    // Pan to put the focused node near the top of the viewport
-    // The linter whines that containerHeight could be undefined, but that's
-    // only if we are headless... which won't happen
-    //
-    // This pans the viewport to put the focused node in the top center of
-    // viewport ~one node height from the top of the viewport
+    // Pan the viewport to put the focused node in the top center of viewport
+    // slightly below where the searchBar is
     cy.panBy({
       x: 0,
-      y: -((containerHeight / 2) - (HEIGHT_MULTIPLIER_PIXELS)),
+      y: -((containerHeight / 2) - (provSearchBarHeight + (HEIGHT_MULTIPLIER_PIXELS / 2))),
     });
   }
 

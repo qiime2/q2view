@@ -125,6 +125,7 @@
     } else {
       selectedNodeState.selectedNode = cy.$id(hitID);
       selectedNodeState.selectedNode.select();
+      centerOnSelected();
     }
   }
 
@@ -141,7 +142,6 @@
     }
 
     _selectSearchHit();
-    centerOnSelected();
   }
 
   function _incrementSearchIndex() {
@@ -157,7 +157,6 @@
     }
 
     _selectSearchHit();
-    centerOnSelected();
   }
 
   function _reCenterGraph() {
