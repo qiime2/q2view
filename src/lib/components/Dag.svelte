@@ -94,30 +94,18 @@
   onMount(() => {
     // Set this height so we center the DAG based on this height
     const provDetails = document.getElementById("provDetails");
-    const provSearchBar = document.getElementById("provSearchBar");
 
     // Attempt to calculate the height such that it lines up with the details
     // panel. If we cannot get any part of the information needed to calculate
     // this, just say screw it and use the screen height here.
     let defaultHeight = screen.height;
-    if (provDetails === null || provSearchBar === null) {
-      if (provDetails === null) {
-        console.warn("Failed to get provDetails div");
-      }
-
-      if (provSearchBar === null) {
-        console.warn("Failed to get provSearchBar div");
-      }
+    if (provDetails === null) {
+       console.warn("Failed to get provDetails div");
     } else {
       // We want to also factor in the margins of the prov searchBar above us
       // into the amount we subtract, but we only want to base our height off
       // the content height of the details we don't care about the margins.
-      const provSearchBarStyle = window.getComputedStyle(provSearchBar);
-
-      const provDetailsHeight = provDetails.offsetHeight;
-      const provSearchBarHeight = 0;// provSearchBar.offsetHeight + parseInt(provSearchBarStyle.marginTop) + parseInt(provSearchBarStyle.marginBottom);
-
-      defaultHeight = provDetailsHeight - provSearchBarHeight;
+      defaultHeight = provDetails.offsetHeight;
     }
 
     // Compute the height based on the prov DAG as well
@@ -180,7 +168,6 @@
     // with the bottom of the default details panel, or the height needed to
     // fit the entire DAG
     self.style.setProperty("height", `max(${defaultHeight}px, ${dimensionBasedHeight}px)`);
-    // self.style.setProperty("top", `${topOffset}px)`);
   });
 </script>
 
