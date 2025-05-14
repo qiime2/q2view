@@ -584,11 +584,9 @@ class ProvenanceModel {
   _getErrors() {
     // Ok gonna get a list of queries from... somewhere. Let's make this not
     // care about where the list of issues comes from
-
     // Maybe when we make vendor we try to grab and vendor the latest known
     // error database? We can then fall back to that in the vendored version if
     // we can't get the live version due to no internet or something?
-
     // Map ID of node to the issues it has?
     // Keep track of a global set of all seen issues?
     //  Seperate these out by severity?
