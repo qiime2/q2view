@@ -14,9 +14,10 @@
     cy: cytoscape.Core;
     selectedNodeState: { selectedNode: cytoscape.NodeSingular | undefined };
     centerOnSelected: Function;
+    centerAndPan: Function;
   }
 
-  let { cy, selectedNodeState, centerOnSelected }: Props = $props();
+  let { cy, selectedNodeState, centerOnSelected, centerAndPan }: Props = $props();
 
   let value: string = $state("");
   let searchIndex: number = $state(0);
@@ -159,10 +160,6 @@
     _selectSearchHit();
   }
 
-  function _reCenterGraph() {
-    cy.center();
-  }
-
   function _clearSearch() {
     value = "";
     searchIndex = 0;
@@ -211,8 +208,7 @@
     <button onclick={() => centerOnSelected()} class="roundButton textButton">
       Center on Selected
     </button>
-    <!-- TODO: Make this button work correctly -->
-    <button onclick={_reCenterGraph} class="roundButton textButton">
+    <button onclick={() => centerAndPan(undefined)} class="roundButton textButton">
       Recenter
     </button>
     <!-- TODO: Make this button work -->

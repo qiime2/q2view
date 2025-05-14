@@ -17,6 +17,11 @@
       return;
     }
 
+    centerAndPan(selectedNodeState.selectedNode);
+  }
+
+  // If target is undefined, this will center on the graph as a whole
+  function centerAndPan(target: cytoscape.NodeSingular | undefined) {
     const containerHeight = cy.container()?.offsetHeight;
 
     const provSearchBar = document.getElementById("provSearchBar");
@@ -34,14 +39,22 @@
       return;
     }
 
-    // Center on the selected node
-    cy.center(selectedNodeState.selectedNode);
+    cy.center(target);
 
-    // Pan the viewport to put the focused node in the top center of viewport
+    let heightOffset = -((containerHeight / 2) - (provSearchBarHeight + (HEIGHT_MULTIPLIER_PIXELS / 2)));
+    if (target === undefined) {
+      heightOffset = -((containerHeight / 2) - ((provSearchBarHeight + (HEIGHT_MULTIPLIER_PIXELS * provenanceModel.height / 2))));
+    }
+
+    console.log(provSearchBarHeight);
+    console.log(containerHeight);
+    console.log(heightOffset)
+
+    // Pan the viewport to put the targer in the top center of viewport
     // slightly below where the searchBar is
     cy.panBy({
       x: 0,
-      y: -((containerHeight / 2) - (provSearchBarHeight + (HEIGHT_MULTIPLIER_PIXELS / 2))),
+      y: heightOffset,
     });
   }
 
@@ -190,23 +203,25 @@
         selectedExists = false;
       }
     });
-
     // Now center the DAG in the canvas with height calculated based on the DAG
     // height. We do this because if the dimensionBasedHeight is smaller than
     // the default height, then we wan to center based on that smaller height
     // so the DAG ends up at the top center of the canvas not dead center
-    cy.center();
+    // cy.center();
 
     // Now we set the canvas size to whichever was larger. The height to line up
     // with the bottom of the default details panel, or the height needed to
     // fit the entire DAG
     self.style.setProperty("height", `max(${defaultHeight}px, ${dimensionBasedHeight}px)`);
+
+    // TODO: This doesn't center correctly for some reason
+    centerAndPan(undefined);
   });
 </script>
 
 <div class="{getScrollBarWidth() == 0 ? "pl-2" : ""}">
   <div id="provSearchBar" class="mb-2 absolute z-10 bg-white">
-    <ProvSearchbar {cy} {selectedNodeState} {centerOnSelected}/>
+    <ProvSearchbar {cy} {selectedNodeState} {centerOnSelected} {centerAndPan}/>
   </div>
   <div
     bind:this={self}
