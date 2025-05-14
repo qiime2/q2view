@@ -177,7 +177,7 @@
   }
 </script>
 
-<Panel header="Search Provenance" customPanelClass="p-4 rounded-b-none" customHeaderClass="rounded-t-none">
+<Panel customPanelClass="p-4 rounded-none">
   <form onsubmit={preventDefault(_handleProvenanceSearch)}>
     <input
       class="roundInput"
@@ -206,11 +206,11 @@
         />
       </svg>
     </button>
-    <button onclick={_selectSearchHit} class="roundButton textButton">
-      Center on Result
-    </button>
     <button onclick={_clearSearch} class="roundButton textButton">
       Clear Search
+    </button>
+    <button onclick={_selectSearchHit} class="roundButton textButton">
+      Center on Selected
     </button>
     <!-- The reactivity of $provenanceModel.searchError !== null only reacts
      to searchError changing from or to null. We need the key to react to
