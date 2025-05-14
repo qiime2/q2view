@@ -13,7 +13,6 @@
   let selectedNodeState: { selectedNode: cytoscape.NodeSingular | undefined } = $state({ selectedNode : undefined });
 
   function centerOnSelected() {
-    console.log(selectedNodeState)
     const containerHeight = cy.container()?.offsetHeight;
     // Center on the selected node
     cy.center(selectedNodeState.selectedNode);

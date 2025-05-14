@@ -128,8 +128,6 @@
       selectedNodeState.selectedNode = cy.$id(hitID);
       selectedNodeState.selectedNode.select();
     }
-
-    console.log(selectedNodeState);
   }
 
   function _decrementSearchIndex() {
