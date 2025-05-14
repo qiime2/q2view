@@ -216,9 +216,11 @@
     <button onclick={() => centerOnSelected()} class="roundButton textButton">
       Center on Selected
     </button>
+    <!-- TODO: Make this button work correctly -->
     <button onclick={_reCenterGraph} class="roundButton textButton">
       Recenter
     </button>
+    <!-- TODO: Make this button work -->
     <button onclick={_selectSearchHit} class="roundButton textButton">
       Reset
     </button>
