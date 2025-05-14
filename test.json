@@ -1,14 +1,20 @@
 [
   {
     "name": "My fake error",
-    "severity": "high? Should this be a string or a number?",
+    "severity": "2",
     "query": "qiime2: (^\"2024\" OR ^\"2021\")",
     "description": "Oh no something is wrong I guess"
   },
   {
     "name": "My other fake error",
-    "severity": "low? Should this be a string or a number?",
+    "severity": "1",
     "query": "qiime2: ^\"2024\"",
     "description": "Oh no something is less wrong than the other one I guess"
+  },
+  {
+    "name": "My very minor fake error",
+    "severity": "0",
+    "query": "qiime2: ^\"2024\"",
+    "description": "Is this even an error?"
   }
 ]
