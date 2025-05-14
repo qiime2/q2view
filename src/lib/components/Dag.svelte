@@ -115,7 +115,7 @@
       const provSearchBarStyle = window.getComputedStyle(provSearchBar);
 
       const provDetailsHeight = provDetails.offsetHeight;
-      const provSearchBarHeight = provSearchBar.offsetHeight + parseInt(provSearchBarStyle.marginTop) + parseInt(provSearchBarStyle.marginBottom);
+      const provSearchBarHeight = 0;// provSearchBar.offsetHeight + parseInt(provSearchBarStyle.marginTop) + parseInt(provSearchBarStyle.marginBottom);
 
       defaultHeight = provDetailsHeight - provSearchBarHeight;
     }
@@ -180,10 +180,12 @@
     // with the bottom of the default details panel, or the height needed to
     // fit the entire DAG
     self.style.setProperty("height", `max(${defaultHeight}px, ${dimensionBasedHeight}px)`);
+    // self.style.setProperty("top", `${topOffset}px)`);
   });
 </script>
 
-<div class="{getScrollBarWidth() == 0 ? "pl-2" : ""}">  <div id="provSearchBar" class="mb-2">
+<div class="{getScrollBarWidth() == 0 ? "pl-2" : ""}">
+  <div id="provSearchBar" class="mb-2 absolute z-10 bg-white">
     <ProvSearchbar {cy}/>
   </div>
   <div

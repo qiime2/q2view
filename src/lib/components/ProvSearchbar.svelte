@@ -177,7 +177,7 @@
   }
 </script>
 
-<Panel header="Search Provenance" customPanelClass="p-4">
+<Panel header="Search Provenance" customPanelClass="p-4 rounded-b-none" customHeaderClass="rounded-t-none">
   <form onsubmit={preventDefault(_handleProvenanceSearch)}>
     <input
       class="roundInput"
