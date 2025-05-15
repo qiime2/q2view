@@ -159,6 +159,24 @@
     _selectSearchHit();
   }
 
+  function _reset() {
+    // Deselect the currently selected node
+    _deselect();
+    // Get rid of current search data
+    _clearSearch();
+    // Remount DAG
+    mount();
+  }
+
+  function _deselect() {
+    const selectedNodes = cy.elements('node:selected');
+    if (selectedNodes.length !== 0) {
+      // We can only ever have one node selected at a time
+      const selectedNode = selectedNodes[0];
+      selectedNode.unselect();
+    }
+  }
+
   function _clearSearch() {
     value = "";
     searchIndex = 0;
@@ -210,10 +228,7 @@
     <button onclick={() => centerAndPan()} class="roundButton textButton">
       Recenter
     </button>
-    <button onclick={() => {
-        _clearSearch();
-        mount();
-      }} class="roundButton textButton">
+    <button onclick={_reset} class="roundButton textButton">
       Reset
     </button>
     <!-- The reactivity of $provenanceModel.searchError !== null only reacts
