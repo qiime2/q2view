@@ -5,7 +5,7 @@
 
   import provenanceModel from "$lib/models/provenanceModel";
   import cytoscape from "cytoscape";
-  import ProvSearchbar from "./ProvSearchbar.svelte";
+  import ProvDAGControls from "$lib/components/ProvDAGControls.svelte";
   import { getScrollBarWidth, HEIGHT_MULTIPLIER_PIXELS } from "$lib/scripts/util";
 
   let self: HTMLDivElement = $state();
@@ -40,8 +40,8 @@
 
   // Center on the entire graph
   function centerAndPan() {
-    const provSearchBarHeight = document.getElementById("provSearchBar")?.offsetHeight;
-    if (provSearchBarHeight === undefined) {
+    const provDAGControlsHeight = document.getElementById("provDAGControls")?.offsetHeight;
+    if (provDAGControlsHeight === undefined) {
       console.warn("Unable to get height of prov search bar");
       return;
     }
@@ -49,7 +49,7 @@
     cy.center();
     cy.pan({
       x: cy.pan().x,
-      y: provSearchBarHeight - HEIGHT_MULTIPLIER_PIXELS,
+      y: provDAGControlsHeight - HEIGHT_MULTIPLIER_PIXELS,
     });
   }
 
@@ -210,8 +210,8 @@
 </script>
 
 <div class="{getScrollBarWidth() == 0 ? "pl-2" : ""}">
-  <div id="provSearchBar" class="mb-2 absolute z-10 bg-white">
-    <ProvSearchbar {cy} {centerOnSelected} {centerAndPan} {mount}/>
+  <div id="provDAGControls" class="mb-2 absolute z-10 bg-white">
+    <ProvDAGControls {cy} {centerOnSelected} {centerAndPan} {mount}/>
   </div>
   <div
     bind:this={self}
