@@ -39,6 +39,10 @@
   }
 
   // Center on the entire graph
+  //
+  // TODO: There is a tendency for the DAG to shift slightly to the left if you
+  // open it then immediately click the "Recenter" button even though loading
+  // and clicking Recenter both call this function
   function centerAndPan() {
     const provDAGControlsHeight = document.getElementById("provDAGControls")?.offsetHeight;
     if (provDAGControlsHeight === undefined) {
