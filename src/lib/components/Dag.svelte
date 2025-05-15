@@ -10,22 +10,28 @@
 
   let self: HTMLDivElement = $state();
   let cy: cytoscape.Core = $state();
-  let selectedNodeState: { selectedNode: cytoscape.NodeSingular | undefined } = $state({ selectedNode : undefined });
 
   // Center on selected node
   function centerOnSelected() {
-    if (selectedNodeState.selectedNode === undefined) {
+    const selectedNodes = cy.elements('node:selected');
+    if (selectedNodes.length === 0) {
+      // No node currently selected
       return;
     }
 
+    // We can only ever have one node selected at a time
+    const selectedNode = selectedNodes[0];
+
+    // Make sure we can get the container height, should always be doable but
+    // guard anyway
     const containerHeight = cy.container()?.offsetHeight;
     if (containerHeight === undefined) {
       console.warn("Unable to get height of container");
       return;
     }
 
-    cy.center(selectedNodeState.selectedNode);
-
+    // Center on node then pan it to the top of the viewport
+    cy.center(selectedNode);
     cy.panBy({
       x: 0,
       y: -((containerHeight / 2) - (1.5 * HEIGHT_MULTIPLIER_PIXELS)),
@@ -177,7 +183,6 @@
         const edges = node.edgesTo("node");
         cy.elements("node, edge").unselect();
         node.select();
-        selectedNodeState.selectedNode = node;
         edges.select();
 
         lock = false;
@@ -186,7 +191,6 @@
 
     cy.on("unselect", "node, edge", (event) => {  // eslint-disable-line no-unused-vars
       cy.elements("node, edge").unselect();
-      selectedNodeState.selectedNode = undefined;
       if (!lock && selectedExists) {
         clearSelection();
         selectedExists = false;
@@ -203,7 +207,7 @@
 
 <div class="{getScrollBarWidth() == 0 ? "pl-2" : ""}">
   <div id="provSearchBar" class="mb-2 absolute z-10 bg-white">
-    <ProvSearchbar {cy} {selectedNodeState} {centerOnSelected} {centerAndPan}/>
+    <ProvSearchbar {cy} {centerOnSelected} {centerAndPan}/>
   </div>
   <div
     bind:this={self}

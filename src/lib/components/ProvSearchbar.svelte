@@ -12,12 +12,11 @@
 
   interface Props {
     cy: cytoscape.Core;
-    selectedNodeState: { selectedNode: cytoscape.NodeSingular | undefined };
     centerOnSelected: Function;
     centerAndPan: Function;
   }
 
-  let { cy, selectedNodeState, centerOnSelected, centerAndPan }: Props = $props();
+  let { cy, centerOnSelected, centerAndPan }: Props = $props();
 
   let value: string = $state("");
   let searchIndex: number = $state(0);
@@ -124,8 +123,7 @@
       // This will happen if there are no search hits
       return;
     } else {
-      selectedNodeState.selectedNode = cy.$id(hitID);
-      selectedNodeState.selectedNode.select();
+      cy.$id(hitID).select();
       centerOnSelected();
     }
   }
