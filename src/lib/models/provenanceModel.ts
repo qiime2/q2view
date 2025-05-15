@@ -25,6 +25,8 @@ class ProvenanceModel {
   height: number = 1;
   // Maps the UUIDs of each action to that actions depth in the tree
   heightMap: Map<string, number> = new Map();
+  // The width of the provenance tree
+  width: number = 1;
 
   // Every Action node, Result node, and edge in the provenance tree
   elements: Array<Object> = [];
@@ -525,6 +527,10 @@ class ProvenanceModel {
 
       for (const n of currNodes) {
         n.data.col = sorted.indexOf(n);
+
+        if (n.data.col + 1 > this.width) {
+          this.width = n.data.col + 1;
+        }
       }
     }
 
