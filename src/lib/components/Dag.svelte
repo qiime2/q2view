@@ -134,6 +134,10 @@
   }
 
   onMount(() => {
+    mount();
+  });
+
+  function mount() {
     // Set this height so we center the DAG based on this height
     const provDetails = document.getElementById("provDetails");
 
@@ -202,12 +206,12 @@
     // fit the entire DAG
     self.style.setProperty("height", `max(${defaultHeight}px, ${dimensionBasedHeight}px)`);
     centerAndPan();
-  });
+  }
 </script>
 
 <div class="{getScrollBarWidth() == 0 ? "pl-2" : ""}">
   <div id="provSearchBar" class="mb-2 absolute z-10 bg-white">
-    <ProvSearchbar {cy} {centerOnSelected} {centerAndPan}/>
+    <ProvSearchbar {cy} {centerOnSelected} {centerAndPan} {mount}/>
   </div>
   <div
     bind:this={self}

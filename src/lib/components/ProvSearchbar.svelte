@@ -14,9 +14,10 @@
     cy: cytoscape.Core;
     centerOnSelected: Function;
     centerAndPan: Function;
+    mount: Function;
   }
 
-  let { cy, centerOnSelected, centerAndPan }: Props = $props();
+  let { cy, centerOnSelected, centerAndPan, mount }: Props = $props();
 
   let value: string = $state("");
   let searchIndex: number = $state(0);
@@ -206,11 +207,13 @@
     <button onclick={() => centerOnSelected()} class="roundButton textButton">
       Center on Selected
     </button>
-    <button onclick={() => centerAndPan(undefined)} class="roundButton textButton">
+    <button onclick={() => centerAndPan()} class="roundButton textButton">
       Recenter
     </button>
-    <!-- TODO: Make this button work -->
-    <button onclick={_selectSearchHit} class="roundButton textButton">
+    <button onclick={() => {
+        _clearSearch();
+        mount();
+      }} class="roundButton textButton">
       Reset
     </button>
     <!-- The reactivity of $provenanceModel.searchError !== null only reacts
