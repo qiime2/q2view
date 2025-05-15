@@ -12,49 +12,38 @@
   let cy: cytoscape.Core = $state();
   let selectedNodeState: { selectedNode: cytoscape.NodeSingular | undefined } = $state({ selectedNode : undefined });
 
+  // Center on selected node
   function centerOnSelected() {
     if (selectedNodeState.selectedNode === undefined) {
       return;
     }
 
-    centerAndPan(selectedNodeState.selectedNode);
-  }
-
-  // If target is undefined, this will center on the graph as a whole
-  function centerAndPan(target: cytoscape.NodeSingular | undefined) {
     const containerHeight = cy.container()?.offsetHeight;
-
-    const provSearchBar = document.getElementById("provSearchBar");
-    const provSearchBarHeight = provSearchBar?.offsetHeight;
-
-    if (containerHeight === undefined || provSearchBarHeight === undefined) {
-      if (containerHeight === undefined) {
-        console.warn("Could not get container height");
-      }
-
-      if (provSearchBarHeight === undefined) {
-        console.warn("Could not get search bar height");
-      }
-
+    if (containerHeight === undefined) {
+      console.warn("Unable to get height of container");
       return;
     }
 
-    cy.center(target);
+    cy.center(selectedNodeState.selectedNode);
 
-    let heightOffset = -((containerHeight / 2) - (provSearchBarHeight + (HEIGHT_MULTIPLIER_PIXELS / 2)));
-    if (target === undefined) {
-      heightOffset = -((containerHeight / 2) - ((provSearchBarHeight + (HEIGHT_MULTIPLIER_PIXELS * provenanceModel.height / 2))));
-    }
-
-    console.log(provSearchBarHeight);
-    console.log(containerHeight);
-    console.log(heightOffset)
-
-    // Pan the viewport to put the targer in the top center of viewport
-    // slightly below where the searchBar is
     cy.panBy({
       x: 0,
-      y: heightOffset,
+      y: -((containerHeight / 2) - (1.5 * HEIGHT_MULTIPLIER_PIXELS)),
+    });
+  }
+
+  // Center on the entire graph
+  function centerAndPan() {
+    const provSearchBarHeight = document.getElementById("provSearchBar")?.offsetHeight;
+    if (provSearchBarHeight === undefined) {
+      console.warn("Unable to get height of prov search bar");
+      return;
+    }
+
+    cy.center();
+    cy.pan({
+      x: cy.pan().x,
+      y: provSearchBarHeight - HEIGHT_MULTIPLIER_PIXELS,
     });
   }
 
@@ -203,19 +192,12 @@
         selectedExists = false;
       }
     });
-    // Now center the DAG in the canvas with height calculated based on the DAG
-    // height. We do this because if the dimensionBasedHeight is smaller than
-    // the default height, then we wan to center based on that smaller height
-    // so the DAG ends up at the top center of the canvas not dead center
-    // cy.center();
 
     // Now we set the canvas size to whichever was larger. The height to line up
     // with the bottom of the default details panel, or the height needed to
     // fit the entire DAG
     self.style.setProperty("height", `max(${defaultHeight}px, ${dimensionBasedHeight}px)`);
-
-    // TODO: This doesn't center correctly for some reason
-    centerAndPan(undefined);
+    centerAndPan();
   });
 </script>
 
