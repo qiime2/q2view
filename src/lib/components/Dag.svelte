@@ -186,6 +186,9 @@
     // Now we set the canvas size to whichever was larger. The height to line up
     // with the bottom of the default details panel, or the height needed to
     // fit the entire DAG
+    //
+    // TODO: There is currently an issue where for some reason on Firefox this
+    // initial centering is completely broken
     centerAndPan();
   }
 </script>
