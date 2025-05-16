@@ -24,7 +24,7 @@
   let { vendored = false }: Props = $props();
 
   let loadingComponent: undefined | HTMLElement = $state();
- </script>
+</script>
 
 <div id="positioned-container" class='px-4'>
   <div id="content-container" class="max-width">
@@ -126,7 +126,8 @@
     overflow: hidden;
     /* This padding is to accomodate the dropshadow on the DropZone */
     padding-right: 10px;
-    @apply mb-4 pt-5;
+    @apply mb-4
+    pt-5;
   }
   .tab.iframe {
     @apply pt-0;
@@ -139,8 +140,8 @@
     @apply lg:absolute
     lg:grid
     lg:grid-cols-[70%_30%]
-    w-full
-    gap-2;
+    w-screen
+    h-full;
   }
 
   .hidden-tab {
