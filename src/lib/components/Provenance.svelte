@@ -12,7 +12,7 @@
 {/key}
 {#key $provenanceModel.provData}
   <!-- If there is a visibile scrollbar then the rounding clips awkwardly -->
-  <div class="{getScrollBarWidth() == 0 ? "rounded-md" : "rounded-l-md"} mb-2 mr-4 border border-gray-300 p-4 overflow-y-auto">
+  <div class="{getScrollBarWidth() == 0 ? "rounded-md" : ""} mb-2 mr-4 border border-gray-300 p-4 overflow-y-auto bg-gray-50">
     {#if provenanceModel.provData !== undefined}
       <div class="JSONTree">
         <JSONTree
