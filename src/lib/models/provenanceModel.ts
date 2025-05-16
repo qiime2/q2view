@@ -34,9 +34,6 @@ class ProvenanceModel {
   // horizontally before adding them to elements
   resultNodes: Array<Object> = [];
 
-  // The type of provenance we are looking at based on the selected node in the
-  // tree
-  provTitle: string = "Details";
   // Json representing the provenance of the selected node in the tree
   provData: Object | undefined = undefined;
 
@@ -98,7 +95,6 @@ class ProvenanceModel {
     this.elements = [];
     this.resultNodes = [];
 
-    this.provTitle = "Details";
     this.provData = undefined;
 
     this.seenIDs = new Set();
