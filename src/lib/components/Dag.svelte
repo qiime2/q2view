@@ -1,12 +1,10 @@
 <script lang="ts">
-  import "../../app.css";
-
   import { onMount } from "svelte";
 
   import provenanceModel from "$lib/models/provenanceModel";
   import cytoscape from "cytoscape";
   import ProvDAGControls from "$lib/components/ProvDAGControls.svelte";
-  import { getScrollBarWidth, HEIGHT_MULTIPLIER_PIXELS } from "$lib/scripts/util";
+  import { HEIGHT_MULTIPLIER_PIXELS } from "$lib/scripts/util";
 
   let self: HTMLDivElement = $state();
   let cy: cytoscape.Core = $state();
@@ -112,13 +110,11 @@
   };
 
   function setActionSelection(uuid: string) {
-    provenanceModel.provTitle = "Action Details";
     const selectionData = provenanceModel.nodeIDToJSON.get(uuid);
     _setSelection(selectionData);
   }
 
   function setResultSelection(uuid: string) {
-    provenanceModel.provTitle = "Result Details";
     let selectionData = provenanceModel.nodeIDToJSON.get(uuid);
     _setSelection(selectionData);
   }
@@ -132,7 +128,6 @@
   // briefly when clicking between nodes which looks bad. Additionally, something
   // is causing the dag and info columns to jitter around in Chrome
   function clearSelection() {
-    provenanceModel.provTitle = "Details";
     provenanceModel.provData = undefined;
     provenanceModel._dirty();
   }
@@ -142,23 +137,6 @@
   });
 
   function mount() {
-    // Set this height so we center the DAG based on this height
-    const provDetails = document.getElementById("provDetails");
-
-    // Attempt to calculate the height such that it lines up with the details
-    // panel. If we cannot get the information need to calculate this, just
-    // say screw it and use the screen height here.
-    let defaultHeight = screen.height;
-    if (provDetails === null) {
-       console.warn("Failed to get provDetails div");
-    } else {
-      defaultHeight = provDetails.offsetHeight;
-    }
-
-    // Compute the height based on the prov DAG as well
-    const dimensionBasedHeight = (provenanceModel.height + 1) * HEIGHT_MULTIPLIER_PIXELS;
-    self.style.setProperty("height", `${dimensionBasedHeight}px`);
-
     let lock = false; // used to prevent recursive event storms
     let selectedExists = false;
     cy = cytoscape({
@@ -208,25 +186,17 @@
     // Now we set the canvas size to whichever was larger. The height to line up
     // with the bottom of the default details panel, or the height needed to
     // fit the entire DAG
-    self.style.setProperty("height", `max(${defaultHeight}px, ${dimensionBasedHeight}px)`);
     centerAndPan();
   }
 </script>
 
-<div class="{getScrollBarWidth() == 0 ? "pl-2" : ""}">
-  <div id="provDAGControls" class="mb-2 absolute z-10 bg-white">
+<div>
+  <div id="provDAGControls" class="absolute z-10 bg-white">
     <ProvDAGControls {cy} {centerOnSelected} {centerAndPan} {mount}/>
   </div>
   <div
     bind:this={self}
     id="cy"
-></div>
+    class="h-full"
+  ></div>
 </div>
-
-<style lang="postcss">
-  #cy {
-    @apply border
-    border-gray-300
-    mb-4;
-  }
-</style>

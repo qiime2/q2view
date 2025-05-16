@@ -186,7 +186,7 @@
   }
 </script>
 
-<Panel customPanelClass="p-4 rounded-none rounded-br-md bg-gray-50">
+<Panel customPanelClass="p-4 bg-gray-50">
   <form onsubmit={preventDefault(_handleProvenanceSearch)}>
     <input class="roundInput" placeholder="Search Provenance" bind:value />
   </form>
