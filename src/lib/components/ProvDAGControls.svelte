@@ -9,7 +9,6 @@
   } from "$lib/scripts/provSearchUtils";
   import Panel from "./Panel.svelte";
   import provenanceModel from "$lib/models/provenanceModel";
-  import { getScrollBarWidth } from "$lib/scripts/util";
 
   interface Props {
     cy: cytoscape.Core;
@@ -187,7 +186,7 @@
   }
 </script>
 
-<Panel customPanelClass="{getScrollBarWidth() == 0 ? "ml-4": ""} p-4 bg-gray-50">
+<Panel customPanelClass="p-4 bg-gray-50">
   <form onsubmit={preventDefault(_handleProvenanceSearch)}>
     <input class="roundInput" placeholder="Search Provenance" bind:value />
   </form>

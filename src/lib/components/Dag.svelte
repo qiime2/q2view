@@ -4,7 +4,7 @@
   import provenanceModel from "$lib/models/provenanceModel";
   import cytoscape from "cytoscape";
   import ProvDAGControls from "$lib/components/ProvDAGControls.svelte";
-  import { HEIGHT_MULTIPLIER_PIXELS } from "$lib/scripts/util";
+  import { HEIGHT_MULTIPLIER_PIXELS, getScrollBarWidth } from "$lib/scripts/util";
 
   let self: HTMLDivElement = $state();
   let cy: cytoscape.Core = $state();
@@ -204,7 +204,7 @@
 </script>
 
 <div>
-  <div id="provDAGControls" class="absolute z-10 bg-white">
+  <div id="provDAGControls" class="absolute z-10 {getScrollBarWidth() == 0 ? "left-4": ""}">
     <ProvDAGControls {cy} {centerOnSelected} {centerAndPan} {mount}/>
   </div>
   <div
