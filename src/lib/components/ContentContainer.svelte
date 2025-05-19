@@ -22,8 +22,6 @@
   }
 
   let { vendored = false }: Props = $props();
-
-  let loadingComponent: undefined | HTMLElement = $state();
 </script>
 
 <div id="positioned-container" class='px-4'>
@@ -62,7 +60,7 @@
       <Error />
     </div>
     {#if $loading.status === "LOADING"}
-      <div class="tab" bind:this={loadingComponent}>
+      <div class="tab">
         <Loading />
       </div>
     {/if}
