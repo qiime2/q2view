@@ -9,7 +9,8 @@
   let self: HTMLDivElement = $state();
   let cy: cytoscape.Core = $state();
 
-  // Center on selected node
+  // Center on selected node. Places it centered horizontally and just below
+  // the control panel vertically
   function centerOnSelected() {
     const selectedNodes = cy.elements('node:selected');
     if (selectedNodes.length === 0) {
@@ -36,11 +37,15 @@
     });
   }
 
-  // Center on the entire graph
+  // Center on the entire graph. Places it centered horizontally and just below
+  // the control panel vertically
   //
   // TODO: There is a tendency for the DAG to shift slightly to the left if you
   // open it then immediately click the "Recenter" button even though loading
-  // and clicking Recenter both call this function
+  // and clicking Recenter both call this function. This isn't a big deal and
+  // is to do with the how the width of the DAG container is calculated.
+  // Leaving this as a TODO because in theory this should be fixed, but it is
+  // probably not worth the effort
   function centerAndPan() {
     const provDAGControlsHeight = document.getElementById("provDAGControls")?.offsetHeight;
     if (provDAGControlsHeight === undefined) {
@@ -137,8 +142,17 @@
   });
 
   function mount() {
+    // This needs to be set to a non-zero height before we init the graph
+    // below. It doesn't matter what amount it is set to just set it to a
+    // concrete non-zero amount. We set it to the real height later.
+    //
+    // If this does not happen then FireFox in particular fails to center the
+    // DAG correctly in the canvas when this is called in onMount.
+    self.style.setProperty("height", "1px");
+
     let lock = false; // used to prevent recursive event storms
     let selectedExists = false;
+
     cy = cytoscape({
       ...cytoscapeConfig,
       container: document.getElementById("cy"),
@@ -183,12 +197,8 @@
       }
     });
 
-    // Now we set the canvas size to whichever was larger. The height to line up
-    // with the bottom of the default details panel, or the height needed to
-    // fit the entire DAG
-    //
-    // TODO: There is currently an issue where for some reason on Firefox this
-    // initial centering is completely broken
+    // Now we set the container height to 100% of parent height before centering.
+    self.style.setProperty("height", "100%");
     centerAndPan();
   }
 </script>
@@ -200,6 +210,5 @@
   <div
     bind:this={self}
     id="cy"
-    class="h-full"
   ></div>
 </div>
