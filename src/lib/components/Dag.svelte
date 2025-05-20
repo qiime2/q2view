@@ -1,15 +1,64 @@
 <script lang="ts">
-  import "../../app.css";
-
   import { onMount } from "svelte";
 
   import provenanceModel from "$lib/models/provenanceModel";
   import cytoscape from "cytoscape";
-  import ProvSearchbar from "./ProvSearchbar.svelte";
-  import { getScrollBarWidth, HEIGHT_MULTIPLIER_PIXELS } from "$lib/scripts/util";
+  import ProvDAGControls from "$lib/components/ProvDAGControls.svelte";
+  import { HEIGHT_MULTIPLIER_PIXELS, getScrollBarWidth } from "$lib/scripts/util";
 
   let self: HTMLDivElement = $state();
   let cy: cytoscape.Core = $state();
+
+  // Center on selected node. Places it centered horizontally and just below
+  // the control panel vertically
+  function centerOnSelected() {
+    const selectedNodes = cy.elements('node:selected');
+    if (selectedNodes.length === 0) {
+      // No node currently selected
+      return;
+    }
+
+    // We can only ever have one node selected at a time
+    const selectedNode = selectedNodes[0];
+
+    // Make sure we can get the container height, should always be doable but
+    // guard anyway
+    const containerHeight = cy.container()?.offsetHeight;
+    if (containerHeight === undefined) {
+      console.warn("Unable to get height of container");
+      return;
+    }
+
+    // Center on node then pan it to the top of the viewport
+    cy.center(selectedNode);
+    cy.panBy({
+      x: 0,
+      y: -((containerHeight / 2) - (1.5 * HEIGHT_MULTIPLIER_PIXELS)),
+    });
+  }
+
+  // Center on the entire graph. Places it centered horizontally and just below
+  // the control panel vertically
+  //
+  // TODO: There is a tendency for the DAG to shift slightly to the left if you
+  // open it then immediately click the "Recenter" button even though loading
+  // and clicking Recenter both call this function. This isn't a big deal and
+  // is to do with the how the width of the DAG container is calculated.
+  // Leaving this as a TODO because in theory this should be fixed, but it is
+  // probably not worth the effort
+  function centerAndPan() {
+    const provDAGControlsHeight = document.getElementById("provDAGControls")?.offsetHeight;
+    if (provDAGControlsHeight === undefined) {
+      console.warn("Unable to get height of prov search bar");
+      return;
+    }
+
+    cy.center();
+    cy.pan({
+      x: cy.pan().x,
+      y: provDAGControlsHeight - HEIGHT_MULTIPLIER_PIXELS,
+    });
+  }
 
   const cytoscapeConfig = {
     boxSelectionEnabled: true,
@@ -66,13 +115,11 @@
   };
 
   function setActionSelection(uuid: string) {
-    provenanceModel.provTitle = "Action Details";
     const selectionData = provenanceModel.nodeIDToJSON.get(uuid);
     _setSelection(selectionData);
   }
 
   function setResultSelection(uuid: string) {
-    provenanceModel.provTitle = "Result Details";
     let selectionData = provenanceModel.nodeIDToJSON.get(uuid);
     _setSelection(selectionData);
   }
@@ -86,46 +133,26 @@
   // briefly when clicking between nodes which looks bad. Additionally, something
   // is causing the dag and info columns to jitter around in Chrome
   function clearSelection() {
-    provenanceModel.provTitle = "Details";
     provenanceModel.provData = undefined;
     provenanceModel._dirty();
   }
 
   onMount(() => {
-    // Set this height so we center the DAG based on this height
-    const provDetails = document.getElementById("provDetails");
-    const provSearchBar = document.getElementById("provSearchBar");
+    mount();
+  });
 
-    // Attempt to calculate the height such that it lines up with the details
-    // panel. If we cannot get any part of the information needed to calculate
-    // this, just say screw it and use the screen height here.
-    let defaultHeight = screen.height;
-    if (provDetails === null || provSearchBar === null) {
-      if (provDetails === null) {
-        console.warn("Failed to get provDetails div");
-      }
-
-      if (provSearchBar === null) {
-        console.warn("Failed to get provSearchBar div");
-      }
-    } else {
-      // We want to also factor in the margins of the prov searchBar above us
-      // into the amount we subtract, but we only want to base our height off
-      // the content height of the details we don't care about the margins.
-      const provSearchBarStyle = window.getComputedStyle(provSearchBar);
-
-      const provDetailsHeight = provDetails.offsetHeight;
-      const provSearchBarHeight = provSearchBar.offsetHeight + parseInt(provSearchBarStyle.marginTop) + parseInt(provSearchBarStyle.marginBottom);
-
-      defaultHeight = provDetailsHeight - provSearchBarHeight;
-    }
-
-    // Compute the height based on the prov DAG as well
-    const dimensionBasedHeight = (provenanceModel.height + 1) * HEIGHT_MULTIPLIER_PIXELS;
-    self.style.setProperty("height", `${dimensionBasedHeight}px`);
+  function mount() {
+    // This needs to be set to a non-zero height before we init the graph
+    // below. It doesn't matter what amount it is set to just set it to a
+    // concrete non-zero amount. We set it to the real height later.
+    //
+    // If this does not happen then FireFox in particular fails to center the
+    // DAG correctly in the canvas when this is called in onMount.
+    self.style.setProperty("height", "1px");
 
     let lock = false; // used to prevent recursive event storms
     let selectedExists = false;
+
     cy = cytoscape({
       ...cytoscapeConfig,
       container: document.getElementById("cy"),
@@ -170,32 +197,18 @@
       }
     });
 
-    // Now center the DAG in the canvas with height calculated based on the DAG
-    // height. We do this because if the dimensionBasedHeight is smaller than
-    // the default height, then we wan to center based on that smaller height
-    // so the DAG ends up at the top center of the canvas not dead center
-    cy.center();
-
-    // Now we set the canvas size to whichever was larger. The height to line up
-    // with the bottom of the default details panel, or the height needed to
-    // fit the entire DAG
-    self.style.setProperty("height", `max(${defaultHeight}px, ${dimensionBasedHeight}px)`);
-  });
+    // Now we set the container height to 100% of parent height before centering.
+    self.style.setProperty("height", "100%");
+    centerAndPan();
+  }
 </script>
 
-<div class="{getScrollBarWidth() == 0 ? "pl-2" : ""}">  <div id="provSearchBar" class="mb-2">
-    <ProvSearchbar {cy}/>
+<div>
+  <div id="provDAGControls" class="absolute z-10 {getScrollBarWidth() == 0 ? "left-2": ""}">
+    <ProvDAGControls {cy} {centerOnSelected} {centerAndPan} {mount}/>
   </div>
   <div
     bind:this={self}
     id="cy"
-></div>
+  ></div>
 </div>
-
-<style lang="postcss">
-  #cy {
-    @apply border
-    border-gray-300
-    mb-4;
-  }
-</style>

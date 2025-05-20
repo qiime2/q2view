@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { preventDefault } from 'svelte/legacy';
+  import { preventDefault } from "svelte/legacy";
 
   import "../../app.css";
   import cytoscape from "cytoscape";
@@ -9,19 +9,21 @@
   } from "$lib/scripts/provSearchUtils";
   import Panel from "./Panel.svelte";
   import provenanceModel from "$lib/models/provenanceModel";
-  import { HEIGHT_MULTIPLIER_PIXELS } from "$lib/scripts/util";
 
   interface Props {
     cy: cytoscape.Core;
+    centerOnSelected: Function;
+    centerAndPan: Function;
+    mount: Function;
   }
 
-  let { cy }: Props = $props();
+  let { cy, centerOnSelected, centerAndPan, mount }: Props = $props();
 
   let value: string = $state("");
   let searchIndex: number = $state(0);
   let searchHits: Array<string> = $state([]);
 
-  // Map the literaly Lark uses to more human readable things
+  // Map the literals Lark uses to more human readable things
   const LARK_MAP: Map<string, string> = new Map([
     ["$END", '"End of input"'],
     ["COLON", '":"'],
@@ -51,8 +53,9 @@
       error += `Received unexpected ${$provenanceModel.searchError.char}`;
     } else if ("token" in $provenanceModel.searchError) {
       // UnexpectedToken error
-      error += `received ${LARK_MAP.get($provenanceModel.searchError.token.type)}` +
-               ` expected one of ${_formatExpected($provenanceModel.searchError.expected)}.`;
+      error +=
+        `received ${LARK_MAP.get($provenanceModel.searchError.token.type)}` +
+        ` expected one of ${_formatExpected($provenanceModel.searchError.expected)}.`;
     } else {
       error += $provenanceModel.searchError.message;
     }
@@ -84,7 +87,10 @@
 
     try {
       const transformedSearchQuery = transformQuery(value);
-      searchHits = searchProvenance(transformedSearchQuery, provenanceModel.nodeIDToJSON);
+      searchHits = searchProvenance(
+        transformedSearchQuery,
+        provenanceModel.nodeIDToJSON,
+      );
       provenanceModel.searchError = null;
     } catch (error) {
       provenanceModel.searchError = error;
@@ -127,23 +133,8 @@
       // This will happen if there are no search hits
       return;
     } else {
-      const containerHeight = cy.container()?.offsetHeight;
-      const elem = cy.$id(hitID);
-
-      // Center on the selected node
-      elem.select();
-      cy.center(elem);
-
-      // Pan to put the focused node near the top of the viewport
-      // The linter whines that containerHeight could be undefined, but that's
-      // only if we are headless... which won't happen
-      //
-      // This pans the viewport to put the focused node in the top center of
-      // viewport ~one node height from the top of the viewport
-      cy.panBy({
-        x: 0,
-        y: -((containerHeight / 2) - (HEIGHT_MULTIPLIER_PIXELS)),
-      });
+      cy.$id(hitID).select();
+      centerOnSelected();
     }
   }
 
@@ -177,6 +168,24 @@
     _selectSearchHit();
   }
 
+  function _reset() {
+    // Deselect the currently selected node
+    _deselect();
+    // Get rid of current search data
+    _clearSearch();
+    // Remount DAG
+    mount();
+  }
+
+  function _deselect() {
+    const selectedNodes = cy.elements('node:selected');
+    if (selectedNodes.length !== 0) {
+      // We can only ever have one node selected at a time
+      const selectedNode = selectedNodes[0];
+      selectedNode.unselect();
+    }
+  }
+
   function _clearSearch() {
     value = "";
     searchIndex = 0;
@@ -186,16 +195,16 @@
   }
 </script>
 
-<Panel header="Search Provenance" customPanelClass="p-4">
+<Panel customPanelClass="p-4 bg-gray-50">
   <form onsubmit={preventDefault(_handleProvenanceSearch)}>
-    <input
-      class="roundInput"
-      placeholder='type: ("FeatureData" OR "SampleData")'
-      bind:value
-    />
+    <input class="roundInput" placeholder="Search Provenance" bind:value />
   </form>
   <div class="flex mt-2" style="align-items: center">
-    <button onclick={_decrementSearchIndex} class="roundButton" aria-label="Previous Search Result">
+    <button
+      onclick={_decrementSearchIndex}
+      class="roundButton"
+      aria-label="Previous Search Result"
+    >
       <svg fill="none" width="10" height="10">
         <path
           stroke-width="3"
@@ -206,7 +215,11 @@
     </button>
     <!-- Show 0/0 when no results -->
     {searchHits.length > 0 ? searchIndex + 1 : searchIndex}/{searchHits.length}
-    <button onclick={_incrementSearchIndex} class="roundButton" aria-label="Next Search Result">
+    <button
+      onclick={_incrementSearchIndex}
+      class="roundButton"
+      aria-label="Next Search Result"
+    >
       <svg fill="none" width="10" height="10">
         <path
           stroke-width="3"
@@ -215,11 +228,17 @@
         />
       </svg>
     </button>
-    <button onclick={_selectSearchHit} class="roundButton textButton">
-      Center on Result
-    </button>
     <button onclick={_clearSearch} class="roundButton textButton">
       Clear Search
+    </button>
+    <button onclick={() => centerOnSelected()} class="roundButton textButton">
+      Center on Selected
+    </button>
+    <button onclick={() => centerAndPan()} class="roundButton textButton">
+      Recenter
+    </button>
+    <button onclick={_reset} class="roundButton textButton">
+      Reset
     </button>
     <!-- The reactivity of $provenanceModel.searchError !== null only reacts
      to searchError changing from or to null. We need the key to react to
@@ -227,7 +246,7 @@
     {#key $provenanceModel.searchError}
       {#if $provenanceModel.searchError !== null}
         <div
-          class="border border-red-300 rounded-md bg-red-100 py-1 px-3 ml-auto w-2/3"
+          class="border border-red-300 rounded-md bg-red-100 py-1 px-3 ml-auto"
         >
           {_formatSearchError()}
         </div>
@@ -246,8 +265,8 @@
     @apply border
     border-gray-300
     bg-gray-200
-    mx-2
-    px-3
+    mx-1
+    px-2
     py-1;
   }
 
