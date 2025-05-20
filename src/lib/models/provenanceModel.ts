@@ -561,7 +561,3 @@ export default class ProvenanceModel {
     );
   }
 }
-
-// // Create and export a singleton ProvenanceModel for the session
-// const provenanceModel = new ProvenanceModel();
-// export default provenanceModel;
