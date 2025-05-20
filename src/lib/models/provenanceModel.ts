@@ -5,6 +5,7 @@
 import JSZip from "jszip";
 
 import BiMap from "$lib/scripts/biMap";
+import JsonifyBiMap from "$lib/scripts/jsonifyBiMap";
 import { getYAML } from "$lib/scripts/fileutils";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
 import {
@@ -55,6 +56,11 @@ export default class ProvenanceModel {
   // Metadata
   seenMetadata: Set<string> = new Set();
   metadata: Array<Array<string>> = [];
+
+  // Error tracking
+  errorNameToNodeIDs: JsonifyBiMap = new JsonifyBiMap();
+  nodeIDToErrorNames: JsonifyBiMap = new JsonifyBiMap();
+  errorsFound: Map<string, ProvenanceError> = new Map();
 
   // Class attributes passed in by readerModel pertaining to currently loaded
   // Result
@@ -563,13 +569,12 @@ export default class ProvenanceModel {
       }
     ];
 
-    let errorNameToNodeIDs: BiMap<string, string[]> = new BiMap<string, string[]>();
     let errorNameToError: Map<string, ProvenanceError> = new Map<string, ProvenanceError>();
     let errorHits: string[] = []
     let formattedQuery: string[] = [];
 
     for (const error of ERRORS) {
-      if (!errorNameToNodeIDs.get(error.name)) {
+      if (!this.errorNameToNodeIDs.get(error.name)) {
         errorNameToError.set(error.name, error);
         formattedQuery = transformQuery(error.query);
 
@@ -581,29 +586,18 @@ export default class ProvenanceModel {
         }
 
         if (errorHits.length !== 0) {
-          errorNameToNodeIDs.set(error.name, errorHits);
+          this.errorNameToNodeIDs.set(error.name, errorHits);
+          this.errorsFound.set(error.name, error);
+
+          for (const hit of errorHits) {
+            if (this.nodeIDToErrorNames.get(hit) === undefined) {
+              this.nodeIDToErrorNames.set(hit, []);
+            }
+
+            this.nodeIDToErrorNames.get(hit).push(error);
+          }
         }
       }
     }
-
-    console.log(errorNameToNodeIDs);
-    console.log(errorNameToError);
-
-    // BiMap<errorName, nodeID>
-    // Map<errorName, error>
-    //
-    // This one is probably not worth my time to actually create
-    // Map<severity, error>
-
-    // Ok gonna get a list of queries from... somewhere. Let's make this not
-    // care about where the list of issues comes from
-    // Maybe when we make vendor we try to grab and vendor the latest known
-    // error database? We can then fall back to that in the vendored version if
-    // we can't get the live version due to no internet or something?
-    // Map ID of node to the issues it has?
-    // Keep track of a global set of all seen issues?
-    //  Seperate these out by severity?
-    // const thing = await fetch("https://raw.githubusercontent.com/qiime2/library-plugins/refs/heads/main/plugins/genome-sampler.yml");
-    // console.log(thing);
   }
 }
