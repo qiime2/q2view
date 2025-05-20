@@ -204,7 +204,7 @@
 </script>
 
 <div>
-  <div id="provDAGControls" class="absolute z-10 {getScrollBarWidth() == 0 ? "left-4": ""}">
+  <div id="provDAGControls" class="absolute z-10 {getScrollBarWidth() == 0 ? "left-2": ""}">
     <ProvDAGControls {cy} {centerOnSelected} {centerAndPan} {mount}/>
   </div>
   <div
