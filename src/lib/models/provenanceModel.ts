@@ -49,15 +49,12 @@ export default class ProvenanceModel {
   provData: Object | undefined = undefined;
 
   // Search JSON
-  jsonKeysToJSON = new Map();
   nodeIDToJSON: BiMap<string, {}> = new BiMap();
-  keys: Set<string> = new Set();
-
   searchError: any = null;
+
+  // Metadata
   seenMetadata: Set<string> = new Set();
   metadata: Array<Array<string>> = [];
-
-  // Class attributes related to error logging
 
   // Class attributes passed in by readerModel pertaining to currently loaded
   // Result
