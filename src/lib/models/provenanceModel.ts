@@ -54,6 +54,9 @@ export default class ProvenanceModel {
   uuid: string = "";
   zipReader: JSZip = new JSZip();
 
+  allErrors: Set<string> = new Set();
+  errors
+
   /**
    * Receive state from ReaderModel pertaining to the currently loaded Result.
    *
@@ -536,7 +539,31 @@ export default class ProvenanceModel {
     );
   }
 
-  _getErrors() {
+  async getErrors() {
+    // This will be fetched from a remote source somewhere
+    const ERRORS = [
+      {
+        "name": "My fake error",
+        "severity": "2",
+        "query": "qiime2: (^\"2024\" OR ^\"2021\")",
+        "description": "Oh no something is wrong I guess"
+      },
+      {
+        "name": "My other fake error",
+        "severity": "1",
+        "query": "qiime2: ^\"2024\"",
+        "description": "Oh no something is less wrong than the other one I guess"
+      },
+      {
+        "name": "My very minor fake error",
+        "severity": "0",
+        "query": "qiime2: ^\"2024\"",
+        "description": "Is this even an error?"
+      }
+    ];
+
+
+
     // Ok gonna get a list of queries from... somewhere. Let's make this not
     // care about where the list of issues comes from
     // Maybe when we make vendor we try to grab and vendor the latest known
@@ -545,5 +572,8 @@ export default class ProvenanceModel {
     // Map ID of node to the issues it has?
     // Keep track of a global set of all seen issues?
     //  Seperate these out by severity?
+    // const thing = await fetch("https://raw.githubusercontent.com/qiime2/library-plugins/refs/heads/main/plugins/genome-sampler.yml");
+    // console.log(thing);
+
   }
 }

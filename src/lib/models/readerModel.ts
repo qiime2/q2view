@@ -299,6 +299,7 @@ class ReaderModel {
     loading.setMessage("Loading Provenance");
     this.provenanceModel.init(this.uuid, zip);
     await this.provenanceModel.getProvenanceTree();
+    await this.provenanceModel.getErrors();
   }
 
   attachToServiceWorker() {
