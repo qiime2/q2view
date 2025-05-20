@@ -7,6 +7,10 @@ import JSZip from "jszip";
 import BiMap from "$lib/scripts/biMap";
 import { getYAML } from "$lib/scripts/fileutils";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
+import {
+  searchProvenance,
+  transformQuery,
+} from "$lib/scripts/provSearchUtils";
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
 
@@ -15,6 +19,13 @@ let currentMetadata: Set<string>;
 currentMetadataStore.subscribe((value) => {
   currentMetadata = value.currentMetadata;
 });
+
+interface ProvenanceError {
+  name: string,
+  severity: number,
+  query: string,
+  description: string
+}
 
 /**
  * This class is a subscribable svelte store that manages parsing and storing provenance
@@ -49,13 +60,12 @@ export default class ProvenanceModel {
   seenMetadata: Set<string> = new Set();
   metadata: Array<Array<string>> = [];
 
+  // Class attributes related to error logging
+
   // Class attributes passed in by readerModel pertaining to currently loaded
   // Result
   uuid: string = "";
   zipReader: JSZip = new JSZip();
-
-  allErrors: Set<string> = new Set();
-  errors
 
   /**
    * Receive state from ReaderModel pertaining to the currently loaded Result.
@@ -544,25 +554,55 @@ export default class ProvenanceModel {
     const ERRORS = [
       {
         "name": "My fake error",
-        "severity": "2",
+        "severity": 2,
         "query": "qiime2: (^\"2024\" OR ^\"2021\")",
         "description": "Oh no something is wrong I guess"
       },
       {
         "name": "My other fake error",
-        "severity": "1",
+        "severity": 1,
         "query": "qiime2: ^\"2024\"",
         "description": "Oh no something is less wrong than the other one I guess"
       },
       {
         "name": "My very minor fake error",
-        "severity": "0",
+        "severity": 0,
         "query": "qiime2: ^\"2024\"",
         "description": "Is this even an error?"
       }
     ];
 
+    let errorNameToNodeIDs: BiMap<string, string[]> = new BiMap<string, string[]>();
+    let errorNameToError: Map<string, ProvenanceError> = new Map<string, ProvenanceError>();
+    let errorHits: string[] = []
+    let formattedQuery: string[] = [];
 
+    for (const error of ERRORS) {
+      if (!errorNameToNodeIDs.get(error.name)) {
+        errorNameToError.set(error.name, error);
+        formattedQuery = transformQuery(error.query);
+
+        try {
+          errorHits = searchProvenance(formattedQuery, this.nodeIDToJSON);
+        } catch(error) {
+          // If we didn't get any search hits we don't care
+          if (error === "Error: No search hits found") {}
+        }
+
+        if (errorHits.length !== 0) {
+          errorNameToNodeIDs.set(error.name, errorHits);
+        }
+      }
+    }
+
+    console.log(errorNameToNodeIDs);
+    console.log(errorNameToError);
+
+    // BiMap<errorName, nodeID>
+    // Map<errorName, error>
+    //
+    // This one is probably not worth my time to actually create
+    // Map<severity, error>
 
     // Ok gonna get a list of queries from... somewhere. Let's make this not
     // care about where the list of issues comes from
@@ -574,6 +614,5 @@ export default class ProvenanceModel {
     //  Seperate these out by severity?
     // const thing = await fetch("https://raw.githubusercontent.com/qiime2/library-plugins/refs/heads/main/plugins/genome-sampler.yml");
     // console.log(thing);
-
   }
 }
