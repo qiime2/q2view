@@ -1,4 +1,4 @@
-// Two way map class minimal implementation for what is currently needed
+// Two way map class
 export default class BiMap<T, P> {
   keyToValue: Map<T, P>;
   valueToKey: Map<P, T>;
