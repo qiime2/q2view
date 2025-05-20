@@ -46,7 +46,6 @@ export default class BiMap<T, P> {
     this.valueToKey.set(value, key);
   }
 
-
   get(key: T): P | undefined {
     return this.keyToValue.get(key);
   }
