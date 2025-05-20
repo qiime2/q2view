@@ -32,7 +32,7 @@ class ReaderModel {
 
   session: string;
 
-  provenanceModel: ProvenanceModel = new ProvenanceModel;
+  provenanceModel: ProvenanceModel = new ProvenanceModel();
 
   //***************************************************************************
   // Start boilerplate to make this a subscribable svelte store
