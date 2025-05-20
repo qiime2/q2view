@@ -12,12 +12,13 @@ import chicagoTemplate from "$lib/citation-templates/chicago";
 import mlaTemplate from "$lib/citation-templates/mla";
 import natureTemplate from "$lib/citation-templates/nature";
 
-class CitationsModel {
+export default class CitationsModel {
   // Class attributes containing current state of the citations
   fileExt = "";
   citations = "";
   fileContents = "";
-  citationStyle = "";
+  // bib is intial style
+  citationStyle = "bib";
   downloadableFile = "";
   formattedCitations = "";
 
@@ -65,10 +66,7 @@ class CitationsModel {
 
   // This state is set by the readerModel when it comes time to read the
   // citations
-  setState(uuid: string, zipReader: JSZip) {
-    // Default citation style
-    this.citationStyle = "bib";
-
+  init(uuid: string, zipReader: JSZip) {
     this.uuid = uuid;
     this.zipReader = zipReader;
   }
@@ -168,6 +166,3 @@ class CitationsModel {
     return dedup.join("\n");
   }
 }
-
-const citationsModel = new CitationsModel();
-export default citationsModel;
