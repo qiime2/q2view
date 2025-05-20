@@ -48,9 +48,6 @@ export default class ProvenanceModel {
   // Json representing the provenance of the selected node in the tree
   provData: Object | undefined = undefined;
 
-  // Keep track of Action, Result, and Collection IDs we have already seen.
-  seenIDs: Set<string> = new Set();
-
   // Search JSON
   jsonKeysToJSON = new Map();
   nodeIDToJSON: BiMap<string, {}> = new BiMap();
@@ -225,10 +222,9 @@ export default class ProvenanceModel {
     collectionKey = ` ${collectionKey}`;
 
     // We map this collectionID to every element of the collection
-    if (!this.seenIDs.has(collectionID)) {
+    if (!this.nodeIDToJSON.keyToValue.has(collectionID)) {
       // This an as yet untracked collection, so we need to begin tracking it
       // then continue recursing
-      this.seenIDs.add(collectionID);
       this.nodeIDToJSON.set(collectionID, {});
       this.nodeIDToJSON.get(collectionID)[collectionKey] = result;
     } else {
@@ -255,11 +251,10 @@ export default class ProvenanceModel {
    * we have, we can short circuit in _recurseUpTree
    */
   async _handleResult(resultUUID: string): Promise<boolean> {
-    if (this.seenIDs.has(resultUUID)) {
+    if (this.nodeIDToJSON.keyToValue.has(resultUUID)) {
       return true;
     }
 
-    this.seenIDs.add(resultUUID);
     let result = await this.getProvenanceArtifact(resultUUID);
     this.nodeIDToJSON.set(resultUUID, result);
 
@@ -288,7 +283,7 @@ export default class ProvenanceModel {
     sourceActionUUID: string,
     sourceAction: Object,
   ): Promise<boolean> {
-    if (this.seenIDs.has(sourceActionUUID)) {
+    if (this.nodeIDToJSON.keyToValue.has(sourceActionUUID)) {
       // This is called after _handleResult, so if we got here then we have not
       // seen this result yet and need to add it
       this.resultNodes.push({
@@ -303,7 +298,6 @@ export default class ProvenanceModel {
     }
 
     // Push this Action node
-    this.seenIDs.add(sourceActionUUID);
     this.nodeIDToJSON.set(sourceActionUUID, sourceAction);
 
     this.elements.push({
