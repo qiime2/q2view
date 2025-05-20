@@ -9,7 +9,7 @@ import { handleError } from "$lib/scripts/util";
 
 import loading from "$lib/scripts/loading";
 import citationsModel from "$lib/models/citationsModel";
-import provenanceModel from "$lib/models/provenanceModel";
+import ProvenanceModel from "$lib/models/provenanceModel";
 import { getFile, getYAML } from "$lib/scripts/fileutils";
 
 class ReaderModel {
@@ -31,6 +31,8 @@ class ReaderModel {
   metadata: object = {};
 
   session: string;
+
+  provenanceModel: ProvenanceModel = new ProvenanceModel;
 
   //***************************************************************************
   // Start boilerplate to make this a subscribable svelte store
@@ -78,6 +80,8 @@ class ReaderModel {
     this.port = null;
 
     this.metadata = {};
+
+    this.provenanceModel = new ProvenanceModel();
 
     this._dirty();
   }
@@ -291,8 +295,8 @@ class ReaderModel {
 
     // Set Provenance
     loading.setMessage("Loading Provenance");
-    provenanceModel.setState(this.uuid, zip);
-    await provenanceModel.getProvenanceTree();
+    this.provenanceModel.init(this.uuid, zip);
+    await this.provenanceModel.getProvenanceTree();
   }
 
   attachToServiceWorker() {

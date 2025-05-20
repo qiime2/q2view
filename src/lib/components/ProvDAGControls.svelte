@@ -8,7 +8,7 @@
     transformQuery,
   } from "$lib/scripts/provSearchUtils";
   import Panel from "./Panel.svelte";
-  import provenanceModel from "$lib/models/provenanceModel";
+  import readerModel from "$lib/models/readerModel";
 
   interface Props {
     cy: cytoscape.Core;
@@ -48,16 +48,16 @@
     // the error has
     if (value === "") {
       error += "No search value entered.";
-    } else if ("char" in $provenanceModel.searchError) {
+    } else if ("char" in $readerModel.provenanceModel.searchError) {
       // UnexpectedCharacters error
-      error += `Received unexpected ${$provenanceModel.searchError.char}`;
-    } else if ("token" in $provenanceModel.searchError) {
+      error += `Received unexpected ${$readerModel.provenanceModel.searchError.char}`;
+    } else if ("token" in $readerModel.provenanceModel.searchError) {
       // UnexpectedToken error
       error +=
-        `received ${LARK_MAP.get($provenanceModel.searchError.token.type)}` +
-        ` expected one of ${_formatExpected($provenanceModel.searchError.expected)}.`;
+        `received ${LARK_MAP.get($readerModel.provenanceModel.searchError.token.type)}` +
+        ` expected one of ${_formatExpected($readerModel.provenanceModel.searchError.expected)}.`;
     } else {
-      error += $provenanceModel.searchError.message;
+      error += $readerModel.provenanceModel.searchError.message;
     }
 
     return error;
@@ -80,13 +80,13 @@
       const transformedSearchQuery = transformQuery(value);
       searchHits = searchProvenance(
         transformedSearchQuery,
-        provenanceModel.nodeIDToJSON,
+        readerModel.provenanceModel.nodeIDToJSON,
       );
-      provenanceModel.searchError = null;
+      readerModel.provenanceModel.searchError = null;
     } catch (error) {
-      provenanceModel.searchError = error;
+      readerModel.provenanceModel.searchError = error;
     } finally {
-      provenanceModel._dirty();
+      readerModel.provenanceModel._dirty();
     }
 
     // Sort the hit nodes by row then by col within a given row
@@ -181,8 +181,8 @@
     value = "";
     searchIndex = 0;
     searchHits = [];
-    provenanceModel.searchError = null;
-    provenanceModel._dirty();
+    readerModel.provenanceModel.searchError = null;
+    readerModel.provenanceModel._dirty();
   }
 </script>
 
@@ -234,8 +234,8 @@
     <!-- The reactivity of $provenanceModel.searchError !== null only reacts
      to searchError changing from or to null. We need the key to react to
      the searchError changing from one error to a different error. -->
-    {#key $provenanceModel.searchError}
-      {#if $provenanceModel.searchError !== null}
+    {#key $readerModel.provenanceModel.searchError}
+      {#if $readerModel.provenanceModel.searchError !== null}
         <div
           class="border border-red-300 rounded-md bg-red-100 py-1 px-3 ml-auto"
         >

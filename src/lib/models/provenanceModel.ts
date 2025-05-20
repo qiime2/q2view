@@ -20,7 +20,7 @@ currentMetadataStore.subscribe((value) => {
  * This class is a subscribable svelte store that manages parsing and storing provenance
  * information for the provided Result.
  */
-class ProvenanceModel {
+export default class ProvenanceModel {
   // The height of the provenance tree
   height: number = 1;
   // Maps the UUIDs of each action to that actions depth in the tree
@@ -80,37 +80,15 @@ class ProvenanceModel {
   //***************************************************************************
 
   /**
-   * Receive state from ReaderModel pertaining to the currently loaded Result and
-   * reset all other class state.
+   * Receive state from ReaderModel pertaining to the currently loaded Result.
    *
    * @param {string} uuid - The UUID of the currently loaded Result
    * @param {JSZip} zipReader - An object that can read files contained within
    * the currently loaded Result's zip
    */
-  setState(uuid: string, zipReader: JSZip) {
-    // Reset class attributes
-    this.height = 1;
-    this.heightMap.clear();
-
-    this.elements = [];
-    this.resultNodes = [];
-
-    this.provData = undefined;
-
-    this.seenIDs = new Set();
-
-    this.jsonKeysToJSON.clear();
-    this.nodeIDToJSON.clear();
-    this.keys = new Set();
-
-    this.searchError = null;
-    this.seenMetadata = new Set();
-    this.metadata = [];
-
+  init(uuid: string, zipReader: JSZip) {
     this.uuid = uuid;
     this.zipReader = zipReader;
-
-    this._dirty();
   }
 
   /**
@@ -584,6 +562,6 @@ class ProvenanceModel {
   }
 }
 
-// Create and export a singleton ProvenanceModel for the session
-const provenanceModel = new ProvenanceModel();
-export default provenanceModel;
+// // Create and export a singleton ProvenanceModel for the session
+// const provenanceModel = new ProvenanceModel();
+// export default provenanceModel;

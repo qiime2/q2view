@@ -1,7 +1,7 @@
 <script lang="ts">
   // Global styling
   import "../../app.css";
-  import readerModel from "$lib/models/readerModel";
+  import readerModel, {readerModel} from "$lib/models/readerModel";
 
   import url from "$lib/scripts/url-store";
   import { onMount } from "svelte";
@@ -65,7 +65,7 @@
         }
         // We have no source, so we reset
         else {
-          readerModel.clear();
+          readerModel = new readerModel();
         }
       }
     }

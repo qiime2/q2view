@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
-  import provenanceModel from "$lib/models/provenanceModel";
+  import readerModel from "$lib/models/readerModel";
   import cytoscape from "cytoscape";
   import ProvDAGControls from "$lib/components/ProvDAGControls.svelte";
   import { HEIGHT_MULTIPLIER_PIXELS, getScrollBarWidth } from "$lib/scripts/util";
@@ -115,26 +115,26 @@
   };
 
   function setActionSelection(uuid: string) {
-    const selectionData = provenanceModel.nodeIDToJSON.get(uuid);
+    const selectionData = readerModel.provenanceModel.nodeIDToJSON.get(uuid);
     _setSelection(selectionData);
   }
 
   function setResultSelection(uuid: string) {
-    let selectionData = provenanceModel.nodeIDToJSON.get(uuid);
+    let selectionData = readerModel.provenanceModel.nodeIDToJSON.get(uuid);
     _setSelection(selectionData);
   }
 
   function _setSelection(data) {
-    provenanceModel.provData = data;
-    provenanceModel._dirty();
+    readerModel.provenanceModel.provData = data;
+    readerModel.provenanceModel._dirty();
   }
 
   // TODO: The way this works causes the $provenanceModel.provData to flicker undefined
   // briefly when clicking between nodes which looks bad. Additionally, something
   // is causing the dag and info columns to jitter around in Chrome
   function clearSelection() {
-    provenanceModel.provData = undefined;
-    provenanceModel._dirty();
+    readerModel.provenanceModel.provData = undefined;
+    readerModel.provenanceModel._dirty();
   }
 
   onMount(() => {
@@ -156,7 +156,7 @@
     cy = cytoscape({
       ...cytoscapeConfig,
       container: document.getElementById("cy"),
-      elements: provenanceModel.elements
+      elements: readerModel.provenanceModel.elements
     });
 
     cy.on("select", "node, edge", (event) => {

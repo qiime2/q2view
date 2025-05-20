@@ -1,7 +1,6 @@
 <script lang="ts">
   import "../../app.css";
 
-  import provenanceModel from "$lib/models/provenanceModel";
   import { getFile } from "$lib/scripts/fileutils";
   import Panel from "./Panel.svelte";
   import readerModel from "$lib/models/readerModel";
@@ -35,7 +34,7 @@
       <th class="text-left p-1">Filename</th>
       <th class="text-left p-1">Download</th>
     </tr>
-    {#each $provenanceModel.metadata as [plugin, action, executionUUID, metadataFile, artifactUUID]}
+    {#each $readerModel.provenanceModel.metadata as [plugin, action, executionUUID, metadataFile, artifactUUID]}
       <tr class="border-t border-gray-300 text-gray-600">
           <td class="p-1 py-2">{plugin}</td>
           <td class="p-1">{action}</td>
@@ -45,7 +44,7 @@
             <button onclick={async () => {
                 let metadataFilePath;
 
-                if (artifactUUID === provenanceModel.uuid) {
+                if (artifactUUID === readerModel.provenanceModel.uuid) {
                   metadataFilePath = `provenance/action/${metadataFile}`;
                 } else {
                   metadataFilePath = `provenance/artifacts/${artifactUUID}/action/${metadataFile}`
@@ -54,7 +53,7 @@
                 const file = await getFile(
                   metadataFilePath,
                   readerModel.uuid,
-                  provenanceModel.zipReader).then(
+                  readerModel.provenanceModel.zipReader).then(
                     (data) => new Blob(
                       [data.byteArray],
                       { type: data.type }
