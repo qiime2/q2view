@@ -32,31 +32,6 @@ export default class CitationsModel {
   uuid = "";
   zipReader: JSZip = new JSZip();
 
-  //***************************************************************************
-  // Start boilerplate to make this a subscribable svelte store
-  //***************************************************************************
-  _subscription: Record<number, (arg0: CitationsModel) => void> = {};
-  _subscriptionNum = 0;
-
-  _dirty() {
-    for (const subscription of Object.values(this._subscription)) {
-      subscription(this);
-    }
-  }
-
-  subscribe(subscription: (value: CitationsModel) => void): () => void {
-    this._subscription[this._subscriptionNum] = subscription;
-    subscription(this);
-    return ((index) => {
-      return () => {
-        delete this._subscription[index];
-      };
-    })(this._subscriptionNum++);
-  }
-  //***************************************************************************
-  // End boilerplate to make this a subscribable svelte store
-  //***************************************************************************
-
   constructor() {
     this.register("asm", asmTemplate);
     this.register("cell", cellTemplate);
