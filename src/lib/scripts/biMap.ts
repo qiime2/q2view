@@ -32,6 +32,12 @@ export default class BiMap<T, P> {
     this.valueToKey.set(value, key);
   }
 
+  setValue(value: P, key: T) {
+    this.keyToValue.set(key, value);
+    this.valueToKey.set(value, key);
+  }
+
+
   get(key: T): P | undefined {
     return this.keyToValue.get(key);
   }
