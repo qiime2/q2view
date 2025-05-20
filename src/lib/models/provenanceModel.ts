@@ -20,7 +20,7 @@ currentMetadataStore.subscribe((value) => {
  * This class is a subscribable svelte store that manages parsing and storing provenance
  * information for the provided Result.
  */
-class ProvenanceModel {
+export default class ProvenanceModel {
   // The height of the provenance tree
   height: number = 1;
   // Maps the UUIDs of each action to that actions depth in the tree
@@ -54,63 +54,16 @@ class ProvenanceModel {
   uuid: string = "";
   zipReader: JSZip = new JSZip();
 
-  //***************************************************************************
-  // Start boilerplate to make this a subscribable svelte store
-  //***************************************************************************
-  _subscription: Record<number, (arg0: ProvenanceModel) => void> = {};
-  _subscriptionNum = 0;
-
-  _dirty() {
-    for (const subscription of Object.values(this._subscription)) {
-      subscription(this);
-    }
-  }
-
-  subscribe(subscription: (value: ProvenanceModel) => void): () => void {
-    this._subscription[this._subscriptionNum] = subscription;
-    subscription(this);
-    return ((index) => {
-      return () => {
-        delete this._subscription[index];
-      };
-    })(this._subscriptionNum++);
-  }
-  //***************************************************************************
-  // End boilerplate to make this a subscribable svelte store
-  //***************************************************************************
-
   /**
-   * Receive state from ReaderModel pertaining to the currently loaded Result and
-   * reset all other class state.
+   * Receive state from ReaderModel pertaining to the currently loaded Result.
    *
    * @param {string} uuid - The UUID of the currently loaded Result
    * @param {JSZip} zipReader - An object that can read files contained within
    * the currently loaded Result's zip
    */
-  setState(uuid: string, zipReader: JSZip) {
-    // Reset class attributes
-    this.height = 1;
-    this.heightMap.clear();
-
-    this.elements = [];
-    this.resultNodes = [];
-
-    this.provData = undefined;
-
-    this.seenIDs = new Set();
-
-    this.jsonKeysToJSON.clear();
-    this.nodeIDToJSON.clear();
-    this.keys = new Set();
-
-    this.searchError = null;
-    this.seenMetadata = new Set();
-    this.metadata = [];
-
+  init(uuid: string, zipReader: JSZip) {
     this.uuid = uuid;
     this.zipReader = zipReader;
-
-    this._dirty();
   }
 
   /**
@@ -594,7 +547,3 @@ class ProvenanceModel {
     //  Seperate these out by severity?
   }
 }
-
-// Create and export a singleton ProvenanceModel for the session
-const provenanceModel = new ProvenanceModel();
-export default provenanceModel;

@@ -5,6 +5,7 @@
 import Cite from "citation-js";
 
 import JSZip, { JSZipObject } from "jszip";
+import readerModel from "./readerModel";
 
 import asmTemplate from "$lib/citation-templates/asm";
 import cellTemplate from "$lib/citation-templates/cell";
@@ -12,12 +13,13 @@ import chicagoTemplate from "$lib/citation-templates/chicago";
 import mlaTemplate from "$lib/citation-templates/mla";
 import natureTemplate from "$lib/citation-templates/nature";
 
-class CitationsModel {
+export default class CitationsModel {
   // Class attributes containing current state of the citations
   fileExt = "";
   citations = "";
   fileContents = "";
-  citationStyle = "";
+  // bib is intial style
+  citationStyle = "bib";
   downloadableFile = "";
   formattedCitations = "";
 
@@ -30,31 +32,6 @@ class CitationsModel {
   uuid = "";
   zipReader: JSZip = new JSZip();
 
-  //***************************************************************************
-  // Start boilerplate to make this a subscribable svelte store
-  //***************************************************************************
-  _subscription: Record<number, (arg0: CitationsModel) => void> = {};
-  _subscriptionNum = 0;
-
-  _dirty() {
-    for (const subscription of Object.values(this._subscription)) {
-      subscription(this);
-    }
-  }
-
-  subscribe(subscription: (value: CitationsModel) => void): () => void {
-    this._subscription[this._subscriptionNum] = subscription;
-    subscription(this);
-    return ((index) => {
-      return () => {
-        delete this._subscription[index];
-      };
-    })(this._subscriptionNum++);
-  }
-  //***************************************************************************
-  // End boilerplate to make this a subscribable svelte store
-  //***************************************************************************
-
   constructor() {
     this.register("asm", asmTemplate);
     this.register("cell", cellTemplate);
@@ -65,10 +42,7 @@ class CitationsModel {
 
   // This state is set by the readerModel when it comes time to read the
   // citations
-  setState(uuid: string, zipReader: JSZip) {
-    // Default citation style
-    this.citationStyle = "bib";
-
+  init(uuid: string, zipReader: JSZip) {
     this.uuid = uuid;
     this.zipReader = zipReader;
   }
@@ -100,7 +74,7 @@ class CitationsModel {
     }
 
     this.downloadableFile = this._getDownload();
-    this._dirty();
+    readerModel._dirty();
   }
 
   _getDownload() {
@@ -116,7 +90,7 @@ class CitationsModel {
         this.citations = this._dedup(citations);
         this.formatter = new Cite(this.citations);
 
-        this._dirty();
+        readerModel._dirty();
       }
     });
   }
@@ -168,6 +142,3 @@ class CitationsModel {
     return dedup.join("\n");
   }
 }
-
-const citationsModel = new CitationsModel();
-export default citationsModel;

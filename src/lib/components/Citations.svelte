@@ -1,7 +1,6 @@
 <script lang="ts">
   import Panel from "$lib/components/Panel.svelte";
   import readerModel from "$lib/models/readerModel";
-  import citationsModel from "$lib/models/citationsModel";
   import ResultDetails from "$lib/components/ResultDetails.svelte";
 
   let renderedCitations: HTMLElement | undefined = $state();
@@ -12,8 +11,8 @@
   // They will be undefined for a sec and it will flash "No Citations" then
   // when they are actually loaded by the ReaderModel this will react to that
   $effect(() => {
-    if (citationsModel.citations !== undefined) {
-      citationsModel.formatCitations();
+    if (readerModel.citationsModel.citations !== undefined) {
+      readerModel.citationsModel.formatCitations();
     }
   });
 
@@ -24,10 +23,10 @@
 
     let newInnerHTML = "";
 
-    if (citationsModel.citationStyle === 'bib' || citationsModel.citationStyle === 'ris') {
-      newInnerHTML = "<pre>" + citationsModel.formattedCitations + "</pre>";
+    if (readerModel.citationsModel.citationStyle === 'bib' || readerModel.citationsModel.citationStyle === 'ris') {
+      newInnerHTML = "<pre>" + readerModel.citationsModel.formattedCitations + "</pre>";
     } else {
-      newInnerHTML = citationsModel.formattedCitations;
+      newInnerHTML = readerModel.citationsModel.formattedCitations;
     }
 
     renderedCitations.innerHTML = newInnerHTML;
@@ -41,7 +40,7 @@
   <label for="citation-style">
     Citation Format:
     <!-- TODO: It takes a bit of time to react to changing this style. Feels a bit jank need some feedback -->
-    <select bind:value={citationsModel.citationStyle} id="citation-style" onchange={() => citationsModel.formatCitations()}>
+    <select bind:value={readerModel.citationsModel.citationStyle} id="citation-style" onchange={() => readerModel.citationsModel.formatCitations()}>
       <option value="apa">APA</option>
       <option value="asm">ASM</option>
       <option value="bib">BibTex</option>
@@ -52,10 +51,10 @@
       <option value="ris">RIS</option>
     </select>
   </label>
-  {#if $citationsModel.citations !== undefined}
-    <a href={$citationsModel.downloadableFile} download={`${$citationsModel.uuid}.${$citationsModel.fileExt}`} style="float: right">Download</a>
+  {#if $readerModel.citationsModel.citations !== undefined}
+    <a href={$readerModel.citationsModel.downloadableFile} download={`${$readerModel.citationsModel.uuid}.${$readerModel.citationsModel.fileExt}`} style="float: right">Download</a>
     <div id="citations" bind:this={renderedCitations}>
-      {#key $citationsModel.citationStyle}
+      {#key $readerModel.citationsModel.citationStyle}
         {_updateCitations()}
       {/key}
     </div>

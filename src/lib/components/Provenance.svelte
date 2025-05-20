@@ -3,21 +3,21 @@
 
   import JSONTree from "svelte-json-tree";
   import Dag from "./Dag.svelte";
-  import provenanceModel from "$lib/models/provenanceModel";
+  import readerModel from "$lib/models/readerModel";
   import { getScrollBarWidth } from "$lib/scripts/util";
 </script>
 
-{#key $provenanceModel.uuid}
+{#key $readerModel.provenanceModel.uuid}
   <Dag />
 {/key}
-{#key $provenanceModel.provData}
+{#key $readerModel.provenanceModel.provData}
   <!-- If there is a visibile scrollbar then the rounding clips awkwardly -->
   <div class="{getScrollBarWidth() == 0 ? "rounded-md" : ""} mb-2 border border-gray-300 p-4 overflow-y-auto bg-gray-50"
        style="margin-right: {getScrollBarWidth()}px">
-    {#if provenanceModel.provData !== undefined}
+    {#if readerModel.provenanceModel.provData !== undefined}
       <div class="JSONTree">
         <JSONTree
-          value={provenanceModel.provData}
+          value={readerModel.provenanceModel.provData}
           defaultExpandedLevel={100}
           shouldShowPreview={false}
         />
