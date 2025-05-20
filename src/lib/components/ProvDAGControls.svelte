@@ -86,7 +86,7 @@
     } catch (error) {
       readerModel.provenanceModel.searchError = error;
     } finally {
-      readerModel.provenanceModel._dirty();
+      readerModel._dirty();
     }
 
     // Sort the hit nodes by row then by col within a given row
@@ -182,7 +182,7 @@
     searchIndex = 0;
     searchHits = [];
     readerModel.provenanceModel.searchError = null;
-    readerModel.provenanceModel._dirty();
+    readerModel._dirty();
   }
 </script>
 

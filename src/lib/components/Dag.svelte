@@ -126,7 +126,7 @@
 
   function _setSelection(data) {
     readerModel.provenanceModel.provData = data;
-    readerModel.provenanceModel._dirty();
+    readerModel._dirty();
   }
 
   // TODO: The way this works causes the $readerModel.provenanceModel.provData
@@ -135,7 +135,7 @@
   // around in Chrome
   function clearSelection() {
     readerModel.provenanceModel.provData = undefined;
-    readerModel.provenanceModel._dirty();
+    readerModel._dirty();
   }
 
   onMount(() => {

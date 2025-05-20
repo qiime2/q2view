@@ -5,6 +5,7 @@
 import Cite from "citation-js";
 
 import JSZip, { JSZipObject } from "jszip";
+import readerModel from "./readerModel";
 
 import asmTemplate from "$lib/citation-templates/asm";
 import cellTemplate from "$lib/citation-templates/cell";
@@ -98,7 +99,7 @@ export default class CitationsModel {
     }
 
     this.downloadableFile = this._getDownload();
-    this._dirty();
+    readerModel._dirty();
   }
 
   _getDownload() {
@@ -114,7 +115,7 @@ export default class CitationsModel {
         this.citations = this._dedup(citations);
         this.formatter = new Cite(this.citations);
 
-        this._dirty();
+        readerModel._dirty();
       }
     });
   }
