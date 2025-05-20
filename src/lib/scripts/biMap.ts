@@ -40,6 +40,10 @@ export default class BiMap<T, P> {
     return this.valueToKey.get(value);
   }
 
+  keys(): MapIterator<T> {
+    return this.keyToValue.keys();
+  }
+
   values(): MapIterator<P> {
     return this.keyToValue.values();
   }
