@@ -30,7 +30,7 @@ export default class JsonifyBiMap {
     const value = this.keyToValue.get(key);
 
     if (value === undefined) {
-      return undefined
+      return undefined;
     }
 
     return JSON.parse(value);
@@ -41,7 +41,7 @@ export default class JsonifyBiMap {
     const key = this.valueToKey.get(value);
 
     if (key === undefined) {
-      return undefined
+      return undefined;
     }
 
     return JSON.parse(key);

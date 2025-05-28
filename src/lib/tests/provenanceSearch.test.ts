@@ -264,4 +264,3 @@ test("test get \\", () => {
 
   expect(hits.toString()).toBe("escapeInString");
 });
-

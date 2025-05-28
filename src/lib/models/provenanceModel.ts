@@ -7,10 +7,7 @@ import JSZip from "jszip";
 import BiMap from "$lib/scripts/biMap";
 import { getYAML } from "$lib/scripts/fileutils";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
-import {
-  searchProvenance,
-  transformQuery,
-} from "$lib/scripts/provSearchUtils";
+import { searchProvenance, transformQuery } from "$lib/scripts/provSearchUtils";
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
 
@@ -21,10 +18,10 @@ currentMetadataStore.subscribe((value) => {
 });
 
 interface ProvenanceError {
-  name: string,
-  severity: number,
-  query: string,
-  description: string
+  name: string;
+  severity: number;
+  query: string;
+  description: string;
 }
 
 /**
@@ -551,26 +548,26 @@ export default class ProvenanceModel {
     // This will be fetched from a remote source somewhere
     const ERRORS = [
       {
-        "name": "My fake error",
-        "severity": 2,
-        "query": "qiime2: (^\"2024\" OR ^\"2021\")",
-        "description": "Oh no something is wrong I guess"
+        name: "My fake error",
+        severity: 2,
+        query: 'qiime2: (^"2024" OR ^"2021")',
+        description: "Oh no something is wrong I guess",
       },
       {
-        "name": "My other fake error",
-        "severity": 1,
-        "query": "qiime2: ^\"2024\"",
-        "description": "Oh no something is less wrong than the other one I guess"
+        name: "My other fake error",
+        severity: 1,
+        query: 'qiime2: ^"2024"',
+        description: "Oh no something is less wrong than the other one I guess",
       },
       {
-        "name": "My very minor fake error",
-        "severity": 0,
-        "query": "qiime2: ^\"2024\"",
-        "description": "Is this even an error?"
-      }
+        name: "My very minor fake error",
+        severity: 0,
+        query: 'qiime2: ^"2024"',
+        description: "Is this even an error?",
+      },
     ];
 
-    let errorHits: string[] = []
+    let errorHits: string[] = [];
     let formattedQuery: string[] = [];
 
     for (const error of ERRORS) {
@@ -580,7 +577,7 @@ export default class ProvenanceModel {
       if (errorHits.length !== 0) {
         this.errorNameToNodeIDs.set(error.name, errorHits);
 
-        switch(error.severity) {
+        switch (error.severity) {
           case 0:
             this.lowSeverityErrors.add(error);
             break;
