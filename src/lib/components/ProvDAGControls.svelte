@@ -9,6 +9,7 @@
   } from "$lib/scripts/provSearchUtils";
   import Panel from "./Panel.svelte";
   import readerModel from "$lib/models/readerModel";
+  import { sortDAGNodes } from "$lib/scripts/util";
 
   interface Props {
     cy: cytoscape.Core;
@@ -103,29 +104,7 @@
     }
 
     // Sort the hit nodes by row then by col within a given row
-    searchHits.sort((a, b) => {
-      let aNode: any = cy.$id(a);
-      let bNode: any = cy.$id(b);
-
-      // We only set a row and column on the Result nodes in the graph not the
-      // Action nodes. Action nodes have Result nodes as children, so if a node
-      // has children we know it is an Action node and we sort it based on its
-      // first child which will be the furthest left Result node it contains.
-      if (aNode.descendants().length > 0) {
-        aNode = aNode.descendants()[0];
-      }
-
-      if (bNode.descendants().length > 0) {
-        bNode = bNode.descendants()[0];
-      }
-
-      // Now sort by row first then by column within a row
-      if (aNode.data().row === bNode.data().row) {
-        return aNode.data().col - bNode.data().col;
-      }
-
-      return aNode.data().row - bNode.data().row;
-    });
+    searchHits.sort((a, b) => sortDAGNodes(cy, a, b));
 
     _selectSearchHit();
   }

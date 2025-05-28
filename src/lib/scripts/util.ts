@@ -1,4 +1,5 @@
 import readerModel from "$lib/models/readerModel";
+import type cytoscape from "cytoscape";
 
 // This value is multiplied by the height of the graph in nodes to get the
 // height of the graph in pixels. It is the height of a node in the graph plus
@@ -164,6 +165,30 @@ export function getAllObjectKeyPathsRecursively(
       currentkeyAccumulator.pop();
     }
   }
+}
+
+export function sortDAGNodes(DAG: cytoscape.Core, aID: string, bID: string) {
+  let aNode: any = DAG.$id(aID);
+  let bNode: any = DAG.$id(bID);
+
+  // We only set a row and column on the Result nodes in the graph not the
+  // Action nodes. Action nodes have Result nodes as children, so if a node
+  // has children we know it is an Action node and we sort it based on its
+  // first child which will be the furthest left Result node it contains.
+  if (aNode.descendants().length > 0) {
+    aNode = aNode.descendants()[0];
+  }
+
+  if (bNode.descendants().length > 0) {
+    bNode = bNode.descendants()[0];
+  }
+
+  // Now sort by row first then by column within a row
+  if (aNode.data().row === bNode.data().row) {
+    return aNode.data().col - bNode.data().col;
+  }
+
+  return aNode.data().row - bNode.data().row;
 }
 
 //*****************************************************************************

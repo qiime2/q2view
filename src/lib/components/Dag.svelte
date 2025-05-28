@@ -198,6 +198,8 @@
     // Now we set the container height to 100% of parent height before centering.
     self.style.setProperty("height", "100%");
     centerAndPan();
+
+    
   }
 </script>
 
