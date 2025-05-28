@@ -15,6 +15,9 @@
   --tailwind-blue-700: rgb(29, 78, 216);
   --tailwind-green-700: rgb(21, 128, 61);
   --tailwind-red-700: rgb(185, 28, 28);
+  --low-severity-yellow: rgb(255, 204, 0);
+  --medium-severity-orange: rgb(255, 103, 0);
+  --high-severity-red: rgb(204, 2, 2);
 }
 
 ::selection {

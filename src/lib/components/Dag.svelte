@@ -5,7 +5,7 @@
   import cytoscape from "cytoscape";
   import ProvDAGControls from "$lib/components/ProvDAGControls.svelte";
   import { HEIGHT_MULTIPLIER_PIXELS, getScrollBarWidth } from "$lib/scripts/util";
-    import ProvErrors from "./ProvErrors.svelte";
+  import ProvErrors from "./ProvErrors.svelte";
 
   let self: HTMLDivElement = $state();
   let cy: cytoscape.Core = $state();
