@@ -5,7 +5,6 @@
 import JSZip from "jszip";
 
 import BiMap from "$lib/scripts/biMap";
-import JsonifyBiMap from "$lib/scripts/jsonifyBiMap";
 import { getYAML } from "$lib/scripts/fileutils";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
 import {
@@ -58,9 +57,11 @@ export default class ProvenanceModel {
   metadata: Array<Array<string>> = [];
 
   // Error tracking
-  errorNameToNodeIDs: JsonifyBiMap = new JsonifyBiMap();
-  nodeIDToErrorNames: JsonifyBiMap = new JsonifyBiMap();
-  errorsFound: Map<string, ProvenanceError> = new Map();
+  errorNameToNodeIDs: Map<string, string[]> = new Map();
+  nodeIDToErrorNames: Map<string, string[]> = new Map();
+  lowSeverityErrors: Set<ProvenanceError> = new Set();
+  medSeverityErrors: Set<ProvenanceError> = new Set();
+  highSeverityErrors: Set<ProvenanceError> = new Set();
 
   // Class attributes passed in by readerModel pertaining to currently loaded
   // Result
@@ -569,40 +570,42 @@ export default class ProvenanceModel {
       }
     ];
 
-    let errorNameToError: Map<string, ProvenanceError> = new Map<string, ProvenanceError>();
     let errorHits: string[] = []
     let formattedQuery: string[] = [];
 
     for (const error of ERRORS) {
-      if (!this.errorNameToNodeIDs.get(error.name)) {
-        errorNameToError.set(error.name, error);
-        formattedQuery = transformQuery(error.query);
+      formattedQuery = transformQuery(error.query);
 
-        try {
-          errorHits = searchProvenance(formattedQuery, this.nodeIDToJSON);
-        } catch(error) {
-          // If we didn't get any search hits we don't care
-          if (error === "Error: No search hits found") {}
+      try {
+        errorHits = searchProvenance(formattedQuery, this.nodeIDToJSON);
+      } catch(error) {
+        // If we didn't get any search hits we don't care
+        if (error === "Error: No search hits found") {}
+      }
+
+      if (errorHits.length !== 0) {
+        this.errorNameToNodeIDs.set(error.name, errorHits);
+
+        switch(error.severity) {
+          case 0:
+            this.lowSeverityErrors.add(error);
+            break;
+          case 1:
+            this.medSeverityErrors.add(error);
+            break;
+          case 2:
+            this.highSeverityErrors.add(error);
+            break;
         }
 
-        if (errorHits.length !== 0) {
-          this.errorNameToNodeIDs.set(error.name, errorHits);
-          this.errorsFound.set(error.name, error);
-
-          for (const hit of errorHits) {
-            if (this.nodeIDToErrorNames.get(hit) === undefined) {
-              this.nodeIDToErrorNames.set(hit, []);
-            }
-
-            this.nodeIDToErrorNames.get(hit).push(error);
+        for (const hit of errorHits) {
+          if (this.nodeIDToErrorNames.get(hit) === undefined) {
+            this.nodeIDToErrorNames.set(hit, []);
           }
+
+          this.nodeIDToErrorNames.get(hit).push(error);
         }
       }
     }
-
-    for (const value of this.errorsFound.values()) {
-      console.log(value)
-    }
-    console.log(this.errorsFound.values())
   }
 }
