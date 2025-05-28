@@ -8,6 +8,7 @@ import BiMap from "$lib/scripts/biMap";
 import { getYAML } from "$lib/scripts/fileutils";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
 import { searchProvenance, transformQuery } from "$lib/scripts/provSearchUtils";
+import { sortErrorsBySeverity } from "$lib/scripts/util";
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
 
@@ -17,7 +18,7 @@ currentMetadataStore.subscribe((value) => {
   currentMetadata = value.currentMetadata;
 });
 
-interface ProvenanceError {
+export interface ProvenanceError {
   name: string;
   severity: number;
   query: string;
@@ -550,7 +551,7 @@ export default class ProvenanceModel {
       {
         name: "My fake error",
         severity: 2,
-        query: 'qiime2: (^"2024" OR ^"2021")',
+        query: 'qiime2: ^"2021"',
         description: "Oh no something is wrong I guess",
       },
       {
@@ -597,6 +598,10 @@ export default class ProvenanceModel {
           this.nodeIDToErrors.get(hit)?.push(error);
         }
       }
+    }
+
+    for (const errors of this.nodeIDToErrors.values()) {
+      errors.sort(sortErrorsBySeverity);
     }
   }
 }

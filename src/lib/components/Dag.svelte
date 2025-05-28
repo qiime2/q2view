@@ -1,4 +1,5 @@
 <script lang="ts">
+  import "../../app.css";
   import { onMount } from "svelte";
 
   import readerModel from "$lib/models/readerModel";
@@ -6,6 +7,7 @@
   import ProvDAGControls from "$lib/components/ProvDAGControls.svelte";
   import { HEIGHT_MULTIPLIER_PIXELS, getScrollBarWidth } from "$lib/scripts/util";
   import ProvErrors from "./ProvErrors.svelte";
+    import type { ProvenanceError } from "$lib/models/provenanceModel";
 
   let self: HTMLDivElement = $state();
   let cy: cytoscape.Core = $state();
@@ -198,6 +200,22 @@
     // Now we set the container height to 100% of parent height before centering.
     self.style.setProperty("height", "100%");
     centerAndPan();
+
+    let currentNode: any;
+    let currentErrors: ProvenanceError[] | undefined;
+    // It didn't work when I tried using my vars for the colors here
+    const colors = ["rgb(255, 204, 0)", "rgb(255, 103, 0)", "rgb(204, 2, 2)"]
+
+    for (const nodeID of readerModel.provenanceModel.nodeIDToErrors.keys()) {
+      currentNode = cy.$id(nodeID);
+      currentErrors = readerModel.provenanceModel.nodeIDToErrors.get(nodeID)
+
+      // This can never be undefined, but the linter isn't smart enough to know
+      // that, and I didn't want it whining at me
+      if (currentErrors !== undefined) {
+        currentNode.style("background-color", colors[currentErrors[0].severity])
+      }
+    }
   }
 </script>
 

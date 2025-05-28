@@ -1,3 +1,4 @@
+import type { ProvenanceError } from "$lib/models/provenanceModel";
 import readerModel from "$lib/models/readerModel";
 import type cytoscape from "cytoscape";
 
@@ -189,6 +190,10 @@ export function sortDAGNodes(DAG: cytoscape.Core, aID: string, bID: string) {
   }
 
   return aNode.data().row - bNode.data().row;
+}
+
+export function sortErrorsBySeverity(errorA: ProvenanceError, errorB: ProvenanceError) {
+  return errorB.severity - errorA.severity;
 }
 
 //*****************************************************************************
