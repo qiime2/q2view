@@ -5,6 +5,7 @@
   import cytoscape from "cytoscape";
   import ProvDAGControls from "$lib/components/ProvDAGControls.svelte";
   import { HEIGHT_MULTIPLIER_PIXELS, getScrollBarWidth } from "$lib/scripts/util";
+    import ProvErrors from "./ProvErrors.svelte";
 
   let self: HTMLDivElement = $state();
   let cy: cytoscape.Core = $state();
@@ -205,8 +206,11 @@
 </script>
 
 <div>
-  <div id="provDAGControls" class="absolute z-10 {getScrollBarWidth() == 0 ? "left-2": ""}">
-    <ProvDAGControls {cy} {centerOnSelected} {centerAndPan} {mount}/>
+  <div class="absolute z-10 {getScrollBarWidth() == 0 ? "left-2": ""}">
+    <div id="provDAGControls">
+      <ProvDAGControls {cy} {centerOnSelected} {centerAndPan} {mount}/>
+    </div>
+    <ProvErrors />
   </div>
   <div
     bind:this={self}

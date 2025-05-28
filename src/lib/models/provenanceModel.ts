@@ -599,5 +599,10 @@ export default class ProvenanceModel {
         }
       }
     }
+
+    for (const value of this.errorsFound.values()) {
+      console.log(value)
+    }
+    console.log(this.errorsFound.values())
   }
 }
