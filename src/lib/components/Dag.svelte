@@ -206,6 +206,7 @@
     // It didn't work when I tried using my vars for the colors here
     const colors = ["rgb(255, 204, 0)", "rgb(255, 103, 0)", "rgb(204, 2, 2)"]
 
+    // TODO: Currently this is completely overriding color change when selected
     for (const nodeID of readerModel.provenanceModel.nodeIDToErrors.keys()) {
       currentNode = cy.$id(nodeID);
       currentErrors = readerModel.provenanceModel.nodeIDToErrors.get(nodeID)
