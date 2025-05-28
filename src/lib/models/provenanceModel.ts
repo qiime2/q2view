@@ -575,13 +575,7 @@ export default class ProvenanceModel {
 
     for (const error of ERRORS) {
       formattedQuery = transformQuery(error.query);
-
-      try {
-        errorHits = searchProvenance(formattedQuery, this.nodeIDToJSON);
-      } catch(error) {
-        // If we didn't get any search hits we don't care
-        if (error === "Error: No search hits found") {}
-      }
+      errorHits = searchProvenance(formattedQuery, this.nodeIDToJSON);
 
       if (errorHits.length !== 0) {
         this.errorNameToNodeIDs.set(error.name, errorHits);

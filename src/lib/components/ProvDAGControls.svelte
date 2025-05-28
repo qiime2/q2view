@@ -81,7 +81,6 @@
   // Scream about it very overtly if there is a serious issue
   // Otherwise put a list of them... Somewhere? TBD exactly where logged errors
   // are to be stored/displayed
-
   function _handleProvenanceSearch() {
     searchIndex = 0;
 
@@ -91,6 +90,11 @@
         transformedSearchQuery,
         readerModel.provenanceModel.nodeIDToJSON,
       );
+
+      if (searchHits.length === 0) {
+        throw new Error("No search hits found");
+      }
+
       readerModel.provenanceModel.searchError = null;
     } catch (error) {
       readerModel.provenanceModel.searchError = error;

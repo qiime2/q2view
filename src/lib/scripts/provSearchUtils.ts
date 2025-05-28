@@ -31,10 +31,6 @@ export function searchProvenance(
     _searchProv(transformedQuery, 0, provenanceMap),
   );
 
-  if (searchHits.length === 0) {
-    throw new Error("No search hits found");
-  }
-
   return searchHits;
 }
 

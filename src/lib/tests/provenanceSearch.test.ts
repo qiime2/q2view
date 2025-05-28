@@ -265,9 +265,3 @@ test("test get \\", () => {
   expect(hits.toString()).toBe("escapeInString");
 });
 
-test("no hits", () => {
-  const searchQuery = transformQuery("notAKey");
-  expect(() => searchProvenance(searchQuery, testMap)).toThrowError(
-    "No search hits found",
-  );
-});
