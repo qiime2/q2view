@@ -202,10 +202,10 @@
 </script>
 
 <div>
-  <div class="absolute z-10 {getScrollBarWidth() == 0 ? "left-2": ""}">
-    <div id="provDAGControls">
-      <ProvDAGControls {cy} {centerOnSelected} {centerAndPan} {mount}/>
-    </div>
+  <div id="provDAGControls" class="absolute z-10 {getScrollBarWidth() == 0 ? "left-2": ""}">
+    <ProvDAGControls {cy} {centerOnSelected} {centerAndPan} {mount}/>
+  </div>
+  <div id="errorSymbols" class="absolute z-10 {getScrollBarWidth() == 0 ? "left-2": ""} bottom-0">
     <ProvErrors />
   </div>
   <div
