@@ -58,7 +58,7 @@ export default class ProvenanceModel {
 
   // Error tracking
   errorNameToNodeIDs: Map<string, string[]> = new Map();
-  nodeIDToErrorNames: Map<string, string[]> = new Map();
+  nodeIDToErrors: Map<string, ProvenanceError[]> = new Map();
   lowSeverityErrors: Set<ProvenanceError> = new Set();
   medSeverityErrors: Set<ProvenanceError> = new Set();
   highSeverityErrors: Set<ProvenanceError> = new Set();
@@ -593,11 +593,11 @@ export default class ProvenanceModel {
         }
 
         for (const hit of errorHits) {
-          if (this.nodeIDToErrorNames.get(hit) === undefined) {
-            this.nodeIDToErrorNames.set(hit, []);
+          if (this.nodeIDToErrors.get(hit) === undefined) {
+            this.nodeIDToErrors.set(hit, []);
           }
 
-          this.nodeIDToErrorNames.get(hit).push(error);
+          this.nodeIDToErrors.get(hit)?.push(error);
         }
       }
     }
