@@ -130,10 +130,6 @@
     readerModel._dirty();
   }
 
-  // TODO: The way this works causes the $readerModel.provenanceModel.provData
-  // to flicker undefined briefly when clicking between nodes which looks bad.
-  // Additionally, something is causing the dag and info columns to jitter
-  // around in Chrome
   function clearSelection() {
     readerModel.provenanceModel.provData = undefined;
     readerModel._dirty();
