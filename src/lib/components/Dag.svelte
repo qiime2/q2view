@@ -7,7 +7,7 @@
   import ProvDAGControls from "$lib/components/ProvDAGControls.svelte";
   import { HEIGHT_MULTIPLIER_PIXELS, getScrollBarWidth } from "$lib/scripts/util";
   import ProvErrors from "./ProvErrors.svelte";
-    import type { ProvenanceError } from "$lib/models/provenanceModel";
+  import type { ProvenanceError } from "$lib/models/provenanceModel";
 
   let self: HTMLDivElement = $state();
   let cy: cytoscape.Core = $state();
@@ -207,7 +207,7 @@
     const colors = ["rgb(255, 204, 0)", "rgb(255, 103, 0)", "rgb(204, 2, 2)"]
 
     // TODO: Currently this is completely overriding color change when selected
-    // 
+    //
     // TODO: Putting ths here to make sure I see it, I should make it so nodes that
     // had a prov search hit but are not currently selected have some visual indicator
     // blue outline?
