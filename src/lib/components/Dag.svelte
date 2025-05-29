@@ -211,16 +211,16 @@
     // TODO: Putting ths here to make sure I see it, I should make it so nodes that
     // had a prov search hit but are not currently selected have some visual indicator
     // blue outline?
-    for (const nodeID of readerModel.provenanceModel.nodeIDToErrors.keys()) {
-      currentNode = cy.$id(nodeID);
-      currentErrors = readerModel.provenanceModel.nodeIDToErrors.get(nodeID)
+    // for (const nodeID of readerModel.provenanceModel.nodeIDToErrors.keys()) {
+    //   currentNode = cy.$id(nodeID);
+    //   currentErrors = readerModel.provenanceModel.nodeIDToErrors.get(nodeID)
 
-      // This can never be undefined, but the linter isn't smart enough to know
-      // that, and I didn't want it whining at me
-      if (currentErrors !== undefined) {
-        currentNode.style("background-color", colors[currentErrors[0].severity])
-      }
-    }
+    //   // This can never be undefined, but the linter isn't smart enough to know
+    //   // that, and I didn't want it whining at me
+    //   if (currentErrors !== undefined) {
+    //     currentNode.style("background-color", colors[currentErrors[0].severity])
+    //   }
+    // }
   }
 </script>
 
