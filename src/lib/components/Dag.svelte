@@ -7,10 +7,11 @@
   import ProvDAGControls from "$lib/components/ProvDAGControls.svelte";
   import { HEIGHT_MULTIPLIER_PIXELS, getScrollBarWidth } from "$lib/scripts/util";
   import ProvErrors from "./ProvErrors.svelte";
-  import type { ProvenanceError } from "$lib/models/provenanceModel";
 
   let self: HTMLDivElement = $state();
   let cy: cytoscape.Core = $state();
+
+  const NODE_ERROR_BG_COLORS = ["rgb(255, 204, 0)", "rgb(255, 103, 0)", "rgb(204, 2, 2)"]
 
   // Center on selected node. Places it centered horizontally and just below
   // the control panel vertically
@@ -94,7 +95,16 @@
           "padding-right": "10px",
           "text-valign": "top",
           "text-halign": "center",
-          "background-color": "#bbb"
+          "background-color": function(node) {
+            const nodeID = node.id();
+            const currentErrors = readerModel.provenanceModel.nodeIDToErrors.get(nodeID);
+
+            if (currentErrors !== undefined) {
+              return NODE_ERROR_BG_COLORS[currentErrors[0].severity];
+            }
+
+            return "#bbb";
+          }
         }
       },
       {
@@ -200,27 +210,6 @@
     // Now we set the container height to 100% of parent height before centering.
     self.style.setProperty("height", "100%");
     centerAndPan();
-
-    let currentNode: any;
-    let currentErrors: ProvenanceError[] | undefined;
-    // It didn't work when I tried using my vars for the colors here
-    const colors = ["rgb(255, 204, 0)", "rgb(255, 103, 0)", "rgb(204, 2, 2)"]
-
-    // TODO: Currently this is completely overriding color change when selected
-    //
-    // TODO: Putting ths here to make sure I see it, I should make it so nodes that
-    // had a prov search hit but are not currently selected have some visual indicator
-    // blue outline?
-    // for (const nodeID of readerModel.provenanceModel.nodeIDToErrors.keys()) {
-    //   currentNode = cy.$id(nodeID);
-    //   currentErrors = readerModel.provenanceModel.nodeIDToErrors.get(nodeID)
-
-    //   // This can never be undefined, but the linter isn't smart enough to know
-    //   // that, and I didn't want it whining at me
-    //   if (currentErrors !== undefined) {
-    //     currentNode.style("background-color", colors[currentErrors[0].severity])
-    //   }
-    // }
   }
 </script>
 

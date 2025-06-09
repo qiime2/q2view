@@ -646,6 +646,12 @@ export default class ProvenanceModel {
         query: 'qiime2: ^"2024"',
         description: "Is this even an error?",
       },
+      {
+        name: "My more specific pipeline error",
+        severity: 0,
+        query: 'qiime2: ^"2023" AND action: "rarefy"',
+        description: "Is this even an error?",
+      },
     ];
 
     let errorHits: string[] = [];
@@ -654,6 +660,12 @@ export default class ProvenanceModel {
     for (const error of ERRORS) {
       formattedQuery = transformQuery(error.query);
       errorHits = searchProvenance(formattedQuery, this.nodeIDToJSON);
+
+      for (let i = 0; i < errorHits.length; i++) {
+        if (this.innerIDToPipeline.get(errorHits[i]) !== undefined) {
+          errorHits = errorHits.with(i, this.innerIDToPipeline.get(errorHits[i]));
+        }
+      }
 
       if (errorHits.length !== 0) {
         this.errorNameToNodeIDs.set(error.name, errorHits);
