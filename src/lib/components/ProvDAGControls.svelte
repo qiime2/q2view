@@ -110,7 +110,12 @@
   }
 
   function _selectSearchHit() {
-    const hitID = searchHits[searchIndex];
+    let hitID = searchHits[searchIndex];
+
+    // If this hit was on an inner action in a pipeline we need to disambiguate that.
+    if (readerModel.provenanceModel.innerIDToPipeline.get(hitID) !== undefined) {
+      hitID = readerModel.provenanceModel.innerIDToPipeline.get(hitID);
+    }
 
     if (hitID === undefined) {
       // This will happen if there are no search hits

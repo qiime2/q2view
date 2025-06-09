@@ -8,7 +8,7 @@ import BiMap from "$lib/scripts/biMap";
 import { getYAML } from "$lib/scripts/fileutils";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
 import { searchProvenance, transformQuery } from "$lib/scripts/provSearchUtils";
-import { sortErrorsBySeverity } from "$lib/scripts/util";
+import { setUnion, sortErrorsBySeverity } from "$lib/scripts/util";
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
 
@@ -48,6 +48,7 @@ export default class ProvenanceModel {
 
   // Search JSON
   nodeIDToJSON: BiMap<string, {}> = new BiMap();
+  innerIDToPipeline: Map<string, string> = new Map();
   searchError: any = null;
 
   // Metadata
@@ -149,6 +150,21 @@ export default class ProvenanceModel {
     // metadata it might have
     this._handleMetadata(sourceAction, resultUUID);
 
+    // Need a set of all input/parameter artifacts to the pipeline so can
+    // recurse up from any pipeline aliased artifact until all inputs are a
+    // subset of that set.
+    //
+    // Also need to keep track of which actions we have seen here to short-circuit
+    // ...this may get a little messy
+    if (sourceAction.action['alias-of'] !== undefined) {
+      const inputArtifacts = this._getInputArtifacts(sourceAction);
+      const parameterArtifacts = this._getParameterArtifacts(sourceAction);
+
+      const artifactUnion = setUnion(inputArtifacts, parameterArtifacts);
+
+      await this._recurseUpPipeline(sourceActionUUID, artifactUnion, sourceAction.action['alias-of']);
+    }
+
     // If we have already seen this Action then short circuit
     if (await this._handleAction(resultID, sourceActionUUID, sourceAction)) {
       return this.heightMap.get(sourceActionUUID);
@@ -189,6 +205,24 @@ export default class ProvenanceModel {
     });
 
     return maxDepth;
+  }
+
+  async _recurseUpPipeline(rootUUID, rootArtifactUnion, resultUUID) {
+    const sourceAction = await this.getProvenanceAction(resultUUID);
+
+    const sourceInputArtifacts = this._getInputArtifacts(sourceAction);
+    const sourceParameterArtifacts = this._getParameterArtifacts(sourceAction);
+
+    const sourceArtifactUnion = setUnion(sourceInputArtifacts, sourceParameterArtifacts);
+
+    this.nodeIDToJSON.set(sourceAction.execution.uuid, sourceAction);
+    this.innerIDToPipeline.set(sourceAction.execution.uuid, rootUUID);
+
+    for (const sourceArtifactUUID of sourceArtifactUnion) {
+      if (!rootArtifactUnion.has(sourceArtifactUUID)) {
+        await this._recurseUpPipeline(rootUUID, rootArtifactUnion, sourceArtifactUUID);
+      }
+    }
   }
 
   /**
@@ -459,6 +493,52 @@ export default class ProvenanceModel {
     }
   }
 
+  _getInputArtifacts(sourceAction) {
+    const inputArtifacts = new Set();
+
+    for (const inputMap of sourceAction.action.inputs) {
+      const inputValue = Object.values(inputMap)[0];
+
+      if (typeof inputValue == "string") {
+        // We have a single input artifact
+        inputArtifacts.add(inputValue);
+      } else if (inputValue !== null && typeof inputValue === "object") {
+        // We have an input collection
+        for (const element of inputValue) {
+          // Every element will be the same type, string if this was a List
+          // and {} if this was a Collection
+          if (typeof element === "string") {
+            inputArtifacts.add(element);
+          } else {
+            inputArtifacts.add(Object.values(element)[0]);
+          }
+        }
+      }
+    }
+
+    return inputArtifacts;
+  }
+
+  _getParameterArtifacts(sourceAction) {
+    const parameterArtifacts = new Set();
+
+    for (const paramMap of sourceAction.action.parameters) {
+      const paramValue = Object.values(paramMap)[0];
+
+      if (
+        paramValue !== null &&
+        typeof paramValue === "object" &&
+        Object.prototype.hasOwnProperty.call(paramValue, "artifacts")
+      ) {
+        for (const artifactUUID of paramValue.artifacts) {
+          parameterArtifacts.add(artifactUUID);
+        }
+      }
+    }
+
+    return parameterArtifacts;
+  }
+
   /**
    * Generate the provenance tree above the Result we were given recursively. Sets
    * class state to represent the tree.
@@ -493,6 +573,12 @@ export default class ProvenanceModel {
     }
 
     this.elements.push(...this.resultNodes);
+    console.log(this.innerIDToPipeline)
+    for (const key of this.innerIDToPipeline.keys()) {
+      console.log(this.nodeIDToJSON.get(key));
+    }
+    console.log(this.nodeIDToJSON)
+    // console.log(this.nodeIDToJSON.get("10f94e5f-c498-4f91-a3c5-f0e8dd9702bf"))
   }
 
   /**
