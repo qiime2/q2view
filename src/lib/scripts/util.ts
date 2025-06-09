@@ -204,10 +204,10 @@ export function sortErrorsBySeverity(
 // ECMAScript standard in 2024, so I'm going to implement them here in ways
 // that will work on older js.
 //****************************************************************************/
-export function setUnion(setA: Set<string>, setB: Set<string>) {
+export function setUnion(setA: Set<any>, setB: Set<any>) {
   return new Set([...setA, ...setB]);
 }
 
-export function setIntersection(setA: Set<string>, setB: Set<string>) {
+export function setIntersection(setA: Set<any>, setB: Set<any>) {
   return new Set([...setA].filter((elem) => setB.has(elem)));
 }
