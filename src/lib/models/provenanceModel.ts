@@ -573,12 +573,6 @@ export default class ProvenanceModel {
     }
 
     this.elements.push(...this.resultNodes);
-    console.log(this.innerIDToPipeline)
-    for (const key of this.innerIDToPipeline.keys()) {
-      console.log(this.nodeIDToJSON.get(key));
-    }
-    console.log(this.nodeIDToJSON)
-    // console.log(this.nodeIDToJSON.get("10f94e5f-c498-4f91-a3c5-f0e8dd9702bf"))
   }
 
   /**
