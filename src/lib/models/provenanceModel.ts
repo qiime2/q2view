@@ -156,13 +156,17 @@ export default class ProvenanceModel {
     //
     // Also need to keep track of which actions we have seen here to short-circuit
     // ...this may get a little messy
-    if (sourceAction.action['alias-of'] !== undefined) {
+    if (sourceAction.action["alias-of"] !== undefined) {
       const inputArtifacts = this._getInputArtifacts(sourceAction);
       const parameterArtifacts = this._getParameterArtifacts(sourceAction);
 
       const artifactUnion = setUnion(inputArtifacts, parameterArtifacts);
 
-      await this._recurseUpPipeline(sourceActionUUID, artifactUnion, sourceAction.action['alias-of']);
+      await this._recurseUpPipeline(
+        sourceActionUUID,
+        artifactUnion,
+        sourceAction.action["alias-of"],
+      );
     }
 
     // If we have already seen this Action then short circuit
@@ -213,14 +217,21 @@ export default class ProvenanceModel {
     const sourceInputArtifacts = this._getInputArtifacts(sourceAction);
     const sourceParameterArtifacts = this._getParameterArtifacts(sourceAction);
 
-    const sourceArtifactUnion = setUnion(sourceInputArtifacts, sourceParameterArtifacts);
+    const sourceArtifactUnion = setUnion(
+      sourceInputArtifacts,
+      sourceParameterArtifacts,
+    );
 
     this.nodeIDToJSON.set(sourceAction.execution.uuid, sourceAction);
     this.innerIDToPipeline.set(sourceAction.execution.uuid, rootUUID);
 
     for (const sourceArtifactUUID of sourceArtifactUnion) {
       if (!rootArtifactUnion.has(sourceArtifactUUID)) {
-        await this._recurseUpPipeline(rootUUID, rootArtifactUnion, sourceArtifactUUID);
+        await this._recurseUpPipeline(
+          rootUUID,
+          rootArtifactUnion,
+          sourceArtifactUUID,
+        );
       }
     }
   }
@@ -663,7 +674,10 @@ export default class ProvenanceModel {
 
       for (let i = 0; i < errorHits.length; i++) {
         if (this.innerIDToPipeline.get(errorHits[i]) !== undefined) {
-          errorHits = errorHits.with(i, this.innerIDToPipeline.get(errorHits[i]));
+          errorHits = errorHits.with(
+            i,
+            this.innerIDToPipeline.get(errorHits[i]),
+          );
         }
       }
 
