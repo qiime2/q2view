@@ -14,6 +14,7 @@
   <!-- If there is a visibile scrollbar then the rounding clips awkwardly -->
   <div class="{getScrollBarWidth() == 0 ? "rounded-md" : ""} mb-2 border border-gray-300 p-4 overflow-y-auto bg-gray-50"
        style="margin-right: {getScrollBarWidth()}px">
+    <!-- TODO: Right here if we have an error in the node we need to create two tabs -->
     {#if readerModel.provenanceModel.provData !== undefined}
       <div class="JSONTree">
         <JSONTree

@@ -642,13 +642,13 @@ export default class ProvenanceModel {
       {
         name: "My fake error",
         severity: 2,
-        query: 'qiime2: ^"2021"',
+        query: 'qiime2: ^"2023" AND action: "denoise"',
         description: "Oh no something is wrong I guess",
       },
       {
         name: "My other fake error",
         severity: 1,
-        query: 'qiime2: ^"2024"',
+        query: 'qiime2: ^"2023" AND (action: "emp" OR type: "import")',
         description: "Oh no something is less wrong than the other one I guess",
       },
       {
