@@ -9,14 +9,13 @@
   import ProvErrors from "./ProvErrors.svelte";
 
   let self: HTMLDivElement = $state();
-  let cy: cytoscape.Core = $state();
 
   const NODE_ERROR_BG_COLORS = ["rgb(252, 200, 0)", "rgb(255, 105, 0)", "rgb(251, 44, 54)"]
 
   // Center on selected node. Places it centered horizontally and just below
   // the control panel vertically
   function centerOnSelected() {
-    const selectedNodes = cy.elements('node:selected');
+    const selectedNodes = readerModel.provenanceModel.cy.elements('node:selected');
     if (selectedNodes.length === 0) {
       // No node currently selected
       return;
@@ -27,15 +26,15 @@
 
     // Make sure we can get the container height, should always be doable but
     // guard anyway
-    const containerHeight = cy.container()?.offsetHeight;
+    const containerHeight = readerModel.provenanceModel.cy.container()?.offsetHeight;
     if (containerHeight === undefined) {
       console.warn("Unable to get height of container");
       return;
     }
 
     // Center on node then pan it to the top of the viewport
-    cy.center(selectedNode);
-    cy.panBy({
+    readerModel.provenanceModel.cy.center(selectedNode);
+    readerModel.provenanceModel.cy.panBy({
       x: 0,
       y: -((containerHeight / 2) - (1.5 * HEIGHT_MULTIPLIER_PIXELS)),
     });
@@ -57,9 +56,9 @@
       return;
     }
 
-    cy.center();
-    cy.pan({
-      x: cy.pan().x,
+    readerModel.provenanceModel.cy.center();
+    readerModel.provenanceModel.cy.pan({
+      x: readerModel.provenanceModel.cy.pan().x,
       y: provDAGControlsHeight - HEIGHT_MULTIPLIER_PIXELS,
     });
   }
@@ -163,13 +162,13 @@
     let lock = false; // used to prevent recursive event storms
     let selectedExists = false;
 
-    cy = cytoscape({
+    readerModel.provenanceModel.cy = cytoscape({
       ...cytoscapeConfig,
       container: document.getElementById("cy"),
       elements: readerModel.provenanceModel.elements
     });
 
-    cy.on("select", "node, edge", (event) => {
+    readerModel.provenanceModel.cy.on("select", "node, edge", (event) => {
       if (!lock) {
         selectedExists = true;
         lock = true;
@@ -191,7 +190,7 @@
         }
 
         const edges = node.edgesTo("node");
-        cy.elements("node, edge").unselect();
+        readerModel.provenanceModel.cy.elements("node, edge").unselect();
         node.select();
         edges.select();
 
@@ -199,8 +198,8 @@
       }
     });
 
-    cy.on("unselect", "node, edge", (event) => {  // eslint-disable-line no-unused-vars
-      cy.elements("node, edge").unselect();
+    readerModel.provenanceModel.cy.on("unselect", "node, edge", (event) => {  // eslint-disable-line no-unused-vars
+      readerModel.provenanceModel.cy.elements("node, edge").unselect();
       if (!lock && selectedExists) {
         clearSelection();
         selectedExists = false;
@@ -215,7 +214,7 @@
 
 <div>
   <div id="provDAGControls" class="absolute z-10 {getScrollBarWidth() == 0 ? "left-2": ""}">
-    <ProvDAGControls {cy} {centerOnSelected} {centerAndPan} {mount}/>
+    <ProvDAGControls {centerOnSelected} {centerAndPan} {mount}/>
   </div>
   <div id="errorSymbols" class="absolute z-10 {getScrollBarWidth() == 0 ? "left-2": ""} bottom-0">
     <ProvErrors />

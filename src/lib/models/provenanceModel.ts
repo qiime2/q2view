@@ -9,6 +9,7 @@ import { getYAML } from "$lib/scripts/fileutils";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
 import { searchProvenance, transformQuery } from "$lib/scripts/provSearchUtils";
 import { setUnion, sortErrorsBySeverity } from "$lib/scripts/util";
+import cytoscape from "cytoscape";
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
 
@@ -30,6 +31,8 @@ export interface ProvenanceError {
  * information for the provided Result.
  */
 export default class ProvenanceModel {
+  cy: cytoscape.Core = cytoscape();
+
   // The height of the provenance tree
   height: number = 1;
   // Maps the UUIDs of each action to that actions depth in the tree

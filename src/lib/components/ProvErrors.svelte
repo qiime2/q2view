@@ -12,7 +12,7 @@
 </script>
 
 {#if $readerModel.provenanceModel.lowSeverityErrors.size !== 0}
-  <div class="flex" use:melt={$triggerDropdown}>
+  <div class="flex cursor-pointer" use:melt={$triggerDropdown}>
     <svg fill="#000000" width="60px" height="60px" viewBox="0 0 24 24" id="warning-alt" data-name="Flat Line" xmlns="http://www.w3.org/2000/svg" class="icon flat-line float-left"> <path id="secondary" d="M10.25,4.19,2.63,18a2,2,0,0,0,1.75,3H19.62a2,2,0,0,0,1.75-3L13.75,4.19A2,2,0,0,0,10.25,4.19Z" style="fill: var(--low-severity-yellow); stroke-width: 2;">
       </path>
       <line id="primary-upstroke" x1="12.05" y1="17" x2="11.95" y2="17" style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.5;">

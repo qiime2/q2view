@@ -12,13 +12,12 @@
   import { sortDAGNodes } from "$lib/scripts/util";
 
   interface Props {
-    cy: cytoscape.Core;
     centerOnSelected: Function;
     centerAndPan: Function;
     mount: Function;
   }
 
-  let { cy, centerOnSelected, centerAndPan, mount }: Props = $props();
+  let { centerOnSelected, centerAndPan, mount }: Props = $props();
 
   let value: string = $state("");
   let searchIndex: number = $state(0);
@@ -104,7 +103,7 @@
     }
 
     // Sort the hit nodes by row then by col within a given row
-    searchHits.sort((a, b) => sortDAGNodes(cy, a, b));
+    searchHits.sort((a, b) => sortDAGNodes(readerModel.provenanceModel.cy, a, b));
 
     _selectSearchHit();
   }
@@ -121,7 +120,7 @@
       // This will happen if there are no search hits
       return;
     } else {
-      cy.$id(hitID).select();
+      readerModel.provenanceModel.cy.$id(hitID).select();
       centerOnSelected();
     }
   }
@@ -166,7 +165,7 @@
   }
 
   function _deselect() {
-    const selectedNodes = cy.elements('node:selected');
+    const selectedNodes = readerModel.provenanceModel.cy.elements('node:selected');
     if (selectedNodes.length !== 0) {
       // We can only ever have one node selected at a time
       const selectedNode = selectedNodes[0];
