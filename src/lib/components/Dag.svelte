@@ -11,7 +11,7 @@
   let self: HTMLDivElement = $state();
   let cy: cytoscape.Core = $state();
 
-  const NODE_ERROR_BG_COLORS = ["rgb(255, 204, 0)", "rgb(255, 103, 0)", "rgb(204, 2, 2)"]
+  const NODE_ERROR_BG_COLORS = ["rgb(252, 200, 0)", "rgb(255, 105, 0)", "rgb(251, 44, 54)"]
 
   // Center on selected node. Places it centered horizontally and just below
   // the control panel vertically
