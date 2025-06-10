@@ -83,6 +83,7 @@
           "border-color": function(node) {
             const hitIndex = $readerModel.provenanceModel.searchHits.indexOf(node.id());
 
+            // TODO: Check here whether the current node is selected or not
             if (hitIndex !== -1 && hitIndex !== $readerModel.provenanceModel.searchIndex) {
               return "rgb(29, 78, 216)";
             }
