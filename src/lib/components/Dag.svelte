@@ -79,7 +79,16 @@
         selector: "node",
         css: {
           "text-valign": "center",
-          "text-halign": "center"
+          "text-halign": "center",
+          "border-color": function(node) {
+            const hitIndex = $readerModel.provenanceModel.searchHits.indexOf(node.id());
+
+            if (hitIndex !== -1 && hitIndex !== $readerModel.provenanceModel.searchIndex) {
+              return "rgb(29, 78, 216)";
+            }
+
+            return "#bbb";
+          }
         }
       },
       {
