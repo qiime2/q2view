@@ -2,7 +2,6 @@
   import { preventDefault } from "svelte/legacy";
 
   import "../../app.css";
-  import cytoscape from "cytoscape";
   import {
     searchProvenance,
     transformQuery,
