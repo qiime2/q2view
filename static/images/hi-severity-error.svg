@@ -1,0 +1,8 @@
+<svg fill="#000000" width="60px" height="60px" viewBox="0 0 24 24" data-name="Flat Line" xmlns="http://www.w3.org/2000/svg" class="icon flat-line">
+  <path d="M17.48,3.5l4.62,8a1,1,0,0,1,0,1l-4.62,8a1,1,0,0,1-.86.5H7.38a1,1,0,0,1-.86-.5l-4.62-8a1,1,0,0,1,0-1l4.62-8A1,1,0,0,1,7.38,3h9.24A1,1,0,0,1,17.48,3.5Z" style="fill: rgb(251, 44, 54); stroke-width: 2;">
+  </path>
+  <line x1="12.05" y1="17" x2="11.95" y2="17" style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.5;">
+  </line>
+  <path d="M12,7v6M16.62,3H7.38a1,1,0,0,0-.86.5l-4.62,8a1,1,0,0,0,0,1l4.62,8a1,1,0,0,0,.86.5h9.24a1,1,0,0,0,.86-.5l4.62-8a1,1,0,0,0,0-1l-4.62-8A1,1,0,0,0,16.62,3Z" style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;">
+  </path>
+</svg>
