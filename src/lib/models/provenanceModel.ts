@@ -669,7 +669,7 @@ export default class ProvenanceModel {
         description: "Is this even an error?",
       },
       {
-        name: "My more specific pipeline error",
+        name: "My other very minor fake error",
         severity: 0,
         query: 'qiime2: ^"2023"',
         description: "Is this even an error?",
