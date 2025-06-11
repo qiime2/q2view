@@ -217,24 +217,26 @@ export default class ProvenanceModel {
   async _recurseUpPipeline(rootUUID, rootArtifactUnion, resultUUID) {
     const sourceAction = await this.getProvenanceAction(resultUUID);
 
-    const sourceInputArtifacts = this._getInputArtifacts(sourceAction);
-    const sourceParameterArtifacts = this._getParameterArtifacts(sourceAction);
-
-    const sourceArtifactUnion = setUnion(
-      sourceInputArtifacts,
-      sourceParameterArtifacts,
-    );
-
     this.nodeIDToJSON.set(sourceAction.execution.uuid, sourceAction);
     this.innerIDToPipeline.set(sourceAction.execution.uuid, rootUUID);
 
-    for (const sourceArtifactUUID of sourceArtifactUnion) {
-      if (!rootArtifactUnion.has(sourceArtifactUUID)) {
-        await this._recurseUpPipeline(
-          rootUUID,
-          rootArtifactUnion,
-          sourceArtifactUUID,
-        );
+    if (ACTION_TYPES_WITH_HISTORY.includes(sourceAction.action.type)) {
+      const sourceInputArtifacts = this._getInputArtifacts(sourceAction);
+      const sourceParameterArtifacts = this._getParameterArtifacts(sourceAction);
+
+      const sourceArtifactUnion = setUnion(
+        sourceInputArtifacts,
+        sourceParameterArtifacts,
+      );
+
+      for (const sourceArtifactUUID of sourceArtifactUnion) {
+        if (!rootArtifactUnion.has(sourceArtifactUUID)) {
+          await this._recurseUpPipeline(
+            rootUUID,
+            rootArtifactUnion,
+            sourceArtifactUUID,
+          );
+        }
       }
     }
   }
