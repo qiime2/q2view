@@ -2,8 +2,8 @@
   import "../../app.css"
   import readerModel from "$lib/models/readerModel";
 
-  import { createCollapsible, createDropdownMenu, melt } from "@melt-ui/svelte";
-  import { slide, fly } from "svelte/transition";
+  import { createDropdownMenu, melt } from "@melt-ui/svelte";
+  import { fly } from "svelte/transition";
 
   const {
     elements: { menu, trigger: triggerDropdown },
