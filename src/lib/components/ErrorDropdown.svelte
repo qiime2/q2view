@@ -13,12 +13,12 @@
   } = createDropdownMenu({});
 </script>
 
-<div class="flex cursor-pointer" use:melt={$triggerDropdown}>
+<button use:melt={$triggerDropdown} class="flex">
   <img src="{svgPath}" />
   <div class="float-right flex items-center pl-2 text-2xl font-bold">
     {errors.size}
   </div>
-</div>
+</button>
 {#if $openDropdown}
   <div use:melt={$menu} transition:fly id="dropdown">
     {#each errors as error}
