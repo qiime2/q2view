@@ -21,7 +21,7 @@
       <path id="primary" d="M12,9v4M10.25,4.19,2.63,18a2,2,0,0,0,1.75,3H19.62a2,2,0,0,0,1.75-3L13.75,4.19A2,2,0,0,0,10.25,4.19Z" style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;">
       </path>
     </svg>
-    <div class="float-right flex items-center pl-4 text-2xl font-bold">
+    <div class="float-right flex items-center pl-2 text-2xl font-bold">
       {$readerModel.provenanceModel.lowSeverityErrors.size}
     </div>
   </div>
@@ -46,7 +46,7 @@
     <line id="primary-upstroke" x1="12.05" y1="17" x2="11.95" y2="17" style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.5;">
     </line>
   </svg>
-  <div class="float-right flex items-center pl-4 text-2xl font-bold">
+  <div class="float-right flex items-center pl-2 text-2xl font-bold">
     {$readerModel.provenanceModel.medSeverityErrors.size}
   </div>
 </div>
@@ -60,7 +60,7 @@
     <path id="primary" d="M12,7v6M16.62,3H7.38a1,1,0,0,0-.86.5l-4.62,8a1,1,0,0,0,0,1l4.62,8a1,1,0,0,0,.86.5h9.24a1,1,0,0,0,.86-.5l4.62-8a1,1,0,0,0,0-1l-4.62-8A1,1,0,0,0,16.62,3Z" style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;">
     </path>
   </svg>
-  <div class="float-right flex items-center pl-4 text-2xl font-bold">
+  <div class="float-right flex items-center pl-2 text-2xl font-bold">
     {$readerModel.provenanceModel.highSeverityErrors.size}
   </div>
 </div>
