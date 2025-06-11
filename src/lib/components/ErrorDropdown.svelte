@@ -8,7 +8,7 @@
   export let svgPath;
 
   const {
-    elements: { menu, item, trigger: triggerDropdown },
+    elements: { menu, trigger: triggerDropdown },
     states: { open: openDropdown },
   } = createDropdownMenu({});
 </script>
@@ -22,7 +22,7 @@
 {#if $openDropdown}
   <div use:melt={$menu} transition:fly id="dropdown">
     {#each errors as error}
-      <div use:melt={$item}>{error.name}</div>
+      <div>{error.name}</div>
     {/each}
   </div>
 {/if}
