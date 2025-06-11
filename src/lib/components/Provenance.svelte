@@ -5,6 +5,8 @@
   import Dag from "./Dag.svelte";
   import readerModel from "$lib/models/readerModel";
   import { getScrollBarWidth } from "$lib/scripts/util";
+
+  let tab: string = $state("provenance");
 </script>
 
 {#key $readerModel.provenanceModel.uuid}
@@ -14,15 +16,42 @@
   <!-- If there is a visibile scrollbar then the rounding clips awkwardly -->
   <div class="{getScrollBarWidth() == 0 ? "rounded-md" : ""} mb-2 border border-gray-300 p-4 overflow-y-auto bg-gray-50"
        style="margin-right: {getScrollBarWidth()}px">
-    <!-- TODO: Right here if we have an error in the node we need to create two tabs -->
     {#if readerModel.provenanceModel.provData !== undefined}
-      <div class="JSONTree">
-        <JSONTree
-          value={readerModel.provenanceModel.provData}
-          defaultExpandedLevel={100}
-          shouldShowPreview={false}
-        />
-      </div>
+      {#if readerModel.provenanceModel.cy.elements('node:selected').length > 0 && readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())}
+        <div class="flex border-b border-solid border-gray-500 pb-2 mb-4">
+          <button onclick={() => tab = "provenance"} class="nav-button float-left mx-auto w-1/2 {tab === "provenance" ? "selected-nav-button" : ""}">
+            Provenance
+          </button>
+          <button onclick={() => tab = "error"} class="nav-button float-right mx-auto w-1/2 {tab === "error" ? "selected-nav-button" : ""}">
+            Errors
+          </button>
+        </div>
+        <div class="JSONTree {tab === "provenance" ? "block" : "hidden"}">
+          <JSONTree
+            value={readerModel.provenanceModel.provData}
+            defaultExpandedLevel={100}
+            shouldShowPreview={false}
+          />
+        </div>
+        <div class="{tab === "error" ? "block" : "hidden"}">
+          {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id()) as error}
+            <div class="mb-2">
+              <span class="font-bold">name: </span> {error.name}<br>
+              <span class="font-bold">severity: </span> {error.severity}<br>
+              <span class="font-bold">query: </span> {error.query}<br>
+              <span class="font-bold">description: </span> {error.description}<br>
+            </div>
+          {/each}
+        </div>
+      {:else}
+        <div class="JSONTree">
+          <JSONTree
+            value={readerModel.provenanceModel.provData}
+            defaultExpandedLevel={100}
+            shouldShowPreview={false}
+          />
+        </div>
+      {/if}
     {:else}
       <div class="text-gray-700 text-sm">
         <p class="pb-3 leading-5">Click on an element of the Provenance Graph to learn more. Alternatively, you can search the graph for actions and results matching specific criteria</p>
@@ -59,5 +88,34 @@
     rounded-md
     px-2
     py-0.5
+  }
+
+  .nav-button {
+    @apply block
+    border-b-4
+    border-b-transparent
+    text-gray-500;
+  }
+
+  .nav-button:hover {
+    @apply text-gray-950;
+  }
+
+  .selected-nav-button {
+    @apply
+    font-bold
+    text-gray-950
+    border-b-[#e39e54];
+  }
+
+  .nav-button::before {
+    @apply font-bold;
+    display: block;
+    content: attr(title);
+    height: 1px;
+    width: max-content;
+    color: transparent;
+    overflow: hidden;
+    visibility: hidden;
   }
 </style>

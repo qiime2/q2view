@@ -666,6 +666,12 @@ export default class ProvenanceModel {
         query: 'qiime2: ^"2023" AND action: "rarefy"',
         description: "Is this even an error?",
       },
+      {
+        name: "My more specific pipeline error",
+        severity: 0,
+        query: 'qiime2: ^"2023"',
+        description: "Is this even an error?",
+      },
     ];
 
     let errorHits: string[] = [];
