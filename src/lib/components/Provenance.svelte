@@ -36,7 +36,7 @@
         <div class="{tab === "error" ? "block" : "hidden"}">
           {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id()) as error}
             <div class="mb-2">
-              <span class="font-bold">name: </span> {error.name}<br>
+              <span class="font-bold border-solid border-b-2 border-gray-500"> {error.name}</span><br>
               <span class="font-bold">severity: </span> {error.severity}<br>
               <span class="font-bold">query: </span> {error.query}<br>
               <span class="font-bold">description: </span> {error.description}<br>
