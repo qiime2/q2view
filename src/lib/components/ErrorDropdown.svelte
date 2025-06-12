@@ -30,7 +30,7 @@
 {#if $openDropdown}
   <div use:melt={$menu} transition:fly id="dropdown">
     {#each errors as error}
-      <button onclick={() => _searchProvForError('qiime2: ^"2024"')}>{error.name}</button>
+      <button onclick={() => _searchProvForError(error.query)}>{error.name}</button>
     {/each}
   </div>
 {/if}
