@@ -54,7 +54,7 @@ export default class ProvenanceModel {
   nodeIDToJSON: BiMap<string, {}> = new BiMap();
   innerIDToPipeline: Map<string, string> = new Map();
   searchError: any = null;
-  searchValue:string = "";
+  searchValue: string = "";
 
   // Metadata
   seenMetadata: Set<string> = new Set();
@@ -224,7 +224,8 @@ export default class ProvenanceModel {
 
     if (ACTION_TYPES_WITH_HISTORY.includes(sourceAction.action.type)) {
       const sourceInputArtifacts = this._getInputArtifacts(sourceAction);
-      const sourceParameterArtifacts = this._getParameterArtifacts(sourceAction);
+      const sourceParameterArtifacts =
+        this._getParameterArtifacts(sourceAction);
 
       const sourceArtifactUnion = setUnion(
         sourceInputArtifacts,
