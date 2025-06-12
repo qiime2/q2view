@@ -14,7 +14,7 @@
 </script>
 
 <button use:melt={$triggerDropdown} class="flex">
-  <img src="{svgPath}" />
+  <img src="{svgPath}" alt="{svgPath}"/>
   <div class="float-right flex items-center pl-2 text-2xl font-bold">
     {errors.size}
   </div>
