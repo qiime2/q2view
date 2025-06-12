@@ -54,14 +54,12 @@ export default class ProvenanceModel {
   nodeIDToJSON: BiMap<string, {}> = new BiMap();
   innerIDToPipeline: Map<string, string> = new Map();
   searchError: any = null;
-  searchValue: string = "";
 
   // Metadata
   seenMetadata: Set<string> = new Set();
   metadata: Array<Array<string>> = [];
 
   // Error tracking
-  errorNameToNodeIDs: Map<string, string[]> = new Map();
   nodeIDToErrors: Map<string, ProvenanceError[]> = new Map();
   lowSeverityErrors: Set<ProvenanceError> = new Set();
   medSeverityErrors: Set<ProvenanceError> = new Set();
@@ -646,7 +644,13 @@ export default class ProvenanceModel {
 
   async getErrors() {
     // This will be fetched from a remote source somewhere
-    // TODO: Can also keep track of date issue was added to database
+
+    // TODO: Need to disambiguate between the same error hitting on a pipeline
+    // multiple times due to hitting multiple internal actions
+    //
+    // In addition, it's a bit confusing to search for 'action: "rarefy"' and
+    // get a hit on a pipeline that called rarefy without an explanation that's
+    // what's happening
     const ERRORS = [
       {
         name: "My fake error",
@@ -685,9 +689,6 @@ export default class ProvenanceModel {
       },
     ];
 
-    // let errorHits: string[] = [];
-    // let formattedQuery: string[] = [];
-
     for (const error of ERRORS) {
       let formattedQuery = transformQuery(error.query);
       let errorHits = searchProvenance(formattedQuery, this.nodeIDToJSON);
@@ -702,8 +703,6 @@ export default class ProvenanceModel {
       }
 
       if (errorHits.length !== 0) {
-        this.errorNameToNodeIDs.set(error.name, errorHits);
-
         switch (error.severity) {
           case 0:
             this.lowSeverityErrors.add(error);
