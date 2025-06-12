@@ -29,8 +29,13 @@
 </button>
 {#if $openDropdown}
   <div use:melt={$menu} transition:fly id="dropdown">
+    <div>
+      Search Provenance for Error:
+    </div>
     {#each errors as error}
-      <button onclick={() => _searchProvForError(error.query)}>{error.name}</button>
+    <div>
+      <button onclick={() => _searchProvForError(error.query)} class="border rounded-md p-2 m-2 bg-gray-300">{error.name}</button>
+    </div>
     {/each}
   </div>
 {/if}
