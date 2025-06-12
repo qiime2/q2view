@@ -23,6 +23,7 @@ export interface ProvenanceError {
   name: string;
   severity: number;
   query: string;
+  date: string;
   description: string;
 }
 
@@ -53,6 +54,7 @@ export default class ProvenanceModel {
   nodeIDToJSON: BiMap<string, {}> = new BiMap();
   innerIDToPipeline: Map<string, string> = new Map();
   searchError: any = null;
+  searchValue:string = "";
 
   // Metadata
   seenMetadata: Set<string> = new Set();
@@ -643,45 +645,51 @@ export default class ProvenanceModel {
 
   async getErrors() {
     // This will be fetched from a remote source somewhere
+    // TODO: Can also keep track of date issue was added to database
     const ERRORS = [
       {
         name: "My fake error",
         severity: 2,
         query: 'qiime2: ^"2023" AND action: "denoise"',
+        date: "mm-dd-yyyy",
         description: "Oh no something is wrong I guess",
       },
       {
         name: "My other fake error",
         severity: 1,
         query: 'qiime2: ^"2023" AND (action: "emp" OR type: "import")',
+        date: "mm-dd-yyyy",
         description: "Oh no something is less wrong than the other one I guess",
       },
       {
         name: "My very minor fake error",
         severity: 0,
         query: 'qiime2: ^"2024"',
+        date: "mm-dd-yyyy",
         description: "Is this even an error?",
       },
       {
         name: "My more specific pipeline error",
         severity: 0,
         query: 'qiime2: ^"2023" AND action: "rarefy"',
+        date: "mm-dd-yyyy",
         description: "Is this even an error?",
       },
       {
         name: "My other very minor fake error",
         severity: 0,
         query: 'qiime2: ^"2023"',
+        date: "mm-dd-yyyy",
         description: "Is this even an error?",
       },
     ];
 
-    let errorHits: string[] = [];
-    let formattedQuery: string[] = [];
+    // let errorHits: string[] = [];
+    // let formattedQuery: string[] = [];
 
     for (const error of ERRORS) {
-      formattedQuery = transformQuery(error.query);
-      errorHits = searchProvenance(formattedQuery, this.nodeIDToJSON);
+      let formattedQuery = transformQuery(error.query);
+      let errorHits = searchProvenance(formattedQuery, this.nodeIDToJSON);
 
       for (let i = 0; i < errorHits.length; i++) {
         if (this.innerIDToPipeline.get(errorHits[i]) !== undefined) {

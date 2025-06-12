@@ -7,6 +7,14 @@
   export let errors;
   export let svgPath;
 
+  function _searchProvForError(errorQuery: string) {
+    let provSearchForm = document.getElementById("provSearchForm") as HTMLFormElement;
+    let provSearchInput = document.getElementById("provSearchInput") as HTMLInputElement;
+
+    provSearchInput.value = errorQuery;
+    provSearchForm.requestSubmit();
+  }
+
   const {
     elements: { menu, trigger: triggerDropdown },
     states: { open: openDropdown },
@@ -22,7 +30,7 @@
 {#if $openDropdown}
   <div use:melt={$menu} transition:fly id="dropdown">
     {#each errors as error}
-      <div>{error.name}</div>
+      <button onclick={() => _searchProvForError('qiime2: ^"2024"')}>{error.name}</button>
     {/each}
   </div>
 {/if}

@@ -18,6 +18,8 @@
 
   let { centerOnSelected, centerAndPan, mount }: Props = $props();
 
+  // NOTE: I can unfortunately no longer bind this value directly in the input
+  // because doing so did not work with ErrorDropdown injecting its search
   let value: string = $state("");
   let searchIndex: number = $state(0);
   let searchHits: Array<string> = $state([]);
@@ -81,6 +83,9 @@
   // Otherwise put a list of them... Somewhere? TBD exactly where logged errors
   // are to be stored/displayed
   function _handleProvenanceSearch() {
+    let provSearchInput = document.getElementById("provSearchInput") as HTMLInputElement;
+    value = provSearchInput.value;
+
     searchIndex = 0;
 
     try {
@@ -173,7 +178,8 @@
   }
 
   function _clearSearch() {
-    value = "";
+    let provSearchInput = document.getElementById("provSearchInput") as HTMLInputElement;
+    provSearchInput.value = "";
     searchIndex = 0;
     searchHits = [];
     readerModel.provenanceModel.searchError = null;
@@ -182,8 +188,8 @@
 </script>
 
 <Panel customPanelClass="p-4 bg-gray-50">
-  <form onsubmit={preventDefault(_handleProvenanceSearch)}>
-    <input class="roundInput" placeholder="Search Provenance" bind:value />
+  <form id="provSearchForm" onsubmit={preventDefault(_handleProvenanceSearch)}>
+    <input id="provSearchInput" class="roundInput" placeholder="Search Provenance" />
   </form>
   <div class="flex mt-2" style="align-items: center">
     <button
