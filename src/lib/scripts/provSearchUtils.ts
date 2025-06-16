@@ -28,11 +28,12 @@ export function searchProvenance(
   transformedQuery: Array<string>,
   provenanceMap: BiMap<string, {}>,
 ): Array<string> {
-  const searchHits = _searchProv(transformedQuery, 0, provenanceMap)
+  const searchHits = _searchProv(transformedQuery, 0, provenanceMap);
 
   // Replace hits on actions internal to a pipeline to hits on that pipeline
   for (const searchHit of searchHits) {
-    const pipeline = readerModel.provenanceModel.innerIDToPipeline.get(searchHit);
+    const pipeline =
+      readerModel.provenanceModel.innerIDToPipeline.get(searchHit);
 
     if (pipeline !== undefined) {
       searchHits.add(pipeline);
