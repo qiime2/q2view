@@ -747,8 +747,9 @@ export default class ProvenanceModel {
       }
     }
 
-    for (const errors of this.nodeIDToErrors.values()) {
-      errors.sort(sortErrorsBySeverity);
+    for (const key of this.nodeIDToErrors.keys()) {
+      const deDuped = new Set(this.nodeIDToErrors.get(key));
+      this.nodeIDToErrors.set(key, [...deDuped].sort(sortErrorsBySeverity));
     }
   }
 }
