@@ -690,9 +690,12 @@ export default class ProvenanceModel {
     ];
 
     for (const error of ERRORS) {
+      // Search provenance for nodes matching this error's query
       let formattedQuery = transformQuery(error.query);
       let errorHits = searchProvenance(formattedQuery, this.nodeIDToJSON);
 
+      // We need to attribute errors in inner pipeline actions to the outter
+      // pipeline
       for (let i = 0; i < errorHits.length; i++) {
         if (this.innerIDToPipeline.get(errorHits[i]) !== undefined) {
           errorHits = errorHits.with(
@@ -702,6 +705,8 @@ export default class ProvenanceModel {
         }
       }
 
+      // If we got any error hits, add this error to the list of overall errors
+      // seen
       if (errorHits.length !== 0) {
         switch (error.severity) {
           case 0:
