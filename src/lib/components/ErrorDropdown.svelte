@@ -11,8 +11,8 @@
     let provSearchForm = document.getElementById("provSearchForm") as HTMLFormElement;
     let provSearchInput = document.getElementById("provSearchInput") as HTMLInputElement;
 
-    provSearchForm.requestSubmit();
     provSearchInput.value = errorQuery;
+    provSearchForm.requestSubmit();
   }
 
   const {
