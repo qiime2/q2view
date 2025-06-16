@@ -220,6 +220,23 @@ export default class ProvenanceModel {
     this.nodeIDToJSON.set(sourceAction.execution.uuid, sourceAction);
     this.innerIDToPipeline.set(sourceAction.execution.uuid, rootUUID);
 
+    // Need to handle nested pipelines
+    //
+    // This is mapping nested pipelines directly to the outter pipeline not to
+    // their most immediate ancestor
+    if (sourceAction.action["alias-of"] !== undefined) {
+      const inputArtifacts = this._getInputArtifacts(sourceAction);
+      const parameterArtifacts = this._getParameterArtifacts(sourceAction);
+
+      const artifactUnion = setUnion(inputArtifacts, parameterArtifacts);
+
+      await this._recurseUpPipeline(
+        rootUUID,
+        artifactUnion,
+        sourceAction.action["alias-of"],
+      );
+    }
+
     if (ACTION_TYPES_WITH_HISTORY.includes(sourceAction.action.type)) {
       const sourceInputArtifacts = this._getInputArtifacts(sourceAction);
       const sourceParameterArtifacts =
