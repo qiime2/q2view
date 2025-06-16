@@ -711,17 +711,6 @@ export default class ProvenanceModel {
       let formattedQuery = transformQuery(error.query);
       let errorHits = searchProvenance(formattedQuery, this.nodeIDToJSON);
 
-      // We need to attribute errors in inner pipeline actions to the outter
-      // pipeline
-      for (let i = 0; i < errorHits.length; i++) {
-        if (this.innerIDToPipeline.get(errorHits[i]) !== undefined) {
-          errorHits = errorHits.with(
-            i,
-            this.innerIDToPipeline.get(errorHits[i]),
-          );
-        }
-      }
-
       // If we got any error hits, add this error to the list of overall errors
       // seen
       if (errorHits.length !== 0) {
@@ -748,8 +737,7 @@ export default class ProvenanceModel {
     }
 
     for (const key of this.nodeIDToErrors.keys()) {
-      const deDuped = new Set(this.nodeIDToErrors.get(key));
-      this.nodeIDToErrors.set(key, Array.from(deDuped).sort(sortErrorsBySeverity));
+      this.nodeIDToErrors.get(key)?.sort(sortErrorsBySeverity);
     }
   }
 }

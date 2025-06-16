@@ -5,6 +5,7 @@ import {
   setIntersection,
 } from "./util";
 import BiMap from "./biMap";
+import readerModel from "$lib/models/readerModel";
 
 const OR = "|";
 const AND = "&";
@@ -27,11 +28,19 @@ export function searchProvenance(
   transformedQuery: Array<string>,
   provenanceMap: BiMap<string, {}>,
 ): Array<string> {
-  const searchHits = Array.from(
-    _searchProv(transformedQuery, 0, provenanceMap),
-  );
+  const searchHits = _searchProv(transformedQuery, 0, provenanceMap)
 
-  return searchHits;
+  // Replace hits on actions internal to a pipeline to hits on that pipeline
+  for (const searchHit of searchHits) {
+    const pipeline = readerModel.provenanceModel.innerIDToPipeline.get(searchHit);
+
+    if (pipeline !== undefined) {
+      searchHits.add(pipeline);
+      searchHits.delete(searchHit);
+    }
+  }
+
+  return Array.from(searchHits);
 }
 
 // Sentinel class to see that we have a pair
