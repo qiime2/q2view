@@ -749,7 +749,7 @@ export default class ProvenanceModel {
 
     for (const key of this.nodeIDToErrors.keys()) {
       const deDuped = new Set(this.nodeIDToErrors.get(key));
-      this.nodeIDToErrors.set(key, [...deDuped].sort(sortErrorsBySeverity));
+      this.nodeIDToErrors.set(key, Array.from(deDuped).sort(sortErrorsBySeverity));
     }
   }
 }
