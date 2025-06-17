@@ -121,12 +121,23 @@ class ReaderModel {
       return;
     }
 
+    if (readerModel.provenanceModel.highSeverityErrors.size > 0) {
+      let errString = "Critical errors found in provenance:\n";
+
+      for (const error of readerModel.provenanceModel.highSeverityErrors) {
+        errString += error.name + "\n";
+      }
+
+      alert(errString);
+      tab = "provenance";
+    }
+
     // We set this after reading the data because sometimes which tab we go to
     // is dependent on whether we read an artifact or a visualization and we
     // don't have a great way of knowing that for certain until we've actually
     // read it
     if (src instanceof File) {
-      this._setLocalTab();
+      this._setLocalTab(tab);
     } else {
       this._setRemoteTab(tab);
     }
@@ -169,8 +180,10 @@ class ReaderModel {
     this.rawSrc = src;
   }
 
-  _setLocalTab() {
-    let tab = this._getTab();
+  _setLocalTab(tab: string) {
+    if (tab === ""){
+      tab = this._getTab();
+    }
 
     // Pushes state because this change necessarily happened to move from the
     // root page to the new default page for the provided file
