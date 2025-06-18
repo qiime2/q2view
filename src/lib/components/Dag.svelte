@@ -76,20 +76,16 @@
     },
     style: [
       {
+        selector: "highlighted",
+        css: {
+         "border-color": "rgb(29, 78, 216)"
+        }
+      },
+      {
         selector: "node",
         css: {
           "text-valign": "center",
-          "text-halign": "center",
-          "border-color": function(node) {
-            const hitIndex = $readerModel.provenanceModel.searchHits.indexOf(node.id());
-
-            // TODO: Check here whether the current node is selected or not
-            if (hitIndex !== -1 && hitIndex !== $readerModel.provenanceModel.searchIndex) {
-              return "rgb(29, 78, 216)";
-            }
-
-            return "#bbb";
-          }
+          "text-halign": "center"
         }
       },
       {
