@@ -34,7 +34,7 @@
     </div>
     {#each errors as error}
     <div>
-      <button onclick={() => _searchProvForError(error.query)} class="border rounded-md p-2 m-2 bg-gray-300">{error.name}</button>
+      <button onclick={() => _searchProvForError(error.query)} class="roundButton textButton my-1">{error.name}</button>
     </div>
     {/each}
   </div>
@@ -59,4 +59,18 @@
     rounded
     w-full
   }
+
+  .textButton {
+    @apply border
+    border-gray-300
+    bg-gray-200
+    mx-1
+    px-2
+    py-1;
+  }
+
+  .textButton:hover {
+    @apply bg-gray-300;
+  }
+
 </style>
