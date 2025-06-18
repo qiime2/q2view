@@ -74,6 +74,10 @@
   function _handleProvenanceSearch() {
     readerModel.provenanceModel.searchIndex = 0;
 
+    for (const hitID of readerModel.provenanceModel.searchHits) {
+      cy.$id(hitID).removeClass("highlighted");
+    }
+
     try {
       const transformedSearchQuery = transformQuery(value);
       readerModel.provenanceModel.searchHits = searchProvenance(
