@@ -76,7 +76,7 @@
     },
     style: [
       {
-        selector: "highlighted",
+        selector: ".highlighted",
         css: {
          "border-color": "rgb(29, 78, 216)"
         }
