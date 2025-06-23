@@ -49,6 +49,7 @@ export default class ProvenanceModel {
 
   // Json representing the provenance of the selected node in the tree
   provData: Object | undefined = undefined;
+  provTab: string = "provenance";
 
   // Search JSON
   nodeIDToJSON: BiMap<string, {}> = new BiMap();

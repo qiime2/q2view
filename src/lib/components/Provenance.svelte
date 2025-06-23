@@ -5,8 +5,6 @@
   import Dag from "./Dag.svelte";
   import readerModel from "$lib/models/readerModel";
   import { getScrollBarWidth } from "$lib/scripts/util";
-
-  let tab: string = $state("provenance");
 </script>
 
 {#key $readerModel.provenanceModel.uuid}
@@ -19,21 +17,21 @@
     {#if readerModel.provenanceModel.provData !== undefined}
       {#if readerModel.provenanceModel.cy.elements('node:selected').length > 0 && readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())}
         <div class="flex border-b border-solid border-gray-500 pb-2 mb-4">
-          <button onclick={() => tab = "provenance"} class="nav-button float-left mx-auto w-1/2 {tab === "provenance" ? "selected-nav-button" : ""}">
+          <button onclick={() => readerModel.provenanceModel.provTab = "provenance"} class="nav-button float-left mx-auto w-1/2 {readerModel.provenanceModel.provTab === "provenance" ? "selected-nav-button" : ""}">
             Provenance
           </button>
-          <button onclick={() => tab = "error"} class="nav-button float-right mx-auto w-1/2 {tab === "error" ? "selected-nav-button" : ""}">
+          <button onclick={() => readerModel.provenanceModel.provTab = "error"} class="nav-button float-right mx-auto w-1/2 {readerModel.provenanceModel.provTab === "error" ? "selected-nav-button" : ""}">
             Errors
           </button>
         </div>
-        <div class="JSONTree {tab === "provenance" ? "block" : "hidden"}">
+        <div class="JSONTree {readerModel.provenanceModel.provTab === "provenance" ? "block" : "hidden"}">
           <JSONTree
             value={readerModel.provenanceModel.provData}
             defaultExpandedLevel={100}
             shouldShowPreview={false}
           />
         </div>
-        <div class="{tab === "error" ? "block" : "hidden"}">
+        <div class="{readerModel.provenanceModel.provTab === "error" ? "block" : "hidden"}">
           {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id()) as error}
             <div class="mb-2">
               <span class="font-bold border-solid border-b-2 border-gray-500"> {error.name}</span><br>
