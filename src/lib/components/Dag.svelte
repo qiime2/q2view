@@ -99,7 +99,13 @@
             const currentErrors = readerModel.provenanceModel.nodeIDToErrors.get(nodeID);
 
             if (currentErrors !== undefined) {
-              return NODE_ERROR_BG_COLORS[currentErrors[0].severity];
+              if (currentErrors.get(2)) {
+                return NODE_ERROR_BG_COLORS[2];
+              } else if (currentErrors.get(1)) {
+                return NODE_ERROR_BG_COLORS[1];
+              } else {
+                return NODE_ERROR_BG_COLORS[0];
+              }
             }
 
             return "#bbb";
