@@ -1,5 +1,6 @@
 <script lang="ts">
   import "../../app.css"
+  import readerModel from "$lib/models/readerModel";
 
   import { createDropdownMenu, melt } from "@melt-ui/svelte";
   import { fly } from "svelte/transition";
@@ -13,6 +14,8 @@
 
     provSearchInput.value = errorQuery;
     provSearchForm.requestSubmit();
+
+    readerModel.provenanceModel.provTab = "error";
   }
 
   const {
