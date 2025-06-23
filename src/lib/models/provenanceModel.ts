@@ -678,6 +678,13 @@ export default class ProvenanceModel {
         description: "Oh no something is wrong I guess",
       },
       {
+        name: "Bad error",
+        severity: 2,
+        query: 'qiime2: ^"2023" AND action: "denoise"',
+        date: "mm-dd-yyyy",
+        description: "Oh no something is wrong I guess",
+      },
+      {
         name: "My other fake error",
         severity: 1,
         query: 'qiime2: ^"2023" AND (action: "emp" OR type: "import")',
