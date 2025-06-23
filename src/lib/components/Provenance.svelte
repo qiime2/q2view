@@ -37,7 +37,7 @@
               <span class="font-bold border-solid border-b-2 border-gray-500"> {error.name}</span><br>
               <span class="font-bold">severity: </span> {error.severity}<br>
               <span class="font-bold">query: </span> {error.query}<br>
-              <span class="font-bold">discovery data (mm-dd-yyyy): </span> {error.date}<br>
+              <span class="font-bold">discovery date (mm-dd-yyyy): </span> {error.date}<br>
               <span class="font-bold">description: </span> {error.description}<br>
             </div>
           {/each}
