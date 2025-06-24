@@ -21,8 +21,6 @@
   // NOTE: I can unfortunately no longer bind this value directly in the input
   // because doing so did not work with ErrorDropdown injecting its search
   let value: string = $state("");
-  let searchIndex: number = $state(0);
-  let searchHits: Array<string> = $state([]);
 
   // Map the literals Lark uses to more human readable things
   const LARK_MAP: Map<string, string> = new Map([
@@ -78,16 +76,20 @@
     let provSearchInput = document.getElementById("provSearchInput") as HTMLInputElement;
     value = provSearchInput.value;
 
-    searchIndex = 0;
+    readerModel.provenanceModel.searchIndex = 0;
+
+    for (const hitID of readerModel.provenanceModel.searchHits) {
+      readerModel.provenanceModel.cy.$id(hitID).removeClass("highlighted");
+    }
 
     try {
       const transformedSearchQuery = transformQuery(value);
-      searchHits = searchProvenance(
+      readerModel.provenanceModel.searchHits = searchProvenance(
         transformedSearchQuery,
         readerModel.provenanceModel.nodeIDToJSON,
       );
 
-      if (searchHits.length === 0) {
+      if (readerModel.provenanceModel.searchHits.length === 0) {
         throw new Error("No search hits found");
       }
 
@@ -99,53 +101,52 @@
     }
 
     // Sort the hit nodes by row then by col within a given row
-    searchHits.sort((a, b) => sortDAGNodes(readerModel.provenanceModel.cy, a, b));
+    readerModel.provenanceModel.searchHits.sort((a, b) => sortDAGNodes(readerModel.provenanceModel.cy, a, b));
+
+    for (const hitID of readerModel.provenanceModel.searchHits) {
+      readerModel.provenanceModel.cy.$id(hitID).addClass("highlighted");
+    }
 
     _selectSearchHit();
   }
 
   function _selectSearchHit() {
-    let hitID = searchHits[searchIndex];
-
-    // If this hit was on an inner action in a pipeline we need to disambiguate that.
-    if (readerModel.provenanceModel.innerIDToPipeline.get(hitID) !== undefined) {
-      hitID = readerModel.provenanceModel.innerIDToPipeline.get(hitID);
-    }
+    const hitID = readerModel.provenanceModel.searchHits[readerModel.provenanceModel.searchIndex];
 
     if (hitID === undefined) {
       // This will happen if there are no search hits
       return;
-    } else {
-      readerModel.provenanceModel.cy.$id(hitID).select();
-      centerOnSelected();
     }
+
+    readerModel.provenanceModel.cy.$id(hitID).select();
+    centerOnSelected();
   }
 
   function _decrementSearchIndex() {
-    if (searchHits.length === 0) {
+    if (readerModel.provenanceModel.searchHits.length === 0) {
       // This will happen if the button is clicked with no search results
       return;
     }
 
-    if (searchIndex > 0) {
-      searchIndex--;
+    if (readerModel.provenanceModel.searchIndex > 0) {
+      readerModel.provenanceModel.searchIndex--;
     } else {
-      searchIndex = searchHits.length - 1;
+      readerModel.provenanceModel.searchIndex = readerModel.provenanceModel.searchHits.length - 1;
     }
 
     _selectSearchHit();
   }
 
   function _incrementSearchIndex() {
-    if (searchHits.length === 0) {
+    if (readerModel.provenanceModel.searchHits.length === 0) {
       // This will happen if the button is clicked with no search results
       return;
     }
 
-    if (searchIndex < searchHits.length - 1) {
-      searchIndex++;
+    if (readerModel.provenanceModel.searchIndex < readerModel.provenanceModel.searchHits.length - 1) {
+      readerModel.provenanceModel.searchIndex++;
     } else {
-      searchIndex = 0;
+      readerModel.provenanceModel.searchIndex = 0;
     }
 
     _selectSearchHit();
@@ -172,8 +173,14 @@
   function _clearSearch() {
     let provSearchInput = document.getElementById("provSearchInput") as HTMLInputElement;
     provSearchInput.value = "";
-    searchIndex = 0;
-    searchHits = [];
+    value = "";
+
+    for (const hitID of readerModel.provenanceModel.searchHits) {
+      readerModel.provenanceModel.cy.$id(hitID).removeClass("highlighted");
+    }
+
+    readerModel.provenanceModel.searchIndex = 0;
+    readerModel.provenanceModel.searchHits = [];
     readerModel.provenanceModel.searchError = null;
     readerModel._dirty();
   }
@@ -198,7 +205,7 @@
       </svg>
     </button>
     <!-- Show 0/0 when no results -->
-    {searchHits.length > 0 ? searchIndex + 1 : searchIndex}/{searchHits.length}
+    {$readerModel.provenanceModel.searchHits.length > 0 ? $readerModel.provenanceModel.searchIndex + 1 : $readerModel.provenanceModel.searchIndex}/{$readerModel.provenanceModel.searchHits.length}
     <button
       onclick={_incrementSearchIndex}
       class="roundButton"

@@ -54,6 +54,10 @@ export default class ProvenanceModel {
   // Search JSON
   nodeIDToJSON: BiMap<string, {}> = new BiMap();
   innerIDToPipeline: Map<string, string> = new Map();
+  keys: Set<string> = new Set();
+  searchIndex: number = 0;
+  searchHits: Array<string> = [];
+
   searchError: any = null;
 
   // Metadata
