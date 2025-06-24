@@ -85,6 +85,13 @@
     },
     style: [
       {
+        selector: ".highlighted",
+        css: {
+          "border-width": "2px",
+          "border-color": "rgb(81, 162, 255)",
+        }
+      },
+      {
         selector: "node",
         css: {
           "text-valign": "center",

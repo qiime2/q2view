@@ -74,6 +74,10 @@
   function _handleProvenanceSearch() {
     readerModel.provenanceModel.searchIndex = 0;
 
+    for (const hitID of readerModel.provenanceModel.searchHits) {
+      cy.$id(hitID).removeClass("highlighted");
+    }
+
     try {
       const transformedSearchQuery = transformQuery(value);
       readerModel.provenanceModel.searchHits = searchProvenance(
@@ -111,6 +115,10 @@
 
       return aNode.data().row - bNode.data().row;
     });
+
+    for (const hitID of readerModel.provenanceModel.searchHits) {
+      cy.$id(hitID).addClass("highlighted");
+    }
 
     _selectSearchHit();
   }
@@ -177,6 +185,11 @@
 
   function _clearSearch() {
     value = "";
+
+    for (const hitID of readerModel.provenanceModel.searchHits) {
+      cy.$id(hitID).removeClass("highlighted");
+    }
+
     readerModel.provenanceModel.searchIndex = 0;
     readerModel.provenanceModel.searchHits = [];
     readerModel.provenanceModel.searchError = null;
