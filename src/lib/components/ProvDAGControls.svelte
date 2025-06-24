@@ -20,8 +20,6 @@
   let { cy, centerOnSelected, centerAndPan, mount }: Props = $props();
 
   let value: string = $state("");
-  let searchIndex: number = $state(0);
-  let searchHits: Array<string> = $state([]);
 
   // Map the literals Lark uses to more human readable things
   const LARK_MAP: Map<string, string> = new Map([
@@ -74,11 +72,11 @@
   }
 
   function _handleProvenanceSearch() {
-    searchIndex = 0;
+    readerModel.provenanceModel.searchIndex = 0;
 
     try {
       const transformedSearchQuery = transformQuery(value);
-      searchHits = searchProvenance(
+      readerModel.provenanceModel.searchHits = searchProvenance(
         transformedSearchQuery,
         readerModel.provenanceModel.nodeIDToJSON,
       );
@@ -90,7 +88,7 @@
     }
 
     // Sort the hit nodes by row then by col within a given row
-    searchHits.sort((a, b) => {
+    readerModel.provenanceModel.searchHits.sort((a, b) => {
       let aNode: any = cy.$id(a);
       let bNode: any = cy.$id(b);
 
@@ -118,42 +116,42 @@
   }
 
   function _selectSearchHit() {
-    const hitID = searchHits[searchIndex];
+    const hitID = readerModel.provenanceModel.searchHits[readerModel.provenanceModel.searchIndex];
 
     if (hitID === undefined) {
       // This will happen if there are no search hits
       return;
-    } else {
-      cy.$id(hitID).select();
-      centerOnSelected();
     }
+
+    cy.$id(hitID).select();
+    centerOnSelected();
   }
 
   function _decrementSearchIndex() {
-    if (searchHits.length === 0) {
+    if (readerModel.provenanceModel.searchHits.length === 0) {
       // This will happen if the button is clicked with no search results
       return;
     }
 
-    if (searchIndex > 0) {
-      searchIndex--;
+    if (readerModel.provenanceModel.searchIndex > 0) {
+      readerModel.provenanceModel.searchIndex--;
     } else {
-      searchIndex = searchHits.length - 1;
+      readerModel.provenanceModel.searchIndex = readerModel.provenanceModel.searchHits.length - 1;
     }
 
     _selectSearchHit();
   }
 
   function _incrementSearchIndex() {
-    if (searchHits.length === 0) {
+    if (readerModel.provenanceModel.searchHits.length === 0) {
       // This will happen if the button is clicked with no search results
       return;
     }
 
-    if (searchIndex < searchHits.length - 1) {
-      searchIndex++;
+    if (readerModel.provenanceModel.searchIndex < readerModel.provenanceModel.searchHits.length - 1) {
+      readerModel.provenanceModel.searchIndex++;
     } else {
-      searchIndex = 0;
+      readerModel.provenanceModel.searchIndex = 0;
     }
 
     _selectSearchHit();
@@ -179,8 +177,8 @@
 
   function _clearSearch() {
     value = "";
-    searchIndex = 0;
-    searchHits = [];
+    readerModel.provenanceModel.searchIndex = 0;
+    readerModel.provenanceModel.searchHits = [];
     readerModel.provenanceModel.searchError = null;
     readerModel._dirty();
   }
@@ -205,7 +203,7 @@
       </svg>
     </button>
     <!-- Show 0/0 when no results -->
-    {searchHits.length > 0 ? searchIndex + 1 : searchIndex}/{searchHits.length}
+    {$readerModel.provenanceModel.searchHits.length > 0 ? $readerModel.provenanceModel.searchIndex + 1 : $readerModel.provenanceModel.searchIndex}/{$readerModel.provenanceModel.searchHits.length}
     <button
       onclick={_incrementSearchIndex}
       class="roundButton"

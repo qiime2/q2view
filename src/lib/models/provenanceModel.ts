@@ -44,6 +44,8 @@ export default class ProvenanceModel {
   jsonKeysToJSON = new Map();
   nodeIDToJSON: BiMap<string, {}> = new BiMap();
   keys: Set<string> = new Set();
+  searchIndex: number = 0;
+  searchHits: Array<string> = [];
 
   searchError: any = null;
   seenMetadata: Set<string> = new Set();
