@@ -12,14 +12,23 @@
   // Center on selected node. Places it centered horizontally and just below
   // the control panel vertically
   function centerOnSelected() {
-    const selectedNodes = cy.elements('node:selected');
-    if (selectedNodes.length === 0) {
-      // No node currently selected
-      return;
-    }
+    let selectedNodes = cy.elements('node:selected');
+    let selectedNode;
 
-    // We can only ever have one node selected at a time
-    const selectedNode = selectedNodes[0];
+    if (selectedNodes.length === 0) {
+      if (readerModel.provenanceModel.searchHits.length === 0) {
+        // No selected node
+        return;
+      }
+
+      // No selected node BUT we have a search hit, so we select that
+      const hitID = readerModel.provenanceModel.searchHits[readerModel.provenanceModel.searchIndex];
+      selectedNode = cy.$id(hitID);
+      selectedNode.select();
+    } else {
+      // If we got selected nodes, there will only be one
+      selectedNode = selectedNodes[0];
+    }
 
     // Make sure we can get the container height, should always be doable but
     // guard anyway
