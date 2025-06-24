@@ -78,7 +78,8 @@
       {
         selector: ".highlighted",
         css: {
-          "border-color": "rgb(29, 78, 216)"
+          "border-color": "rgb(29, 78, 216)",
+          "background-color": "rgb(81, 162, 255)"
         }
       },
       {
