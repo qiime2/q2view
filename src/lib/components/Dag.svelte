@@ -212,6 +212,24 @@
       }
     });
 
+    if (readerModel.provenanceModel.highSeverityErrors.size > 0) {
+      let errorQuery = "";
+
+      readerModel.provenanceModel.highSeverityErrors.forEach((error) => {
+        errorQuery += `(${error.query}) OR `;
+      })
+
+      errorQuery = errorQuery.slice(0, errorQuery.length - 4);
+
+      let provSearchForm = document.getElementById("provSearchForm") as HTMLFormElement;
+      let provSearchInput = document.getElementById("provSearchInput") as HTMLInputElement;
+
+      provSearchInput.value = errorQuery;
+      provSearchForm.requestSubmit();
+
+      readerModel.provenanceModel.provTab = "error";
+    }
+
     // Now we set the container height to 100% of parent height before centering.
     self.style.setProperty("height", "100%");
     centerAndPan();
