@@ -181,7 +181,7 @@ class ReaderModel {
   }
 
   _setLocalTab(tab: string) {
-    if (tab === ""){
+    if (tab === "") {
       tab = this._getTab();
     }
 
