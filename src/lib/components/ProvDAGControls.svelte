@@ -129,10 +129,10 @@
     if (hitID === undefined) {
       // This will happen if there are no search hits
       return;
-    } else {
-      cy.$id(hitID).select();
-      centerOnSelected();
     }
+
+    cy.$id(hitID).select();
+    centerOnSelected();
   }
 
   function _decrementSearchIndex() {
@@ -216,7 +216,7 @@
       </svg>
     </button>
     <!-- Show 0/0 when no results -->
-    {readerModel.provenanceModel.searchHits.length > 0 ? readerModel.provenanceModel.searchIndex + 1 : $readerModel.provenanceModel.searchIndex}/{$readerModel.provenanceModel.searchHits.length}
+    {$readerModel.provenanceModel.searchHits.length > 0 ? $readerModel.provenanceModel.searchIndex + 1 : $readerModel.provenanceModel.searchIndex}/{$readerModel.provenanceModel.searchHits.length}
     <button
       onclick={_incrementSearchIndex}
       class="roundButton"
