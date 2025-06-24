@@ -121,10 +121,10 @@
     if (hitID === undefined) {
       // This will happen if there are no search hits
       return;
-    } else {
-      cy.$id(hitID).select();
-      centerOnSelected();
     }
+
+    cy.$id(hitID).select();
+    centerOnSelected();
   }
 
   function _decrementSearchIndex() {
