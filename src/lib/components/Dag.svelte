@@ -80,7 +80,6 @@
         css: {
           "border-width": "2px",
           "border-color": "rgb(81, 162, 255)",
-          "background-color": "rgb(81, 162, 255)"
         }
       },
       {
