@@ -77,10 +77,7 @@
     value = provSearchInput.value;
 
     readerModel.provenanceModel.searchIndex = 0;
-
-    for (const hitID of readerModel.provenanceModel.searchHits) {
-      readerModel.provenanceModel.cy.$id(hitID).removeClass("highlighted");
-    }
+    readerModel.provenanceModel.cy.batch(_removeHighlight);
 
     try {
       const transformedSearchQuery = transformQuery(value);
@@ -102,10 +99,7 @@
 
     // Sort the hit nodes by row then by col within a given row
     readerModel.provenanceModel.searchHits.sort((a, b) => sortDAGNodes(readerModel.provenanceModel.cy, a, b));
-
-    for (const hitID of readerModel.provenanceModel.searchHits) {
-      readerModel.provenanceModel.cy.$id(hitID).addClass("highlighted");
-    }
+    readerModel.provenanceModel.cy.batch(_addHighlght);
 
     _selectSearchHit();
   }
@@ -175,14 +169,25 @@
     provSearchInput.value = "";
     value = "";
 
-    for (const hitID of readerModel.provenanceModel.searchHits) {
-      readerModel.provenanceModel.cy.$id(hitID).removeClass("highlighted");
-    }
-
+    readerModel.provenanceModel.cy.batch(_removeHighlight);
     readerModel.provenanceModel.searchIndex = 0;
     readerModel.provenanceModel.searchHits = [];
     readerModel.provenanceModel.searchError = null;
     readerModel._dirty();
+  }
+
+  // Add the highlight class to all search hits
+  function _addHighlght() {
+    for (const hitID of readerModel.provenanceModel.searchHits) {
+      readerModel.provenanceModel.cy.$id(hitID).addClass("highlighted");
+    }
+  }
+
+  // Remove the hightlight class from all search hits
+  function _removeHighlight() {
+    for (const hitID of readerModel.provenanceModel.searchHits) {
+      readerModel.provenanceModel.cy.$id(hitID).removeClass("highlighted");
+    }
   }
 </script>
 
