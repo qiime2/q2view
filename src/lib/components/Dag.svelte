@@ -168,6 +168,30 @@
     readerModel._dirty();
   }
 
+  function _highSevertiyErrorSearch() {
+    if (readerModel.provenanceModel.highSeverityErrors.size > 0) {
+      const provSearchForm = document.getElementById("provSearchForm") as HTMLFormElement;
+      const provSearchInput = document.getElementById("provSearchInput") as HTMLInputElement;
+
+      let errorQuery = "";
+
+      // Or together the error queries for all high severity errors present
+      readerModel.provenanceModel.highSeverityErrors.forEach((error) => {
+        errorQuery += `(${error.query}) OR `;
+      })
+
+      // Chop off the trailing " OR "
+      errorQuery = errorQuery.slice(0, errorQuery.length - 4);
+
+      // Submit the search for the query
+      provSearchInput.value = errorQuery;
+      provSearchForm.requestSubmit();
+
+      // Set the tab to error
+      readerModel.provenanceModel.provTab = "error";
+    }
+  }
+
   onMount(() => {
     mount();
   });
@@ -228,23 +252,9 @@
       }
     });
 
-    if (readerModel.provenanceModel.highSeverityErrors.size > 0) {
-      let errorQuery = "";
-
-      readerModel.provenanceModel.highSeverityErrors.forEach((error) => {
-        errorQuery += `(${error.query}) OR `;
-      })
-
-      errorQuery = errorQuery.slice(0, errorQuery.length - 4);
-
-      let provSearchForm = document.getElementById("provSearchForm") as HTMLFormElement;
-      let provSearchInput = document.getElementById("provSearchInput") as HTMLInputElement;
-
-      provSearchInput.value = errorQuery;
-      provSearchForm.requestSubmit();
-
-      readerModel.provenanceModel.provTab = "error";
-    }
+    // If we have high severity errors then we want to search for them by
+    // default when mounting the DAG.
+    _highSevertiyErrorSearch();
 
     // Now we set the container height to 100% of parent height before centering.
     self.style.setProperty("height", "100%");
