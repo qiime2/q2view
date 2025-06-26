@@ -12,9 +12,6 @@
   // There are 3 cards per row.
   let numRows: number = screen.height >= 1440 ? 2 : 1;
 
-  let startIdx: number;
-  let endIdx: number;
-
   // We need to derive the number of columns from the screen width and then
   // derive the number of rows from a combination of the number of columns and
   // the number of cards per page. I wanted to do this in a more clever way
@@ -77,8 +74,6 @@
     filteredGalleryEntries.push(...galleryEntries);
 
     numPages = Math.ceil(filteredGalleryEntries.length / cardsPerPage);
-    startIdx = 0;
-    endIdx = cardsPerPage;
   }
 
   function applySearchFilter() {
