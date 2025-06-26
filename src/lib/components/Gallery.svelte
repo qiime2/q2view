@@ -1,7 +1,8 @@
 <script lang="ts">
   import GalleryCard from "$lib/components/GalleryCard.svelte";
   import { onMount } from 'svelte';
-  const GALLERY_URL = "https://q2view-gallery.pages.dev/gallery/";
+
+  const GALLERY_URL = "https://raw.githubusercontent.com/qiime2/library-catalog/refs/heads/main/gallery/"
 
   let galleryEntries: Array<Object> = [];
   let filteredGalleryEntries: Array<Object> = $state([]);
