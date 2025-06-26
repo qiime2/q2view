@@ -1,7 +1,8 @@
 <script lang="ts">
   import GalleryCard from "$lib/components/GalleryCard.svelte";
   import { onMount } from 'svelte';
-  const GALLERY_URL = "https://q2view-gallery.pages.dev/gallery/";
+
+  const GALLERY_URL = "https://raw.githubusercontent.com/qiime2/library-catalog/refs/heads/main/gallery/"
 
   let galleryEntries: Array<Object> = [];
   let filteredGalleryEntries: Array<Object> = $state([]);
@@ -11,9 +12,6 @@
   // A 1440p screen fits two rows well. A 1080p screen JUST ABOUT fits one row.
   // There are 3 cards per row.
   let numRows: number = screen.height >= 1440 ? 2 : 1;
-
-  let startIdx: number;
-  let endIdx: number;
 
   // We need to derive the number of columns from the screen width and then
   // derive the number of rows from a combination of the number of columns and
@@ -77,8 +75,6 @@
     filteredGalleryEntries.push(...galleryEntries);
 
     numPages = Math.ceil(filteredGalleryEntries.length / cardsPerPage);
-    startIdx = 0;
-    endIdx = cardsPerPage;
   }
 
   function applySearchFilter() {
