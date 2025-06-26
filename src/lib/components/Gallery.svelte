@@ -1,7 +1,9 @@
 <script lang="ts">
   import GalleryCard from "$lib/components/GalleryCard.svelte";
   import { onMount } from 'svelte';
-  const GALLERY_URL = "https://q2view-gallery.pages.dev/gallery/";
+  // const GALLERY_URL = "https://q2view-gallery.pages.dev/gallery/";
+  // const GALLERY_URL = "https://github.com/Oddant1/library-plugins/tree/add-view-gallery/gallery";
+  const GALLERY_URL = "https://raw.githubusercontent.com/Oddant1/library-plugins/refs/heads/add-view-gallery/gallery/"
 
   let galleryEntries: Array<Object> = [];
   let filteredGalleryEntries: Array<Object> = $state([]);
