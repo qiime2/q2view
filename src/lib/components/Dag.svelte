@@ -1,18 +1,21 @@
 <script lang="ts">
+  import "../../app.css";
   import { onMount } from "svelte";
 
   import readerModel from "$lib/models/readerModel";
   import cytoscape from "cytoscape";
   import ProvDAGControls from "$lib/components/ProvDAGControls.svelte";
   import { HEIGHT_MULTIPLIER_PIXELS, getScrollBarWidth } from "$lib/scripts/util";
+  import ProvErrors from "./ProvErrors.svelte";
 
   let self: HTMLDivElement = $state();
-  let cy: cytoscape.Core = $state();
+
+  const NODE_ERROR_BG_COLORS = ["rgb(252, 200, 0)", "rgb(255, 105, 0)", "rgb(251, 44, 54)"]
 
   // Center on selected node. Places it centered horizontally and just below
   // the control panel vertically
   function centerOnSelected() {
-    let selectedNodes = cy.elements('node:selected');
+    let selectedNodes = readerModel.provenanceModel.cy.elements('node:selected');
     let selectedNode;
 
     if (selectedNodes.length === 0) {
@@ -23,7 +26,7 @@
 
       // No selected node BUT we have a search hit, so we select that
       const hitID = readerModel.provenanceModel.searchHits[readerModel.provenanceModel.searchIndex];
-      selectedNode = cy.$id(hitID);
+      selectedNode = readerModel.provenanceModel.cy.$id(hitID);
       selectedNode.select();
     } else {
       // If we got selected nodes, there will only be one
@@ -32,15 +35,15 @@
 
     // Make sure we can get the container height, should always be doable but
     // guard anyway
-    const containerHeight = cy.container()?.offsetHeight;
+    const containerHeight = readerModel.provenanceModel.cy.container()?.offsetHeight;
     if (containerHeight === undefined) {
       console.warn("Unable to get height of container");
       return;
     }
 
     // Center on node then pan it to the top of the viewport
-    cy.center(selectedNode);
-    cy.panBy({
+    readerModel.provenanceModel.cy.center(selectedNode);
+    readerModel.provenanceModel.cy.panBy({
       x: 0,
       y: -((containerHeight / 2) - (1.5 * HEIGHT_MULTIPLIER_PIXELS)),
     });
@@ -62,9 +65,9 @@
       return;
     }
 
-    cy.center();
-    cy.pan({
-      x: cy.pan().x,
+    readerModel.provenanceModel.cy.center();
+    readerModel.provenanceModel.cy.pan({
+      x: readerModel.provenanceModel.cy.pan().x,
       y: provDAGControlsHeight - HEIGHT_MULTIPLIER_PIXELS,
     });
   }
@@ -107,7 +110,22 @@
           "padding-right": "10px",
           "text-valign": "top",
           "text-halign": "center",
-          "background-color": "#bbb"
+          "background-color": function(node) {
+            const nodeID = node.id();
+            const currentErrors = readerModel.provenanceModel.nodeIDToErrors.get(nodeID);
+
+            if (currentErrors !== undefined) {
+              if (currentErrors.get(2)) {
+                return NODE_ERROR_BG_COLORS[2];
+              } else if (currentErrors.get(1)) {
+                return NODE_ERROR_BG_COLORS[1];
+              } else {
+                return NODE_ERROR_BG_COLORS[0];
+              }
+            }
+
+            return "#bbb";
+          }
         }
       },
       {
@@ -145,13 +163,31 @@
     readerModel._dirty();
   }
 
-  // TODO: The way this works causes the $readerModel.provenanceModel.provData
-  // to flicker undefined briefly when clicking between nodes which looks bad.
-  // Additionally, something is causing the dag and info columns to jitter
-  // around in Chrome
   function clearSelection() {
     readerModel.provenanceModel.provData = undefined;
     readerModel._dirty();
+  }
+
+  function _highSevertiyErrorSearch() {
+    const provSearchForm = document.getElementById("provSearchForm") as HTMLFormElement;
+    const provSearchInput = document.getElementById("provSearchInput") as HTMLInputElement;
+
+    let errorQuery = "";
+
+    // Or together the error queries for all high severity errors present
+    readerModel.provenanceModel.highSeverityErrors.forEach((error) => {
+      errorQuery += `(${error.query}) OR `;
+    })
+
+    // Chop off the trailing " OR "
+    errorQuery = errorQuery.slice(0, errorQuery.length - 4);
+
+    // Submit the search for the query
+    provSearchInput.value = errorQuery;
+    provSearchForm.requestSubmit();
+
+    // Set the tab to error
+    readerModel.provenanceModel.provTab = "error";
   }
 
   onMount(() => {
@@ -170,13 +206,13 @@
     let lock = false; // used to prevent recursive event storms
     let selectedExists = false;
 
-    cy = cytoscape({
+    readerModel.provenanceModel.cy = cytoscape({
       ...cytoscapeConfig,
       container: document.getElementById("cy"),
       elements: readerModel.provenanceModel.elements
     });
 
-    cy.on("select", "node, edge", (event) => {
+    readerModel.provenanceModel.cy.on("select", "node, edge", (event) => {
       if (!lock) {
         selectedExists = true;
         lock = true;
@@ -198,7 +234,7 @@
         }
 
         const edges = node.edgesTo("node");
-        cy.elements("node, edge").unselect();
+        readerModel.provenanceModel.cy.elements("node, edge").unselect();
         node.select();
         edges.select();
 
@@ -206,23 +242,41 @@
       }
     });
 
-    cy.on("unselect", "node, edge", (event) => {  // eslint-disable-line no-unused-vars
-      cy.elements("node, edge").unselect();
+    readerModel.provenanceModel.cy.on("unselect", "node, edge", (event) => {  // eslint-disable-line no-unused-vars
+      readerModel.provenanceModel.cy.elements("node, edge").unselect();
       if (!lock && selectedExists) {
         clearSelection();
         selectedExists = false;
       }
     });
 
-    // Now we set the container height to 100% of parent height before centering.
-    self.style.setProperty("height", "100%");
-    centerAndPan();
+    // If we have high severity errors then we want to search for them by
+    // default when mounting the DAG.
+    //
+    // I am not 100% positive why we need to resize the DAG after centering on
+    // the search hits if there are high severity errors and before centering
+    // the DAG in the canvas if there aren't, but this order DOES matter.
+    if (readerModel.provenanceModel.highSeverityErrors.size > 0) {
+      // If we have high severity errors then we search them which will center
+      // the DAG on whichever of them is first in the results. We resize the
+      // canvas after the search.
+      _highSevertiyErrorSearch();
+      self.style.setProperty("height", "100%");
+    } else {
+      // If we don't have high severity errors then we resize before we center
+      // the DAG in the canvas.
+      self.style.setProperty("height", "100%");
+      centerAndPan();
+    }
   }
 </script>
 
 <div>
   <div id="provDAGControls" class="absolute z-10 {getScrollBarWidth() == 0 ? "left-2": ""}">
-    <ProvDAGControls {cy} {centerOnSelected} {centerAndPan} {mount}/>
+    <ProvDAGControls {centerOnSelected} {centerAndPan} {mount}/>
+  </div>
+  <div id="errorSymbols" class="absolute z-10 {getScrollBarWidth() == 0 ? "left-2": ""} bottom-0">
+    <ProvErrors />
   </div>
   <div
     bind:this={self}

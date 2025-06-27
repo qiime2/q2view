@@ -7,6 +7,9 @@ import JSZip from "jszip";
 import BiMap from "$lib/scripts/biMap";
 import { getYAML } from "$lib/scripts/fileutils";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
+import { searchProvenance, transformQuery } from "$lib/scripts/provSearchUtils";
+import { setUnion, sortErrorsBySeverity } from "$lib/scripts/util";
+import cytoscape from "cytoscape";
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
 
@@ -16,11 +19,21 @@ currentMetadataStore.subscribe((value) => {
   currentMetadata = value.currentMetadata;
 });
 
+export interface ProvenanceError {
+  name: string;
+  severity: number;
+  query: string;
+  date: string;
+  description: string;
+}
+
 /**
  * This class is a subscribable svelte store that manages parsing and storing provenance
  * information for the provided Result.
  */
 export default class ProvenanceModel {
+  cy: cytoscape.Core = cytoscape();
+
   // The height of the provenance tree
   height: number = 1;
   // Maps the UUIDs of each action to that actions depth in the tree
@@ -36,20 +49,26 @@ export default class ProvenanceModel {
 
   // Json representing the provenance of the selected node in the tree
   provData: Object | undefined = undefined;
-
-  // Keep track of Action, Result, and Collection IDs we have already seen.
-  seenIDs: Set<string> = new Set();
+  provTab: string = "provenance";
 
   // Search JSON
-  jsonKeysToJSON = new Map();
   nodeIDToJSON: BiMap<string, {}> = new BiMap();
+  innerIDToPipeline: Map<string, string> = new Map();
   keys: Set<string> = new Set();
   searchIndex: number = 0;
   searchHits: Array<string> = [];
 
   searchError: any = null;
+
+  // Metadata
   seenMetadata: Set<string> = new Set();
   metadata: Array<Array<string>> = [];
+
+  // Error tracking
+  nodeIDToErrors: Map<string, Map<number, ProvenanceError[]>> = new Map();
+  lowSeverityErrors: Set<ProvenanceError> = new Set();
+  medSeverityErrors: Set<ProvenanceError> = new Set();
+  highSeverityErrors: Set<ProvenanceError> = new Set();
 
   // Class attributes passed in by readerModel pertaining to currently loaded
   // Result
@@ -139,6 +158,25 @@ export default class ProvenanceModel {
     // metadata it might have
     this._handleMetadata(sourceAction, resultUUID);
 
+    // Need a set of all input/parameter artifacts to the pipeline so can
+    // recurse up from any pipeline aliased artifact until all inputs are a
+    // subset of that set.
+    //
+    // Also need to keep track of which actions we have seen here to short-circuit
+    // ...this may get a little messy
+    if (sourceAction.action["alias-of"] !== undefined) {
+      const inputArtifacts = this._getInputArtifacts(sourceAction);
+      const parameterArtifacts = this._getParameterArtifacts(sourceAction);
+
+      const artifactUnion = setUnion(inputArtifacts, parameterArtifacts);
+
+      await this._recurseUpPipeline(
+        sourceActionUUID,
+        artifactUnion,
+        sourceAction.action["alias-of"],
+      );
+    }
+
     // If we have already seen this Action then short circuit
     if (await this._handleAction(resultID, sourceActionUUID, sourceAction)) {
       return this.heightMap.get(sourceActionUUID);
@@ -181,6 +219,51 @@ export default class ProvenanceModel {
     return maxDepth;
   }
 
+  async _recurseUpPipeline(rootUUID, rootArtifactUnion, resultUUID) {
+    const sourceAction = await this.getProvenanceAction(resultUUID);
+
+    this.nodeIDToJSON.set(sourceAction.execution.uuid, sourceAction);
+    this.innerIDToPipeline.set(sourceAction.execution.uuid, rootUUID);
+
+    // Need to handle nested pipelines
+    //
+    // This is mapping nested pipelines directly to the outter pipeline not to
+    // their most immediate ancestor
+    if (sourceAction.action["alias-of"] !== undefined) {
+      const inputArtifacts = this._getInputArtifacts(sourceAction);
+      const parameterArtifacts = this._getParameterArtifacts(sourceAction);
+
+      const artifactUnion = setUnion(inputArtifacts, parameterArtifacts);
+
+      await this._recurseUpPipeline(
+        rootUUID,
+        artifactUnion,
+        sourceAction.action["alias-of"],
+      );
+    }
+
+    if (ACTION_TYPES_WITH_HISTORY.includes(sourceAction.action.type)) {
+      const sourceInputArtifacts = this._getInputArtifacts(sourceAction);
+      const sourceParameterArtifacts =
+        this._getParameterArtifacts(sourceAction);
+
+      const sourceArtifactUnion = setUnion(
+        sourceInputArtifacts,
+        sourceParameterArtifacts,
+      );
+
+      for (const sourceArtifactUUID of sourceArtifactUnion) {
+        if (!rootArtifactUnion.has(sourceArtifactUUID)) {
+          await this._recurseUpPipeline(
+            rootUUID,
+            rootArtifactUnion,
+            sourceArtifactUUID,
+          );
+        }
+      }
+    }
+  }
+
   /**
    * This function is called by _recurseUpTree if the Result it is parsing is a
    * member of a collection. It determines if we have seen the Collection this
@@ -214,10 +297,9 @@ export default class ProvenanceModel {
     collectionKey = ` ${collectionKey}`;
 
     // We map this collectionID to every element of the collection
-    if (!this.seenIDs.has(collectionID)) {
+    if (!this.nodeIDToJSON.keyToValue.has(collectionID)) {
       // This an as yet untracked collection, so we need to begin tracking it
       // then continue recursing
-      this.seenIDs.add(collectionID);
       this.nodeIDToJSON.set(collectionID, {});
       this.nodeIDToJSON.get(collectionID)[collectionKey] = result;
     } else {
@@ -244,11 +326,10 @@ export default class ProvenanceModel {
    * we have, we can short circuit in _recurseUpTree
    */
   async _handleResult(resultUUID: string): Promise<boolean> {
-    if (this.seenIDs.has(resultUUID)) {
+    if (this.nodeIDToJSON.keyToValue.has(resultUUID)) {
       return true;
     }
 
-    this.seenIDs.add(resultUUID);
     let result = await this.getProvenanceArtifact(resultUUID);
     this.nodeIDToJSON.set(resultUUID, result);
 
@@ -277,7 +358,7 @@ export default class ProvenanceModel {
     sourceActionUUID: string,
     sourceAction: Object,
   ): Promise<boolean> {
-    if (this.seenIDs.has(sourceActionUUID)) {
+    if (this.nodeIDToJSON.keyToValue.has(sourceActionUUID)) {
       // This is called after _handleResult, so if we got here then we have not
       // seen this result yet and need to add it
       this.resultNodes.push({
@@ -292,7 +373,6 @@ export default class ProvenanceModel {
     }
 
     // Push this Action node
-    this.seenIDs.add(sourceActionUUID);
     this.nodeIDToJSON.set(sourceActionUUID, sourceAction);
 
     this.elements.push({
@@ -452,6 +532,52 @@ export default class ProvenanceModel {
     }
   }
 
+  _getInputArtifacts(sourceAction) {
+    const inputArtifacts = new Set();
+
+    for (const inputMap of sourceAction.action.inputs) {
+      const inputValue = Object.values(inputMap)[0];
+
+      if (typeof inputValue == "string") {
+        // We have a single input artifact
+        inputArtifacts.add(inputValue);
+      } else if (inputValue !== null && typeof inputValue === "object") {
+        // We have an input collection
+        for (const element of inputValue) {
+          // Every element will be the same type, string if this was a List
+          // and {} if this was a Collection
+          if (typeof element === "string") {
+            inputArtifacts.add(element);
+          } else {
+            inputArtifacts.add(Object.values(element)[0]);
+          }
+        }
+      }
+    }
+
+    return inputArtifacts;
+  }
+
+  _getParameterArtifacts(sourceAction) {
+    const parameterArtifacts = new Set();
+
+    for (const paramMap of sourceAction.action.parameters) {
+      const paramValue = Object.values(paramMap)[0];
+
+      if (
+        paramValue !== null &&
+        typeof paramValue === "object" &&
+        Object.prototype.hasOwnProperty.call(paramValue, "artifacts")
+      ) {
+        for (const artifactUUID of paramValue.artifacts) {
+          parameterArtifacts.add(artifactUUID);
+        }
+      }
+    }
+
+    return parameterArtifacts;
+  }
+
   /**
    * Generate the provenance tree above the Result we were given recursively. Sets
    * class state to represent the tree.
@@ -536,5 +662,50 @@ export default class ProvenanceModel {
       this.uuid,
       this.zipReader,
     );
+  }
+
+  async getErrors() {
+    // TODO: This works, but we don't really want to fetch every time a Reulst
+    // is loaded. I just put it here as a proof of concept to make sure I could
+    // easily access the list
+    const ERRORS = await ((await fetch("https://raw.githubusercontent.com/Oddant1/library-plugins/refs/heads/add-error-tracker/errors/errors.json")).json());
+
+    for (const error of ERRORS) {
+      // The query will have starting and trailing single quotes that need chopped
+      // off
+      error.query = error.query.slice(1, error.query.length - 1);
+
+      // Search provenance for nodes matching this error's query
+      let formattedQuery = transformQuery(error.query);
+      let errorHits = searchProvenance(formattedQuery, this.nodeIDToJSON);
+
+      // If we got any error hits, add this error to the list of overall errors
+      // seen
+      if (errorHits.length !== 0) {
+        switch (error.severity) {
+          case 0:
+            this.lowSeverityErrors.add(error);
+            break;
+          case 1:
+            this.medSeverityErrors.add(error);
+            break;
+          case 2:
+            this.highSeverityErrors.add(error);
+            break;
+        }
+
+        for (const hit of errorHits) {
+          if (this.nodeIDToErrors.get(hit) === undefined) {
+            this.nodeIDToErrors.set(hit, new Map());
+          }
+
+          if (this.nodeIDToErrors.get(hit)?.get(error.severity) === undefined) {
+            this.nodeIDToErrors.get(hit)?.set(error.severity, []);
+          }
+
+          this.nodeIDToErrors.get(hit)?.get(error.severity)?.push(error);
+        }
+      }
+    }
   }
 }

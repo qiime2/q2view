@@ -15,13 +15,66 @@
   <div class="{getScrollBarWidth() == 0 ? "rounded-md" : ""} mb-2 border border-gray-300 p-4 overflow-y-auto bg-gray-50"
        style="margin-right: {getScrollBarWidth()}px">
     {#if readerModel.provenanceModel.provData !== undefined}
-      <div class="JSONTree">
-        <JSONTree
-          value={readerModel.provenanceModel.provData}
-          defaultExpandedLevel={100}
-          shouldShowPreview={false}
-        />
-      </div>
+      {#if readerModel.provenanceModel.cy.elements('node:selected').length > 0 && readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())}
+        <div class="flex border-b border-solid border-gray-500 pb-2 mb-4">
+          <button onclick={() => readerModel.provenanceModel.provTab = "provenance"} class="nav-button float-left mx-auto w-1/2 {readerModel.provenanceModel.provTab === "provenance" ? "selected-nav-button" : ""}">
+            Provenance
+          </button>
+          <button onclick={() => readerModel.provenanceModel.provTab = "error"} class="nav-button float-right mx-auto w-1/2 {readerModel.provenanceModel.provTab === "error" ? "selected-nav-button" : ""}">
+            Errors
+          </button>
+        </div>
+        <div class="JSONTree {readerModel.provenanceModel.provTab === "provenance" ? "block" : "hidden"}">
+          <JSONTree
+            value={readerModel.provenanceModel.provData}
+            defaultExpandedLevel={100}
+            shouldShowPreview={false}
+          />
+        </div>
+        <div class="{$readerModel.provenanceModel.provTab === "error" ? "block" : "hidden"}">
+          {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2)}
+            <span class="font-bold border-solid border-b-2 border-gray-500">High Severity Errors</span><br>
+            {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2) as error}
+              <div class="mb-2">
+                <span class="font-bold">name: </span> {error.name}<br>
+                <span class="font-bold">description: </span> {error.description}<br>
+                <span class="font-bold">discovery date (mm-dd-yyyy): </span> {error.date}<br>
+                <span class="font-bold">query: </span> {error.query}<br>
+              </div>
+            {/each}
+          {/if}
+          {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(1)}
+            <span class="font-bold border-solid border-b-2 border-gray-500">Medium Severity Errors</span><br>
+            {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(1) as error}
+              <div class="mb-2">
+                <span class="font-bold">name: </span> {error.name}<br>
+                <span class="font-bold">description: </span> {error.description}<br>
+                <span class="font-bold">discovery date (mm-dd-yyyy): </span> {error.date}<br>
+                <span class="font-bold">query: </span> {error.query}<br>
+              </div>
+            {/each}
+          {/if}
+          {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0)}
+            <span class="font-bold border-solid border-b-2 border-gray-500">Low Severity Errors</span><br>
+            {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0) as error}
+              <div class="mb-2">
+              <span class="font-bold">name: </span> {error.name}<br>
+                <span class="font-bold">description: </span> {error.description}<br>
+                <span class="font-bold">discovery date (mm-dd-yyyy): </span> {error.date}<br>
+                <span class="font-bold">query: </span> {error.query}<br>
+              </div>
+            {/each}
+          {/if}
+        </div>
+      {:else}
+        <div class="JSONTree">
+          <JSONTree
+            value={readerModel.provenanceModel.provData}
+            defaultExpandedLevel={100}
+            shouldShowPreview={false}
+          />
+        </div>
+      {/if}
     {:else}
       <div class="text-gray-700 text-sm">
         <p class="pb-3 leading-5">Click on an element of the Provenance Graph to learn more. Alternatively, you can search the graph for actions and results matching specific criteria</p>
@@ -58,5 +111,34 @@
     rounded-md
     px-2
     py-0.5
+  }
+
+  .nav-button {
+    @apply block
+    border-b-4
+    border-b-transparent
+    text-gray-500;
+  }
+
+  .nav-button:hover {
+    @apply text-gray-950;
+  }
+
+  .selected-nav-button {
+    @apply
+    font-bold
+    text-gray-950
+    border-b-[#e39e54];
+  }
+
+  .nav-button::before {
+    @apply font-bold;
+    display: block;
+    content: attr(title);
+    height: 1px;
+    width: max-content;
+    color: transparent;
+    overflow: hidden;
+    visibility: hidden;
   }
 </style>
