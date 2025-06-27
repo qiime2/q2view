@@ -665,60 +665,16 @@ export default class ProvenanceModel {
   }
 
   async getErrors() {
-    // This will be fetched from a remote source somewhere
-
-    // TODO: Need to disambiguate between the same error hitting on a pipeline
-    // multiple times due to hitting multiple internal actions
-    //
-    // In addition, it's a bit confusing to search for 'action: "rarefy"' and
-    // get a hit on a pipeline that called rarefy without an explanation that's
-    // what's happening
-    const ERRORS = [
-      {
-        name: "My fake error",
-        severity: 2,
-        query: 'qiime2: ^"2023" AND action: "denoise"',
-        date: "mm-dd-yyyy",
-        description: "Oh no something is wrong I guess",
-      },
-      {
-        name: "Bad error",
-        severity: 2,
-        query: 'qiime2: ^"2023" AND action: "denoise"',
-        date: "mm-dd-yyyy",
-        description: "Oh no something is wrong I guess",
-      },
-      {
-        name: "My other fake error",
-        severity: 1,
-        query: 'qiime2: ^"2023" AND (action: "emp" OR type: "import")',
-        date: "mm-dd-yyyy",
-        description: "Oh no something is less wrong than the other one I guess",
-      },
-      {
-        name: "My very minor fake error",
-        severity: 0,
-        query: 'qiime2: ^"2024"',
-        date: "mm-dd-yyyy",
-        description: "Is this even an error?",
-      },
-      {
-        name: "My more specific pipeline error",
-        severity: 0,
-        query: 'qiime2: ^"2023" AND action: "rarefy"',
-        date: "mm-dd-yyyy",
-        description: "Is this even an error?",
-      },
-      {
-        name: "My other very minor fake error",
-        severity: 0,
-        query: 'qiime2: ^"2023"',
-        date: "mm-dd-yyyy",
-        description: "Is this even an error?",
-      },
-    ];
+    // TODO: This works, but we don't really want to fetch every time a Reulst
+    // is loaded. I just put it here as a proof of concept to make sure I could
+    // easily access the list
+    const ERRORS = await ((await fetch("https://raw.githubusercontent.com/Oddant1/library-plugins/refs/heads/add-error-tracker/errors/errors.json")).json());
 
     for (const error of ERRORS) {
+      // The query will have starting and trailing single quotes that need chopped
+      // off
+      error.query = error.query.slice(1, error.query.length - 1);
+
       // Search provenance for nodes matching this error's query
       let formattedQuery = transformQuery(error.query);
       let errorHits = searchProvenance(formattedQuery, this.nodeIDToJSON);
