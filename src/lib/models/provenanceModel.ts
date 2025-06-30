@@ -668,7 +668,11 @@ export default class ProvenanceModel {
     // TODO: This works, but we don't really want to fetch every time a Reulst
     // is loaded. I just put it here as a proof of concept to make sure I could
     // easily access the list
-    const ERRORS = await ((await fetch("https://raw.githubusercontent.com/Oddant1/library-plugins/refs/heads/add-error-tracker/errors/errors.json")).json());
+    const ERRORS = await (
+      await fetch(
+        "https://raw.githubusercontent.com/Oddant1/library-plugins/refs/heads/add-error-tracker/errors/errors.json",
+      )
+    ).json();
 
     for (const error of ERRORS) {
       // The query will have starting and trailing single quotes that need chopped
