@@ -22,9 +22,9 @@
           </button>
           <button onclick={() => readerModel.provenanceModel.provTab = "error"} class="nav-button float-right mx-auto w-1/2 {readerModel.provenanceModel.provTab === "error" ? "selected-nav-button" : ""}">
             Errors
-            {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0)?.length > 0}
-              <span class="text-yellow-400 font-bold text-lg">
-                {readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0)?.length}
+            {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2)?.length > 0}
+              <span class="text-red-600 font-bold text-lg">
+                {readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2)?.length}
               </span>
             {/if}
             {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(1)?.length > 0}
@@ -32,9 +32,9 @@
                 {readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(1)?.length}
               </span>
             {/if}
-            {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2)?.length > 0}
-              <span class="text-red-600 font-bold text-lg">
-                {readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2)?.length}
+            {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0)?.length > 0}
+              <span class="text-yellow-400 font-bold text-lg">
+                {readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0)?.length}
               </span>
             {/if}
           </button>
