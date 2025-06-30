@@ -670,11 +670,7 @@ export default class ProvenanceModel {
     // easily access the list
     //
     // ...That being said... it's kinda fine because it will just cache
-    const ERRORS = await (
-      await fetch(
-        "https://raw.githubusercontent.com/Oddant1/library-plugins/refs/heads/add-error-tracker/errors/errors.json",
-      )
-    ).json();
+    const ERRORS =  await this._getRemoteErrors();
 
     for (const error of ERRORS) {
       // The query will have starting and trailing single quotes that need chopped
@@ -712,6 +708,19 @@ export default class ProvenanceModel {
           this.nodeIDToErrors.get(hit)?.get(error.severity)?.push(error);
         }
       }
+    }
+  }
+
+  async _getRemoteErrors() {
+    try {
+      return await (
+        await fetch(
+          "https://raw.githubusercontent.com/Oddant1/library-plugins/refs/heads/add-error-tracker/errors/errors.json",
+        )
+      ).json();
+    } catch(error) {
+      alert(`Encountered error '${error}' when fetching remote errors. You will not be notified of errors in your provenance.`);
+      return [];
     }
   }
 }
