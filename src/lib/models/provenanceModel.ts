@@ -668,6 +668,8 @@ export default class ProvenanceModel {
     // TODO: This works, but we don't really want to fetch every time a Reulst
     // is loaded. I just put it here as a proof of concept to make sure I could
     // easily access the list
+    //
+    // ...That being said... it's kinda fine because it will just cache
     const ERRORS = await (
       await fetch(
         "https://raw.githubusercontent.com/Oddant1/library-plugins/refs/heads/add-error-tracker/errors/errors.json",
