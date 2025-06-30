@@ -665,11 +665,6 @@ export default class ProvenanceModel {
   }
 
   async getErrors() {
-    // TODO: This works, but we don't really want to fetch every time a Reulst
-    // is loaded. I just put it here as a proof of concept to make sure I could
-    // easily access the list
-    //
-    // ...That being said... it's kinda fine because it will just cache
     const ERRORS = await this._getRemoteErrors();
 
     for (const error of ERRORS) {
@@ -720,7 +715,7 @@ export default class ProvenanceModel {
       ).json();
     } catch (error) {
       alert(
-        `Encountered error '${error}' when fetching remote errors. You will not be notified of errors in your provenance.`,
+        `Encountered error:\n\n'${error}'\n\nwhen fetching remote errors. You will not be notified of errors in your provenance.`,
       );
       return [];
     }
