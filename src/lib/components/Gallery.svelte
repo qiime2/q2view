@@ -53,7 +53,9 @@
 
     try {
       indexJSON = await (await fetch(GALLERY_URL + "index.json")).json();
-    } catch(error) {}
+    } catch(error) {
+      return;
+    }
 
     for(const galleryEntry of indexJSON) {
       let galleryJSON = Object();
