@@ -23,17 +23,17 @@
           <button onclick={() => readerModel.provenanceModel.provTab = "error"} class="nav-button float-right mx-auto w-1/2 {readerModel.provenanceModel.provTab === "error" ? "selected-nav-button" : ""}">
             Errors
             {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2)?.length > 0}
-              <span class="text-red-600 font-bold text-lg border-2 border-red-600 border-solid rounded-full px-1">
+              <span class="text-red-600 text-lg border-2 border-red-600 border-solid rounded-full px-1.5">
                 {readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2)?.length}
               </span>
             {/if}
             {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(1)?.length > 0}
-              <span class="text-orange-400 font-bold text-lg border-2 border-orange-400 border-solid rounded-full px-1">
+              <span class="text-orange-400 text-lg border-2 border-orange-400 border-solid rounded-full px-1.5">
                 {readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(1)?.length}
               </span>
             {/if}
             {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0)?.length > 0}
-              <span class="text-yellow-400 font-bold text-lg border-2 border-yellow-400 border-solid rounded-full px-1">
+              <span class="text-yellow-400 text-lg border-2 border-yellow-400 border-solid rounded-full px-1.5">
                 {readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0)?.length}
               </span>
             {/if}
