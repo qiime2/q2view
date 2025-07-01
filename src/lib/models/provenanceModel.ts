@@ -187,6 +187,9 @@ export default class ProvenanceModel {
 
       maxDepth = Math.max(...depths);
     } else {
+      // This could be an action we have already seen in which case it will
+      // have a height in the map, or it could be an import or something which
+      // has nothing above it
       const mapped = this.heightMap.get(sourceActionUUID);
       maxDepth = mapped === undefined ? 1 : mapped;
     }
