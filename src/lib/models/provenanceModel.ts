@@ -4,7 +4,6 @@
 // ****************************************************************************
 import JSZip from "jszip";
 
-import BiMap from "$lib/scripts/biMap";
 import { getYAML } from "$lib/scripts/fileutils";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
 import { searchProvenance, transformQuery } from "$lib/scripts/provSearchUtils";
@@ -52,7 +51,7 @@ export default class ProvenanceModel {
   provTab: string = "provenance";
 
   // Search JSON
-  nodeIDToJSON: BiMap<string, {}> = new BiMap();
+  nodeIDToJSON: Map<string, {}> = new Map();
   innerIDToPipeline: Map<string, string> = new Map();
   keys: Set<string> = new Set();
   searchIndex: number = 0;
@@ -305,7 +304,7 @@ export default class ProvenanceModel {
     collectionKey = ` ${collectionKey}`;
 
     // We map this collectionID to every element of the collection
-    if (!this.nodeIDToJSON.keyToValue.has(collectionID)) {
+    if (!this.nodeIDToJSON.has(collectionID)) {
       // This an as yet untracked collection, so we need to begin tracking it
       // then continue recursing
       this.nodeIDToJSON.set(collectionID, {});
@@ -334,7 +333,7 @@ export default class ProvenanceModel {
    * we have, we can short circuit in _recurseUpTree
    */
   async _handleResult(resultUUID: string): Promise<boolean> {
-    if (this.nodeIDToJSON.keyToValue.has(resultUUID)) {
+    if (this.nodeIDToJSON.has(resultUUID)) {
       return true;
     }
 
@@ -366,7 +365,7 @@ export default class ProvenanceModel {
     sourceActionUUID: string,
     sourceAction: Object,
   ): Promise<boolean> {
-    if (this.nodeIDToJSON.keyToValue.has(sourceActionUUID)) {
+    if (this.nodeIDToJSON.has(sourceActionUUID)) {
       // This is called after _handleResult, so if we got here then we have not
       // seen this result yet and need to add it
       this.resultNodes.push({

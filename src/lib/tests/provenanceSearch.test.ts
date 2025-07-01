@@ -1,5 +1,4 @@
 import { expect, test } from "vitest";
-import BiMap from "$lib/scripts/biMap";
 import { searchProvenance, transformQuery } from "$lib/scripts/provSearchUtils";
 
 const stringJSON = {
@@ -85,25 +84,23 @@ const escapeInStringJSON = {
 
 // TS screams about this as if the Map doesn't have a constructor matching this
 // but it's wrong the Map instantiates fine.
-const testMap = new BiMap(
-  new Map([
-    ["string", stringJSON],
-    ["altString", altStringJSON],
-    ["number", numberJSON],
-    ["true", trueJSON],
-    ["false", falseJSON],
-    ["null", nullJSON],
-    ["nested", nestedJSON],
-    ["escaped", escapedJSON],
-    ["anchor", anchorJSON],
-    ["containsAnchors", containsAnchorsJSON],
-    ["containsStart", containsStartJSON],
-    ["containsEnd", containsEndJSON],
-    ["reversedAnchors", reversedAnchorsJSON],
-    ["quoteInString", quoteInStringJSON],
-    ["escapeInString", escapeInStringJSON],
-  ]),
-);
+const testMap = new Map([
+  ["string", stringJSON],
+  ["altString", altStringJSON],
+  ["number", numberJSON],
+  ["true", trueJSON],
+  ["false", falseJSON],
+  ["null", nullJSON],
+  ["nested", nestedJSON],
+  ["escaped", escapedJSON],
+  ["anchor", anchorJSON],
+  ["containsAnchors", containsAnchorsJSON],
+  ["containsStart", containsStartJSON],
+  ["containsEnd", containsEndJSON],
+  ["reversedAnchors", reversedAnchorsJSON],
+  ["quoteInString", quoteInStringJSON],
+  ["escapeInString", escapeInStringJSON],
+]);
 
 test("test string", () => {
   const searchQuery = transformQuery(

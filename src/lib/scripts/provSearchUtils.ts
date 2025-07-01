@@ -4,7 +4,6 @@ import {
   setUnion,
   setIntersection,
 } from "./util";
-import BiMap from "./biMap";
 import readerModel from "$lib/models/readerModel";
 
 const OR = "|";
@@ -26,7 +25,7 @@ export function transformQuery(searchValue: string): Array<string> {
 // Search provenance for anything matching our query
 export function searchProvenance(
   transformedQuery: Array<string>,
-  provenanceMap: BiMap<string, {}>,
+  provenanceMap: Map<string, {}>,
 ): Array<string> {
   const searchHits = _searchProv(transformedQuery, 0, provenanceMap);
 
@@ -215,7 +214,7 @@ class MyTransformer extends Transformer {
  * after being parsed and transformed
  * @param {number} queryIndex - The index into the transformed query array of
  * the element in the query we are currently handling
- * @param {BiMap<string, {}>} provenanceMap - A mapping of all node uuids in
+ * @param {Map<string, {}>} provenanceMap - A mapping of all node uuids in
  * the DAG to their provenance as json
  *
  * @returns {Set<string>} - A set of all node UUIDS hit by this search query.
@@ -225,7 +224,7 @@ class MyTransformer extends Transformer {
 function _searchProv(
   transformedQuery: Array<any>,
   queryIndex: number,
-  provenanceMap: BiMap<string, {}>,
+  provenanceMap: Map<string, {}>,
 ): Set<string> {
   const elem = transformedQuery[queryIndex];
   let hits = new Set<string>();
@@ -269,11 +268,11 @@ function _searchProv(
  * after being parsed and transformed
  * @param {number} queryIndex - The index into the transformed query array of
  * the element in the query we are currently handling
- * @param {BiMap<string, {}>} provenanceMap - A mapping of all node uuids in
+ * @param {Map<string, {}>} provenanceMap - A mapping of all node uuids in
  * the DAG to their provenance as json
  * @param {Set<string>} hits - The hits we have seen so far from prior sub
  * queries
- * @param {BiMap<string, {}>} provenanceMap - A mapping of all node uuids in
+ * @param {Map<string, {}>} provenanceMap - A mapping of all node uuids in
  * the DAG to their provenance as json
  *
  * @returns {Set<string>} - The set of all uuids hit by sub queries so far
@@ -283,7 +282,7 @@ function _searchProvOperator(
   transformedQuery: Array<any>,
   queryIndex: number,
   hits: Set<string>,
-  provenanceMap: BiMap<string, {}>,
+  provenanceMap: Map<string, {}>,
 ): Set<string> {
   const elem = transformedQuery[queryIndex];
   // Get the results of the next sub query to combine via our operator with
@@ -313,7 +312,7 @@ function _searchProvOperator(
  * the array of values connected by logical AND or OR
  * @param {number} queryIndex - The index into the value array we are currently
  * looking at, this is irrelevant if value is not an array.
- * @param {BiMap<string, {}>} provenanceMap - A mapping of all node uuids in
+ * @param {Map<string, {}>} provenanceMap - A mapping of all node uuids in
  * the DAG to their provenance as json
  *
  * @returns {Set<string>} - The set of all uuids hit by sub queries so far
@@ -322,7 +321,7 @@ function _searchProvPair(
   key: Array<string>,
   value: any,
   queryIndex: number,
-  provenanceMap: BiMap<string, {}>,
+  provenanceMap: Map<string, {}>,
 ): Set<string> {
   let hits = new Set<string>();
 
@@ -360,7 +359,7 @@ function _searchProvPair(
  * the array of values connected by logical AND or OR
  * @param {number} queryIndex - The index into the value array we are currently
  * looking at, this is irrelevant if value is not an array.
- * @param {BiMap<string, {}>} provenanceMap - A mapping of all node uuids in
+ * @param {Map<string, {}>} provenanceMap - A mapping of all node uuids in
  * the DAG to their provenance as json
  * @param {Set<string>} hits - The set of all uuids hit by sub queries so far
  *
@@ -372,7 +371,7 @@ function _searchProvPairOperator(
   value: Array<any>,
   queryIndex: number,
   hits: Set<string>,
-  provenanceMap: BiMap<string, {}>,
+  provenanceMap: Map<string, {}>,
 ): Set<string> {
   const elem = value[queryIndex];
   // Get the results of the next sub query to combine via our operator with
@@ -393,37 +392,40 @@ function _searchProvPairOperator(
  * key param with a value matching the searchValue param then returns a set of
  * their keys in the jsonMAP
  *
- * @param {Array<string>} key - The key, or nested sequence of keys, to check
+ * @param {Array<string>} searchKey - The key, or nested sequence of keys, to check
  * for our value
  * @param {any} searchValue - The value we are searching for in the JSON
- * @param {BiMap<string, {}>} provenanceMap - A mapping of node IDs in the graph to
+ * @param {Map<string, {}>} provenanceMap - A mapping of node IDs in the graph to
  * the provenane that goes along with that node
  *
  * @returns {Set<string>} - A set of the uuids of all actions/results that
  * were hit by the search
  */
 function searchJSONMap(
-  key: Array<string>,
+  searchKey: Array<string>,
   searchValue: any,
-  provenanceMap: BiMap<string, {}>,
+  provenanceMap: Map<string, {}>,
 ): Set<string> {
   const hits = new Set<string>();
-  let hit: string | undefined;
 
-  for (const json of provenanceMap.values()) {
+  for (const entry of provenanceMap.entries()) {
+    const mapID = entry[0];
+    const json = entry[1];
+
     const jsonKeys: Array<Array<string>> = [];
 
     // NOTE: This works fast enough that we can just do it on demand, but it
     // may be worth it to memoize it.
     getAllObjectKeyPathsRecursively(json, [], jsonKeys);
     for (const jsonKey of jsonKeys) {
-      const terminal = jsonKey.slice(-key.length);
+      // Get the end bit of the key in the json
+      const terminal = jsonKey.slice(-searchKey.length);
 
       // If the end of the key path matches the provided key
-      if (JSON.stringify(terminal) === JSON.stringify(key)) {
+      if (JSON.stringify(terminal) === JSON.stringify(searchKey)) {
         if (searchValue === undefined) {
           // We had a key with no value, so we only search the key
-          hit = provenanceMap.getKey(json);
+          hits.add(mapID);
         } else {
           // Dig through the json to get the actual value at the end of the key
           // path
@@ -436,23 +438,21 @@ function searchJSONMap(
           if (
             typeof value === "string" &&
             searchValue !== null &&
-            searchValue.constructor === _String
+            searchValue.constructor === _String &&
+            _matchString(searchValue, value)
           ) {
-            hit = _matchString(searchValue, value, json, provenanceMap);
+            hits.add(mapID);
           } else if (
             typeof value === "number" &&
             searchValue !== null &&
-            searchValue.constructor === _Number
+            searchValue.constructor === _Number &&
+            _matchNumber(searchValue, value)
           ) {
-            hit = _matchNumber(searchValue, value, json, provenanceMap);
+            hits.add(mapID);
           } else if (value === searchValue) {
             // For bools and nulls match on equality
-            hit = provenanceMap.getKey(json);
+            hits.add(mapID);
           }
-        }
-
-        if (hit !== undefined) {
-          hits.add(hit);
         }
       }
     }
@@ -461,67 +461,59 @@ function searchJSONMap(
   return hits;
 }
 
-function _matchString(
-  searchValue: _String,
-  value: string,
-  json: {},
-  provenanceMap: BiMap<string, {}>,
-): string | undefined {
+function _matchString(searchValue: _String, value: string): boolean {
   if (searchValue.startAnchor && searchValue.endAnchor) {
-    // Both anchors, match on equality
     if (value === searchValue.value) {
-      return provenanceMap.getKey(json);
+      // Both anchors, match on equality
+      return true;
     }
   } else if (searchValue.startAnchor) {
-    // Start anchor, match on starts with
     if (value.startsWith(searchValue.value)) {
-      return provenanceMap.getKey(json);
+      // Start anchor, match on starts with
+      return true;
     }
   } else if (searchValue.endAnchor) {
-    // End anchor, match on ends with
     if (value.endsWith(searchValue.value)) {
-      return provenanceMap.getKey(json);
+      // End anchor, match on ends with
+      return true;
     }
-  } else {
+  } else if (value.includes(searchValue.value)) {
     // No anchors, match on includes
-    if (value.includes(searchValue.value)) {
-      return provenanceMap.getKey(json);
-    }
+    return true;
   }
+
+  return false;
 }
 
-function _matchNumber(
-  searchValue: _Number,
-  value: number,
-  json: {},
-  provenanceMap: BiMap<string, {}>,
-): string | undefined {
+function _matchNumber(searchValue: _Number, value: number): boolean {
   // For numbers match based on value and operator
   switch (searchValue.operator) {
     case "=":
       if (value === searchValue.value) {
-        return provenanceMap.getKey(json);
+        return true;
       }
       break;
     case ">":
       if (value > searchValue.value) {
-        return provenanceMap.getKey(json);
+        return true;
       }
       break;
     case ">=":
       if (value >= searchValue.value) {
-        return provenanceMap.getKey(json);
+        return true;
       }
       break;
     case "<":
       if (value < searchValue.value) {
-        return provenanceMap.getKey(json);
+        return true;
       }
       break;
     case "<=":
       if (value <= searchValue.value) {
-        return provenanceMap.getKey(json);
+        return true;
       }
       break;
   }
+
+  return false;
 }
