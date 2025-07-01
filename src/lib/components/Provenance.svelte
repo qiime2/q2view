@@ -36,7 +36,7 @@
               <div class="mb-2">
                 <span class="font-bold">name: </span> {error.name}<br>
                 <span class="font-bold">description: </span> {error.description}<br>
-                <span class="font-bold">discovery date (mm-dd-yyyy): </span> {error.date}<br>
+                <span class="font-bold">discovery date: </span> {error.date}<br>
                 <span class="font-bold">query: </span> {error.query}<br>
               </div>
             {/each}
@@ -47,7 +47,7 @@
               <div class="mb-2">
                 <span class="font-bold">name: </span> {error.name}<br>
                 <span class="font-bold">description: </span> {error.description}<br>
-                <span class="font-bold">discovery date (mm-dd-yyyy): </span> {error.date}<br>
+                <span class="font-bold">discovery date: </span> {error.date}<br>
                 <span class="font-bold">query: </span> {error.query}<br>
               </div>
             {/each}
@@ -58,7 +58,7 @@
               <div class="mb-2">
               <span class="font-bold">name: </span> {error.name}<br>
                 <span class="font-bold">description: </span> {error.description}<br>
-                <span class="font-bold">discovery date (mm-dd-yyyy): </span> {error.date}<br>
+                <span class="font-bold">discovery date: </span> {error.date}<br>
                 <span class="font-bold">query: </span> {error.query}<br>
               </div>
             {/each}
