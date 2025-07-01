@@ -189,7 +189,7 @@ export default class ProvenanceModel {
     // Add this Action height to the map
     this.heightMap.set(sourceActionUUID, maxDepth);
 
-    // Finally push the node for this Result if it was new
+    // Finally push the node for this Result
     this.resultNodes.push({
       data: {
         id: resultID,
@@ -198,8 +198,7 @@ export default class ProvenanceModel {
       },
     });
 
-    // Push the edge if we have a destination. And hadn't already seen this
-    // Result
+    // Push the edge if we have a destination
     if (destinationActionUUID !== undefined) {
       this.elements.push({
         data: {
@@ -211,10 +210,10 @@ export default class ProvenanceModel {
       });
     }
 
-    // If we get here we haven't seen this result yet so we need to track any
-    // metadata it might have
+    // Track any metadata this result might have
     this._handleMetadata(sourceAction, resultUUID);
 
+    // Return our current maxDepth
     return maxDepth;
   }
 
