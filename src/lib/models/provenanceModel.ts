@@ -170,8 +170,10 @@ export default class ProvenanceModel {
     //
     // Additionally, some actions, most notably import, cannot have any steps
     // upstream of them. We don't need to recurse up the tree on them either
-    if (!(await this._handleAction(sourceActionUUID, sourceAction)) &&
-        ACTION_TYPES_WITH_HISTORY.includes(sourceAction.action.type)) {
+    if (
+      !(await this._handleAction(sourceActionUUID, sourceAction)) &&
+      ACTION_TYPES_WITH_HISTORY.includes(sourceAction.action.type)
+    ) {
       await this._handleInputArtifacts(
         sourceAction.action.inputs,
         sourceActionUUID,
