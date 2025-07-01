@@ -128,8 +128,10 @@ export default class ProvenanceModel {
     // recurse up from any pipeline aliased artifact until all inputs are a
     // subset of that set.
     //
-    // Also need to keep track of which actions we have seen here to short-circuit
-    // ...this may get a little messy
+    // TODO: This code could be modified in the future to only call _recurseUpTree
+    // which could take accumulators for elements and resultNodes then we could
+    // properly parse inner pipeline provenance into a real DAG. This only does
+    // enough to map the prov errors of inner actions back up the outer node
     if (sourceAction.action["alias-of"] !== undefined) {
       const inputArtifacts = this._getInputArtifacts(sourceAction);
       const parameterArtifacts = this._getParameterArtifacts(sourceAction);
@@ -164,9 +166,10 @@ export default class ProvenanceModel {
       return this.heightMap.get(sourceActionUUID);
     }
 
-    // Some Actions, most notably import, cannot have any steps upstream of
-    // them. We don't need to run these steps trying to recurse up the tree on
-    // those Actions, because they can't have anything above them.
+    // We don't want to go parsing up the tree on actions we have already seen
+    //
+    // Additionally, some actions, most notably import, cannot have any steps
+    // upstream of them. We don't need to recurse up the tree on them either
     if (!(await this._handleAction(sourceActionUUID, sourceAction)) &&
         ACTION_TYPES_WITH_HISTORY.includes(sourceAction.action.type)) {
       await this._handleInputArtifacts(
