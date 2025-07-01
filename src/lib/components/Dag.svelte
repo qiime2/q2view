@@ -1,5 +1,4 @@
 <script lang="ts">
-  import "../../app.css";
   import { onMount } from "svelte";
 
   import readerModel from "$lib/models/readerModel";

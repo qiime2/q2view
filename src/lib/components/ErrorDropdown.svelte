@@ -1,5 +1,4 @@
 <script lang="ts">
-  import "../../app.css"
   import readerModel from "$lib/models/readerModel";
 
   import { createDropdownMenu, melt } from "@melt-ui/svelte";

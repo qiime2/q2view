@@ -1,6 +1,4 @@
 <script lang="ts">
-  import "../../app.css";
-
   import JSONTree from "svelte-json-tree";
   import Dag from "./Dag.svelte";
   import readerModel from "$lib/models/readerModel";

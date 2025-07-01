@@ -1,7 +1,6 @@
 <script lang="ts">
   import { preventDefault } from "svelte/legacy";
 
-  import "../../app.css";
   import {
     searchProvenance,
     transformQuery,

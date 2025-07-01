@@ -1,5 +1,4 @@
 <script lang="ts">
-  import "../../app.css"
   import readerModel from "$lib/models/readerModel";
   import ErrorDropdown from "./ErrorDropdown.svelte";
 </script>
