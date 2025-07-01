@@ -3,6 +3,18 @@
   import Dag from "./Dag.svelte";
   import readerModel from "$lib/models/readerModel";
   import { getScrollBarWidth } from "$lib/scripts/util";
+
+  function _sumErrorsOnSelectedNode() {
+    let low = readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0)?.length;
+    let medium = readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(1)?.length;
+    let high = readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2)?.length;
+
+    low = low === undefined ? 0 : low;
+    medium = medium === undefined ? 0 : medium;
+    high = high === undefined ? 0 : high;
+
+    return low + medium + high;
+  }
 </script>
 
 {#key $readerModel.provenanceModel.uuid}
@@ -19,7 +31,7 @@
             Provenance
           </button>
           <button onclick={() => readerModel.provenanceModel.provTab = "error"} class="nav-button float-right mx-auto w-1/2 pb-0.5 {readerModel.provenanceModel.provTab === "error" ? "selected-nav-button" : ""}">
-            Errors <span class="nav-button-child border border-gray-500 border-solid px-1.5 rounded-full">{readerModel.provenanceModel.lowSeverityErrors.size + readerModel.provenanceModel.medSeverityErrors.size + readerModel.provenanceModel.highSeverityErrors.size}</span>
+            Errors <span class="nav-button-child border border-gray-500 border-solid px-1.5 rounded-full">{_sumErrorsOnSelectedNode()}</span>
           </button>
         </div>
         <div class="JSONTree {readerModel.provenanceModel.provTab === "provenance" ? "block" : "hidden"}">
