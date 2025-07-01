@@ -8,7 +8,7 @@ import BiMap from "$lib/scripts/biMap";
 import { getYAML } from "$lib/scripts/fileutils";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
 import { searchProvenance, transformQuery } from "$lib/scripts/provSearchUtils";
-import { setUnion, sortErrorsBySeverity } from "$lib/scripts/util";
+import { setUnion } from "$lib/scripts/util";
 import cytoscape from "cytoscape";
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
@@ -122,6 +122,25 @@ export default class ProvenanceModel {
       );
     }
 
+    // Need a set of all input/parameter artifacts to the pipeline so can
+    // recurse up from any pipeline aliased artifact until all inputs are a
+    // subset of that set.
+    //
+    // Also need to keep track of which actions we have seen here to short-circuit
+    // ...this may get a little messy
+    if (sourceAction.action["alias-of"] !== undefined) {
+      const inputArtifacts = this._getInputArtifacts(sourceAction);
+      const parameterArtifacts = this._getParameterArtifacts(sourceAction);
+
+      const artifactUnion = setUnion(inputArtifacts, parameterArtifacts);
+
+      await this._recurseUpTree(
+        sourceActionUUID,
+        artifactUnion,
+        sourceAction.action["alias-of"],
+      );
+    }
+
     // If this Result is in a Collection, we need to set this to
     // paramName:destinationActionUUID:sourceActionUUID in place of resultUUID
     // as our unique identifier in some places
@@ -129,18 +148,6 @@ export default class ProvenanceModel {
       collectionKey === undefined
         ? resultUUID
         : `${paramName}:${destinationActionUUID}:${sourceActionUUID}`;
-
-    // Push the edge if we have a destination
-    if (destinationActionUUID !== undefined) {
-      this.elements.push({
-        data: {
-          id: `${paramName}_${resultID}_to_${destinationActionUUID}`,
-          param: paramName,
-          source: resultID,
-          target: destinationActionUUID,
-        },
-      });
-    }
 
     // Handle the Result we are currently parsing
     if (collectionKey !== undefined) {
@@ -154,28 +161,22 @@ export default class ProvenanceModel {
       return this.heightMap.get(sourceActionUUID);
     }
 
+    // Push the edge if we have a destination. And hadn't already seen this
+    // Result
+    if (destinationActionUUID !== undefined) {
+      this.elements.push({
+        data: {
+          id: `${paramName}_${resultID}_to_${destinationActionUUID}`,
+          param: paramName,
+          source: resultID,
+          target: destinationActionUUID,
+        },
+      });
+    }
+
     // If we get here we haven't seen this result yet so we need to track any
     // metadata it might have
     this._handleMetadata(sourceAction, resultUUID);
-
-    // Need a set of all input/parameter artifacts to the pipeline so can
-    // recurse up from any pipeline aliased artifact until all inputs are a
-    // subset of that set.
-    //
-    // Also need to keep track of which actions we have seen here to short-circuit
-    // ...this may get a little messy
-    if (sourceAction.action["alias-of"] !== undefined) {
-      const inputArtifacts = this._getInputArtifacts(sourceAction);
-      const parameterArtifacts = this._getParameterArtifacts(sourceAction);
-
-      const artifactUnion = setUnion(inputArtifacts, parameterArtifacts);
-
-      await this._recurseUpPipeline(
-        sourceActionUUID,
-        artifactUnion,
-        sourceAction.action["alias-of"],
-      );
-    }
 
     // If we have already seen this Action then short circuit
     if (await this._handleAction(resultID, sourceActionUUID, sourceAction)) {
@@ -219,6 +220,15 @@ export default class ProvenanceModel {
     return maxDepth;
   }
 
+  /**
+   * Recurses up nested pipelines and maps inner elements to the outermost
+   * pipeline
+   *
+   * @param {string} rootUUID - The UUID of the pipeline
+   * @param {Set<string>} rootArtifactUnion - A set of UUIDs of all Artifacts
+   * used as input to the pipeline.
+   * @param resultUUID - The UUID of the result we are currently looking at
+   */
   async _recurseUpPipeline(rootUUID, rootArtifactUnion, resultUUID) {
     const sourceAction = await this.getProvenanceAction(resultUUID);
 
@@ -240,9 +250,7 @@ export default class ProvenanceModel {
         artifactUnion,
         sourceAction.action["alias-of"],
       );
-    }
-
-    if (ACTION_TYPES_WITH_HISTORY.includes(sourceAction.action.type)) {
+    } else if (ACTION_TYPES_WITH_HISTORY.includes(sourceAction.action.type)) {
       const sourceInputArtifacts = this._getInputArtifacts(sourceAction);
       const sourceParameterArtifacts =
         this._getParameterArtifacts(sourceAction);
