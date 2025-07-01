@@ -127,7 +127,7 @@
     @apply block
     border-b-4
     border-b-transparent
-    text-gray-900;
+    text-gray-500;
   }
 
   .nav-button:hover {
