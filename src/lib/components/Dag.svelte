@@ -256,18 +256,12 @@
     // the search hits if there are high severity errors and before centering
     // the DAG in the canvas if there aren't, but this order DOES matter.
     if (readerModel.provenanceModel.highSeverityErrors.size > 0) {
-      // If we have high severity errors then we search them which will center
-      // the DAG on whichever of them is first in the results. We resize the
-      // canvas after the search.
-      _highSevertiyErrorSearch();
-      self.style.setProperty("height", "100%");
-    } else {
-      // If we don't have high severity errors then we resize before we center
-      // the DAG in the canvas.
-      self.style.setProperty("height", "100%");
-      centerAndPan();
+      readerModel.provenanceModel.provTab = "error";
     }
-  }
+
+    self.style.setProperty("height", "100%");
+    centerAndPan();
+}
 </script>
 
 <div>
