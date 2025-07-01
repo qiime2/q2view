@@ -23,7 +23,7 @@
   } = createDropdownMenu({});
 </script>
 
-<button use:melt={$triggerDropdown} class="flex">
+<button use:melt={$triggerDropdown} class="flex p-0.5">
   <img height="36px" width="36px" src="{svgPath}" alt="{svgPath}"/>
   <div class="float-right flex items-center pl-2 text-2xl font-bold">
     {errors.size}
@@ -73,5 +73,9 @@
 
   .textButton:hover {
     @apply bg-gray-300;
+  }
+
+  button:hover {
+    box-shadow: rgb(153, 153, 153) 0px 1px 5px;
   }
 </style>
