@@ -43,9 +43,9 @@
         </div>
         <div class="{$readerModel.provenanceModel.provTab === "error" ? "block" : "hidden"}">
           {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2)}
-            <span class="font-bold border-solid border-b-2 border-gray-500">High Severity Errors</span><br>
+            <span class="font-bold">High Severity Errors</span><br>
             {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2) as error}
-              <div class="mb-2">
+              <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
                 <span class="font-bold">description: </span> {error.description}<br>
                 <span class="font-bold">discovery date: </span> {error.date}<br>
@@ -54,9 +54,9 @@
             {/each}
           {/if}
           {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(1)}
-            <span class="font-bold border-solid border-b-2 border-gray-500">Medium Severity Errors</span><br>
+            <span class="font-bold">Medium Severity Errors</span><br>
             {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(1) as error}
-              <div class="mb-2">
+              <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
                 <span class="font-bold">description: </span> {error.description}<br>
                 <span class="font-bold">discovery date: </span> {error.date}<br>
@@ -65,9 +65,9 @@
             {/each}
           {/if}
           {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0)}
-            <span class="font-bold border-solid border-b-2 border-gray-500">Low Severity Errors</span><br>
+            <span class="font-bold">Low Severity Errors</span><br>
             {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0) as error}
-              <div class="mb-2">
+              <div class="mb-2 bg-gray-200 rounded-lg p-2">
               <span class="font-bold">name: </span> {error.name}<br>
                 <span class="font-bold">description: </span> {error.description}<br>
                 <span class="font-bold">discovery date: </span> {error.date}<br>
