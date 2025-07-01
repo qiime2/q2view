@@ -134,7 +134,7 @@ export default class ProvenanceModel {
 
       const artifactUnion = setUnion(inputArtifacts, parameterArtifacts);
 
-      await this._recurseUpTree(
+      await this._recurseUpPipeline(
         sourceActionUUID,
         artifactUnion,
         sourceAction.action["alias-of"],
