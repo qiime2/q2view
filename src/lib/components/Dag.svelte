@@ -9,7 +9,7 @@
 
   let self: HTMLDivElement = $state();
 
-  const NODE_ERROR_BG_COLORS = ["rgb(252, 200, 0)", "rgb(255, 105, 0)", "rgb(251, 44, 54)"]
+  const NODE_ERROR_BG_COLORS = ["rgb(254, 230, 133)", "rgb(255, 184, 106)", "rgb(255, 100, 103)"]
 
   // Center on selected node. Places it centered horizontally and just below
   // the control panel vertically

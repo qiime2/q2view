@@ -15,26 +15,11 @@
     {#if readerModel.provenanceModel.provData !== undefined}
       {#if readerModel.provenanceModel.cy.elements('node:selected').length > 0 && readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())}
         <div class="flex border-b border-solid border-gray-500 pb-2 mb-4">
-          <button onclick={() => readerModel.provenanceModel.provTab = "provenance"} class="nav-button float-left mx-auto w-1/2 {readerModel.provenanceModel.provTab === "provenance" ? "selected-nav-button" : ""}">
+          <button onclick={() => readerModel.provenanceModel.provTab = "provenance"} class="nav-button float-left mx-auto w-1/2 pb-0.5 {readerModel.provenanceModel.provTab === "provenance" ? "selected-nav-button" : ""}">
             Provenance
           </button>
-          <button onclick={() => readerModel.provenanceModel.provTab = "error"} class="nav-button float-right mx-auto w-1/2 {readerModel.provenanceModel.provTab === "error" ? "selected-nav-button" : ""}">
-            Errors
-            {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2)?.length > 0}
-              <span class="text-red-600 text-lg border-2 border-red-600 border-solid rounded-full px-1.5">
-                {readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2)?.length}
-              </span>
-            {/if}
-            {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(1)?.length > 0}
-              <span class="text-orange-400 text-lg border-2 border-orange-400 border-solid rounded-full px-1.5">
-                {readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(1)?.length}
-              </span>
-            {/if}
-            {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0)?.length > 0}
-              <span class="text-yellow-400 text-lg border-2 border-yellow-400 border-solid rounded-full px-1.5">
-                {readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0)?.length}
-              </span>
-            {/if}
+          <button onclick={() => readerModel.provenanceModel.provTab = "error"} class="nav-button float-right mx-auto w-1/2 pb-0.5 {readerModel.provenanceModel.provTab === "error" ? "selected-nav-button" : ""}">
+            Errors <span class="nav-button-child border border-gray-500 border-solid px-1.5 rounded-full">{readerModel.provenanceModel.lowSeverityErrors.size + readerModel.provenanceModel.medSeverityErrors.size + readerModel.provenanceModel.highSeverityErrors.size}</span>
           </button>
         </div>
         <div class="JSONTree {readerModel.provenanceModel.provTab === "provenance" ? "block" : "hidden"}">
@@ -130,18 +115,31 @@
     @apply block
     border-b-4
     border-b-transparent
-    text-gray-500;
+    text-gray-900;
   }
 
   .nav-button:hover {
     @apply text-gray-950;
   }
 
+  .nav-button:hover > .nav-button-child {
+    @apply border-gray-950;
+  }
+
   .selected-nav-button {
     @apply
     font-bold
     text-gray-950
+    border-gray-950
     border-b-[#e39e54];
+  }
+
+  .selected-nav-button > .nav-button-child {
+    @apply
+    font-bold
+    text-gray-950
+    border-gray-950
+    border-2;
   }
 
   .nav-button::before {
