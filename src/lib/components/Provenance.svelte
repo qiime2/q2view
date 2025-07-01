@@ -22,11 +22,11 @@
 {/key}
 {#key $readerModel.provenanceModel.provData}
   <!-- If there is a visibile scrollbar then the rounding clips awkwardly -->
-  <div class="{getScrollBarWidth() == 0 ? "rounded-md" : ""} mb-2 border border-gray-300 p-4 overflow-y-auto bg-gray-50"
+  <div class="{getScrollBarWidth() == 0 ? "rounded-md" : ""} mb-2 border border-gray-300 overflow-y-auto bg-gray-50"
        style="margin-right: {getScrollBarWidth()}px">
     {#if readerModel.provenanceModel.provData !== undefined}
       {#if readerModel.provenanceModel.cy.elements('node:selected').length > 0 && readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())}
-        <div class="flex border-b border-solid border-gray-500 pb-2 mb-4">
+        <div class="flex border-b border-solid border-gray-300 pb-2 pt-4 px-4 mb-4">
           <button onclick={() => readerModel.provenanceModel.provTab = "provenance"} class="nav-button float-left mx-auto w-1/2 pb-0.5 {readerModel.provenanceModel.provTab === "provenance" ? "selected-nav-button" : ""}">
             Provenance
           </button>
@@ -34,14 +34,14 @@
             Errors <span class="nav-button-child border border-gray-500 border-solid px-1.5 rounded-full">{_sumErrorsOnSelectedNode()}</span>
           </button>
         </div>
-        <div class="JSONTree {readerModel.provenanceModel.provTab === "provenance" ? "block" : "hidden"}">
+        <div class="JSONTree {readerModel.provenanceModel.provTab === "provenance" ? "block" : "hidden"} px-4">
           <JSONTree
             value={readerModel.provenanceModel.provData}
             defaultExpandedLevel={100}
             shouldShowPreview={false}
           />
         </div>
-        <div class="{$readerModel.provenanceModel.provTab === "error" ? "block" : "hidden"}">
+        <div class="{$readerModel.provenanceModel.provTab === "error" ? "block" : "hidden"} px-4">
           {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2)}
             <span class="font-bold">High Severity Errors</span><br>
             {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2) as error}
@@ -77,7 +77,7 @@
           {/if}
         </div>
       {:else}
-        <div class="JSONTree">
+        <div class="JSONTree p-4">
           <JSONTree
             value={readerModel.provenanceModel.provData}
             defaultExpandedLevel={100}
@@ -86,7 +86,7 @@
         </div>
       {/if}
     {:else}
-      <div class="text-gray-700 text-sm">
+      <div class="text-gray-700 text-sm p-4">
         <p class="pb-3 leading-5">Click on an element of the Provenance Graph to learn more. Alternatively, you can search the graph for actions and results matching specific criteria</p>
         <p class="font-bold text-lg">Search Query Instructions:</p>
         <p class="leading-5">To search for a given key with a given value use the 'key: value' syntax</p><span class="example">sampling_depth: 1000</span>
