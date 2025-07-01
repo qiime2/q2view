@@ -24,7 +24,7 @@
 </script>
 
 <button use:melt={$triggerDropdown} class="flex">
-  <img src="{svgPath}" alt="{svgPath}"/>
+  <img height="36px" width="36px" src="{svgPath}" alt="{svgPath}"/>
   <div class="float-right flex items-center pl-2 text-2xl font-bold">
     {errors.size}
   </div>
@@ -74,5 +74,4 @@
   .textButton:hover {
     @apply bg-gray-300;
   }
-
 </style>
