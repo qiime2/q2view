@@ -7,7 +7,7 @@ import type cytoscape from "cytoscape";
 // a bit of padding on top and bottom.
 export const HEIGHT_MULTIPLIER_PIXELS = 105;
 
-export const readBlobAsText = (blob) =>
+export const readBlobAsText = (blob: Blob): Promise<string> =>
   new Promise((resolve, reject) => {
     // eslint-disable-line no-unused-vars
     const reader = new FileReader();

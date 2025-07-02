@@ -2,12 +2,13 @@
 // This model is responsible for parsing and storing the provenance of the
 // result
 // ****************************************************************************
+import yaml from "js-yaml";
 import JSZip from "jszip";
 
 import { getYAML } from "$lib/scripts/fileutils";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
 import { searchProvenance, transformQuery } from "$lib/scripts/provSearchUtils";
-import { setUnion } from "$lib/scripts/util";
+import { setUnion, readBlobAsText } from "$lib/scripts/util";
 import cytoscape from "cytoscape";
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
@@ -666,13 +667,18 @@ export default class ProvenanceModel {
   }
 
   async getErrors() {
-    const ERRORS = await this._getRemoteErrors();
+    const ERRORS = yaml.safeLoad(
+      await readBlobAsText(await (await fetch("/errors/errors.yaml")).blob()),
+    );
+
+    if (ERRORS === undefined) {
+      console.log(
+        "Failed to parse provenance errors, provenance error tracking not active.",
+      );
+      return;
+    }
 
     for (const error of ERRORS) {
-      // The query will have starting and trailing single quotes that need chopped
-      // off
-      error.query = error.query.slice(1, error.query.length - 1);
-
       // Search provenance for nodes matching this error's query
       let formattedQuery = transformQuery(error.query);
       let errorHits = searchProvenance(formattedQuery, this.nodeIDToJSON);
@@ -704,21 +710,6 @@ export default class ProvenanceModel {
           this.nodeIDToErrors.get(hit)?.get(error.severity)?.push(error);
         }
       }
-    }
-  }
-
-  async _getRemoteErrors() {
-    try {
-      return await (
-        await fetch(
-          "https://raw.githubusercontent.com/Oddant1/library-plugins/refs/heads/add-error-tracker/errors/errors.json",
-        )
-      ).json();
-    } catch (error) {
-      alert(
-        `Encountered error:\n\n'${error}'\n\nwhen fetching remote errors. You will not be notified of errors in your provenance.`,
-      );
-      return [];
     }
   }
 }
