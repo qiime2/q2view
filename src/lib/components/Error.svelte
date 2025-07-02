@@ -1,6 +1,6 @@
 <script>
-    import readerModel from "$lib/models/readerModel";
-    import Panel from "$lib/components/Panel.svelte";
+  import readerModel from "$lib/models/readerModel";
+  import Panel from "$lib/components/Panel.svelte";
 </script>
 
 <div class="container">

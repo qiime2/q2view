@@ -4,7 +4,6 @@
 
   import url from "$lib/scripts/url-store";
 
-  import "../../app.css";
   import readerModel from "$lib/models/readerModel";
 
   import { onMount } from "svelte";

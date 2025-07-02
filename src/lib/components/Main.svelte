@@ -1,6 +1,4 @@
 <script lang="ts">
-  // Global styling
-  import "../../app.css";
   import readerModel from "$lib/models/readerModel";
 
   import url from "$lib/scripts/url-store";

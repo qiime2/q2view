@@ -1,6 +1,4 @@
 <script lang="ts">
-  import "../../app.css";
-
   import { getFile } from "$lib/scripts/fileutils";
   import Panel from "./Panel.svelte";
   import readerModel from "$lib/models/readerModel";

@@ -2,11 +2,14 @@
 // This model is responsible for parsing and storing the provenance of the
 // result
 // ****************************************************************************
+import yaml from "js-yaml";
 import JSZip from "jszip";
 
-import BiMap from "$lib/scripts/biMap";
 import { getYAML } from "$lib/scripts/fileutils";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
+import { searchProvenance, transformQuery } from "$lib/scripts/provSearchUtils";
+import { setUnion, readBlobAsText } from "$lib/scripts/util";
+import cytoscape from "cytoscape";
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
 
@@ -16,11 +19,21 @@ currentMetadataStore.subscribe((value) => {
   currentMetadata = value.currentMetadata;
 });
 
+export interface ProvenanceError {
+  name: string;
+  severity: number;
+  query: string;
+  date: string;
+  description: string;
+}
+
 /**
  * This class is a subscribable svelte store that manages parsing and storing provenance
  * information for the provided Result.
  */
 export default class ProvenanceModel {
+  cy: cytoscape.Core = cytoscape();
+
   // The height of the provenance tree
   height: number = 1;
   // Maps the UUIDs of each action to that actions depth in the tree
@@ -36,20 +49,26 @@ export default class ProvenanceModel {
 
   // Json representing the provenance of the selected node in the tree
   provData: Object | undefined = undefined;
-
-  // Keep track of Action, Result, and Collection IDs we have already seen.
-  seenIDs: Set<string> = new Set();
+  provTab: string = "provenance";
 
   // Search JSON
-  jsonKeysToJSON = new Map();
-  nodeIDToJSON: BiMap<string, {}> = new BiMap();
+  nodeIDToJSON: Map<string, {}> = new Map();
+  innerIDToPipeline: Map<string, string> = new Map();
   keys: Set<string> = new Set();
   searchIndex: number = 0;
   searchHits: Array<string> = [];
 
   searchError: any = null;
+
+  // Metadata
   seenMetadata: Set<string> = new Set();
   metadata: Array<Array<string>> = [];
+
+  // Error tracking
+  nodeIDToErrors: Map<string, Map<number, ProvenanceError[]>> = new Map();
+  lowSeverityErrors: Set<ProvenanceError> = new Set();
+  medSeverityErrors: Set<ProvenanceError> = new Set();
+  highSeverityErrors: Set<ProvenanceError> = new Set();
 
   // Class attributes passed in by readerModel pertaining to currently loaded
   // Result
@@ -95,11 +114,35 @@ export default class ProvenanceModel {
     const sourceAction = await this.getProvenanceAction(resultUUID);
     const sourceActionUUID = sourceAction.execution.uuid;
 
+    const depths: number[] = [];
+    let maxDepth = 1;
+
     // Make this "-" to match q2-<plugin>
     if (sourceAction.action.action !== undefined) {
       sourceAction.action.action = sourceAction.action.action.replaceAll(
         "_",
         "-",
+      );
+    }
+
+    // Need a set of all input/parameter artifacts to the pipeline so can
+    // recurse up from any pipeline aliased artifact until all inputs are a
+    // subset of that set.
+    //
+    // TODO: This code could be modified in the future to only call _recurseUpTree
+    // which could take accumulators for elements and resultNodes then we could
+    // properly parse inner pipeline provenance into a real DAG. This only does
+    // enough to map the prov errors of inner actions back up the outer node
+    if (sourceAction.action["alias-of"] !== undefined) {
+      const inputArtifacts = this._getInputArtifacts(sourceAction);
+      const parameterArtifacts = this._getParameterArtifacts(sourceAction);
+
+      const artifactUnion = setUnion(inputArtifacts, parameterArtifacts);
+
+      await this._recurseUpPipeline(
+        sourceActionUUID,
+        artifactUnion,
+        sourceAction.action["alias-of"],
       );
     }
 
@@ -110,6 +153,59 @@ export default class ProvenanceModel {
       collectionKey === undefined
         ? resultUUID
         : `${paramName}:${destinationActionUUID}:${sourceActionUUID}`;
+
+    // Handle the Result we are currently parsing
+    if (collectionKey !== undefined) {
+      // If this Result is in a Collection, handle that
+      if (await this._handleCollection(resultUUID, collectionKey, resultID)) {
+        // If we have already seen this Collection then short circuit after
+        // adding this result to it
+        return this.heightMap.get(sourceActionUUID);
+      }
+    } else if (await this._handleResult(resultUUID)) {
+      // If we have already seen this Result then short circuit
+      return this.heightMap.get(sourceActionUUID);
+    }
+
+    // We don't want to go parsing up the tree on actions we have already seen
+    //
+    // Additionally, some actions, most notably import, cannot have any steps
+    // upstream of them. We don't need to recurse up the tree on them either
+    if (
+      !(await this._handleAction(sourceActionUUID, sourceAction)) &&
+      ACTION_TYPES_WITH_HISTORY.includes(sourceAction.action.type)
+    ) {
+      await this._handleInputArtifacts(
+        sourceAction.action.inputs,
+        sourceActionUUID,
+        depths,
+      );
+      await this._handleParameterArtifacts(
+        sourceAction.action.parameters,
+        sourceActionUUID,
+        depths,
+      );
+
+      maxDepth = Math.max(...depths);
+    } else {
+      // This could be an action we have already seen in which case it will
+      // have a height in the map, or it could be an import or something which
+      // has nothing above it
+      const mapped = this.heightMap.get(sourceActionUUID);
+      maxDepth = mapped === undefined ? 1 : mapped;
+    }
+
+    // Add this Action height to the map
+    this.heightMap.set(sourceActionUUID, maxDepth);
+
+    // Finally push the node for this Result
+    this.resultNodes.push({
+      data: {
+        id: resultID,
+        parent: sourceActionUUID,
+        row: maxDepth,
+      },
+    });
 
     // Push the edge if we have a destination
     if (destinationActionUUID !== undefined) {
@@ -123,62 +219,63 @@ export default class ProvenanceModel {
       });
     }
 
-    // Handle the Result we are currently parsing
-    if (collectionKey !== undefined) {
-      // If this Result is in a Collection, handle that
-      if (await this._handleCollection(resultUUID, collectionKey, resultID)) {
-        // If we have already seen this Collection then short circuit
-        return this.heightMap.get(sourceActionUUID);
-      }
-    } else if (await this._handleResult(resultUUID)) {
-      // If we have already seen this Result then short circuit
-      return this.heightMap.get(sourceActionUUID);
-    }
-
-    // If we get here we haven't seen this result yet so we need to track any
-    // metadata it might have
+    // Track any metadata this result might have
     this._handleMetadata(sourceAction, resultUUID);
 
-    // If we have already seen this Action then short circuit
-    if (await this._handleAction(resultID, sourceActionUUID, sourceAction)) {
-      return this.heightMap.get(sourceActionUUID);
-    }
-
-    // Some Actions, most notably import, cannot have any steps upstream of
-    // them. We don't need to run these steps trying to recurse up the tree on
-    // those Actions, because they can't have anything above them.
-    const depths = [1];
-
-    if (ACTION_TYPES_WITH_HISTORY.includes(sourceAction.action.type)) {
-      await this._handleInputArtifacts(
-        sourceAction.action.inputs,
-        sourceActionUUID,
-        depths,
-      );
-      await this._handleParameterArtifacts(
-        sourceAction.action.parameters,
-        sourceActionUUID,
-        depths,
-      );
-    }
-
-    // Get the maxDepth of this node by taking the max of the depths set by the
-    // recursive calls generated by the above handlers
-    const maxDepth = Math.max(...depths);
-
-    // Add this Action height to the map
-    this.heightMap.set(sourceActionUUID, maxDepth);
-
-    // Finally push the node for this Result if it was new
-    this.resultNodes.push({
-      data: {
-        id: resultID,
-        parent: sourceActionUUID,
-        row: maxDepth,
-      },
-    });
-
+    // Return our current maxDepth
     return maxDepth;
+  }
+
+  /**
+   * Recurses up nested pipelines and maps inner elements to the outermost
+   * pipeline
+   *
+   * @param {string} rootUUID - The UUID of the pipeline
+   * @param {Set<string>} rootArtifactUnion - A set of UUIDs of all Artifacts
+   * used as input to the pipeline.
+   * @param resultUUID - The UUID of the result we are currently looking at
+   */
+  async _recurseUpPipeline(rootUUID, rootArtifactUnion, resultUUID) {
+    const sourceAction = await this.getProvenanceAction(resultUUID);
+
+    this.nodeIDToJSON.set(sourceAction.execution.uuid, sourceAction);
+    this.innerIDToPipeline.set(sourceAction.execution.uuid, rootUUID);
+
+    // Need to handle nested pipelines
+    //
+    // This is mapping nested pipelines directly to the outter pipeline not to
+    // their most immediate ancestor
+    if (sourceAction.action["alias-of"] !== undefined) {
+      const inputArtifacts = this._getInputArtifacts(sourceAction);
+      const parameterArtifacts = this._getParameterArtifacts(sourceAction);
+
+      const artifactUnion = setUnion(inputArtifacts, parameterArtifacts);
+
+      await this._recurseUpPipeline(
+        rootUUID,
+        artifactUnion,
+        sourceAction.action["alias-of"],
+      );
+    } else if (ACTION_TYPES_WITH_HISTORY.includes(sourceAction.action.type)) {
+      const sourceInputArtifacts = this._getInputArtifacts(sourceAction);
+      const sourceParameterArtifacts =
+        this._getParameterArtifacts(sourceAction);
+
+      const sourceArtifactUnion = setUnion(
+        sourceInputArtifacts,
+        sourceParameterArtifacts,
+      );
+
+      for (const sourceArtifactUUID of sourceArtifactUnion) {
+        if (!rootArtifactUnion.has(sourceArtifactUUID)) {
+          await this._recurseUpPipeline(
+            rootUUID,
+            rootArtifactUnion,
+            sourceArtifactUUID,
+          );
+        }
+      }
+    }
   }
 
   /**
@@ -214,10 +311,9 @@ export default class ProvenanceModel {
     collectionKey = ` ${collectionKey}`;
 
     // We map this collectionID to every element of the collection
-    if (!this.seenIDs.has(collectionID)) {
+    if (!this.nodeIDToJSON.has(collectionID)) {
       // This an as yet untracked collection, so we need to begin tracking it
       // then continue recursing
-      this.seenIDs.add(collectionID);
       this.nodeIDToJSON.set(collectionID, {});
       this.nodeIDToJSON.get(collectionID)[collectionKey] = result;
     } else {
@@ -244,11 +340,10 @@ export default class ProvenanceModel {
    * we have, we can short circuit in _recurseUpTree
    */
   async _handleResult(resultUUID: string): Promise<boolean> {
-    if (this.seenIDs.has(resultUUID)) {
+    if (this.nodeIDToJSON.has(resultUUID)) {
       return true;
     }
 
-    this.seenIDs.add(resultUUID);
     let result = await this.getProvenanceArtifact(resultUUID);
     this.nodeIDToJSON.set(resultUUID, result);
 
@@ -263,36 +358,23 @@ export default class ProvenanceModel {
    * currently parsed Result is part of a Collection we have already seen or has
    * itself already been seen because _recurseUpTree will already have short circuited
    *
-   * @param {string} resultUUID - The UUID of the rResult we are currently parsing
    * @param {string} sourceActionUUID - The UUID of the Action we are currently
    * handling
    * @param {Object} sourceAction - The action that produced the Result we are currently
    * parsing
    *
    * @returns {Promise<boolean>} Whether we have seen this Action yet or not. If
-   * we have, we can short circuit in _recuseUpTree
+   * we have, we don't need to recurse further in _recurseUpTree
    */
   async _handleAction(
-    resultUUID: string,
     sourceActionUUID: string,
     sourceAction: Object,
   ): Promise<boolean> {
-    if (this.seenIDs.has(sourceActionUUID)) {
-      // This is called after _handleResult, so if we got here then we have not
-      // seen this result yet and need to add it
-      this.resultNodes.push({
-        data: {
-          id: resultUUID,
-          parent: sourceActionUUID,
-          row: this.heightMap.get(sourceActionUUID),
-        },
-      });
-
+    if (this.nodeIDToJSON.has(sourceActionUUID)) {
       return true;
     }
 
     // Push this Action node
-    this.seenIDs.add(sourceActionUUID);
     this.nodeIDToJSON.set(sourceActionUUID, sourceAction);
 
     this.elements.push({
@@ -452,6 +534,52 @@ export default class ProvenanceModel {
     }
   }
 
+  _getInputArtifacts(sourceAction) {
+    const inputArtifacts = new Set();
+
+    for (const inputMap of sourceAction.action.inputs) {
+      const inputValue = Object.values(inputMap)[0];
+
+      if (typeof inputValue == "string") {
+        // We have a single input artifact
+        inputArtifacts.add(inputValue);
+      } else if (inputValue !== null && typeof inputValue === "object") {
+        // We have an input collection
+        for (const element of inputValue) {
+          // Every element will be the same type, string if this was a List
+          // and {} if this was a Collection
+          if (typeof element === "string") {
+            inputArtifacts.add(element);
+          } else {
+            inputArtifacts.add(Object.values(element)[0]);
+          }
+        }
+      }
+    }
+
+    return inputArtifacts;
+  }
+
+  _getParameterArtifacts(sourceAction) {
+    const parameterArtifacts = new Set();
+
+    for (const paramMap of sourceAction.action.parameters) {
+      const paramValue = Object.values(paramMap)[0];
+
+      if (
+        paramValue !== null &&
+        typeof paramValue === "object" &&
+        Object.prototype.hasOwnProperty.call(paramValue, "artifacts")
+      ) {
+        for (const artifactUUID of paramValue.artifacts) {
+          parameterArtifacts.add(artifactUUID);
+        }
+      }
+    }
+
+    return parameterArtifacts;
+  }
+
   /**
    * Generate the provenance tree above the Result we were given recursively. Sets
    * class state to represent the tree.
@@ -536,5 +664,52 @@ export default class ProvenanceModel {
       this.uuid,
       this.zipReader,
     );
+  }
+
+  async getErrors() {
+    const ERRORS = yaml.safeLoad(
+      await readBlobAsText(await (await fetch("/errors/errors.yaml")).blob()),
+    );
+
+    if (ERRORS === undefined) {
+      console.log(
+        "Failed to parse provenance errors, provenance error tracking not active.",
+      );
+      return;
+    }
+
+    for (const error of ERRORS) {
+      // Search provenance for nodes matching this error's query
+      let formattedQuery = transformQuery(error.query);
+      let errorHits = searchProvenance(formattedQuery, this.nodeIDToJSON);
+
+      // If we got any error hits, add this error to the list of overall errors
+      // seen
+      if (errorHits.length !== 0) {
+        switch (error.severity) {
+          case 0:
+            this.lowSeverityErrors.add(error);
+            break;
+          case 1:
+            this.medSeverityErrors.add(error);
+            break;
+          case 2:
+            this.highSeverityErrors.add(error);
+            break;
+        }
+
+        for (const hit of errorHits) {
+          if (this.nodeIDToErrors.get(hit) === undefined) {
+            this.nodeIDToErrors.set(hit, new Map());
+          }
+
+          if (this.nodeIDToErrors.get(hit)?.get(error.severity) === undefined) {
+            this.nodeIDToErrors.get(hit)?.set(error.severity, []);
+          }
+
+          this.nodeIDToErrors.get(hit)?.get(error.severity)?.push(error);
+        }
+      }
+    }
   }
 }

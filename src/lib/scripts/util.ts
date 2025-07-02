@@ -1,11 +1,13 @@
+import type { ProvenanceError } from "$lib/models/provenanceModel";
 import readerModel from "$lib/models/readerModel";
+import type cytoscape from "cytoscape";
 
 // This value is multiplied by the height of the graph in nodes to get the
 // height of the graph in pixels. It is the height of a node in the graph plus
 // a bit of padding on top and bottom.
 export const HEIGHT_MULTIPLIER_PIXELS = 105;
 
-export const readBlobAsText = (blob) =>
+export const readBlobAsText = (blob: Blob): Promise<string> =>
   new Promise((resolve, reject) => {
     // eslint-disable-line no-unused-vars
     const reader = new FileReader();
@@ -166,15 +168,46 @@ export function getAllObjectKeyPathsRecursively(
   }
 }
 
+export function sortDAGNodes(DAG: cytoscape.Core, aID: string, bID: string) {
+  let aNode: any = DAG.$id(aID);
+  let bNode: any = DAG.$id(bID);
+
+  // We only set a row and column on the Result nodes in the graph not the
+  // Action nodes. Action nodes have Result nodes as children, so if a node
+  // has children we know it is an Action node and we sort it based on its
+  // first child which will be the furthest left Result node it contains.
+  if (aNode.descendants().length > 0) {
+    aNode = aNode.descendants()[0];
+  }
+
+  if (bNode.descendants().length > 0) {
+    bNode = bNode.descendants()[0];
+  }
+
+  // Now sort by row first then by column within a row
+  if (aNode.data().row === bNode.data().row) {
+    return aNode.data().col - bNode.data().col;
+  }
+
+  return aNode.data().row - bNode.data().row;
+}
+
+export function sortErrorsBySeverity(
+  errorA: ProvenanceError,
+  errorB: ProvenanceError,
+) {
+  return errorB.severity - errorA.severity;
+}
+
 //*****************************************************************************
 // Unbelievably Set.Union and Set.Intersection were only added to the
 // ECMAScript standard in 2024, so I'm going to implement them here in ways
 // that will work on older js.
 //****************************************************************************/
-export function setUnion(setA: Set<string>, setB: Set<string>) {
+export function setUnion(setA: Set<any>, setB: Set<any>) {
   return new Set([...setA, ...setB]);
 }
 
-export function setIntersection(setA: Set<string>, setB: Set<string>) {
+export function setIntersection(setA: Set<any>, setB: Set<any>) {
   return new Set([...setA].filter((elem) => setB.has(elem)));
 }

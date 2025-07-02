@@ -1,24 +1,24 @@
 <script lang="ts">
   import { preventDefault } from "svelte/legacy";
 
-  import "../../app.css";
-  import cytoscape from "cytoscape";
   import {
     searchProvenance,
     transformQuery,
   } from "$lib/scripts/provSearchUtils";
   import Panel from "./Panel.svelte";
   import readerModel from "$lib/models/readerModel";
+  import { sortDAGNodes } from "$lib/scripts/util";
 
   interface Props {
-    cy: cytoscape.Core;
     centerOnSelected: Function;
     centerAndPan: Function;
     mount: Function;
   }
 
-  let { cy, centerOnSelected, centerAndPan, mount }: Props = $props();
+  let { centerOnSelected, centerAndPan, mount }: Props = $props();
 
+  // NOTE: I can unfortunately no longer bind this value directly in the input
+  // because doing so did not work with ErrorDropdown injecting its search
   let value: string = $state("");
 
   // Map the literals Lark uses to more human readable things
@@ -72,11 +72,11 @@
   }
 
   function _handleProvenanceSearch() {
-    readerModel.provenanceModel.searchIndex = 0;
+    let provSearchInput = document.getElementById("provSearchInput") as HTMLInputElement;
+    value = provSearchInput.value;
 
-    for (const hitID of readerModel.provenanceModel.searchHits) {
-      cy.$id(hitID).removeClass("highlighted");
-    }
+    readerModel.provenanceModel.searchIndex = 0;
+    readerModel.provenanceModel.cy.batch(_removeHighlight);
 
     try {
       const transformedSearchQuery = transformQuery(value);
@@ -84,6 +84,11 @@
         transformedSearchQuery,
         readerModel.provenanceModel.nodeIDToJSON,
       );
+
+      if (readerModel.provenanceModel.searchHits.length === 0) {
+        throw new Error("No search hits found");
+      }
+
       readerModel.provenanceModel.searchError = null;
     } catch (error) {
       readerModel.provenanceModel.searchError = error;
@@ -92,33 +97,8 @@
     }
 
     // Sort the hit nodes by row then by col within a given row
-    readerModel.provenanceModel.searchHits.sort((a, b) => {
-      let aNode: any = cy.$id(a);
-      let bNode: any = cy.$id(b);
-
-      // We only set a row and column on the Result nodes in the graph not the
-      // Action nodes. Action nodes have Result nodes as children, so if a node
-      // has children we know it is an Action node and we sort it based on its
-      // first child which will be the furthest left Result node it contains.
-      if (aNode.descendants().length > 0) {
-        aNode = aNode.descendants()[0];
-      }
-
-      if (bNode.descendants().length > 0) {
-        bNode = bNode.descendants()[0];
-      }
-
-      // Now sort by row first then by column within a row
-      if (aNode.data().row === bNode.data().row) {
-        return aNode.data().col - bNode.data().col;
-      }
-
-      return aNode.data().row - bNode.data().row;
-    });
-
-    for (const hitID of readerModel.provenanceModel.searchHits) {
-      cy.$id(hitID).addClass("highlighted");
-    }
+    readerModel.provenanceModel.searchHits.sort((a, b) => sortDAGNodes(readerModel.provenanceModel.cy, a, b));
+    readerModel.provenanceModel.cy.batch(_addHighlght);
 
     _selectSearchHit();
   }
@@ -131,7 +111,7 @@
       return;
     }
 
-    cy.$id(hitID).select();
+    readerModel.provenanceModel.cy.$id(hitID).select();
     centerOnSelected();
   }
 
@@ -175,7 +155,7 @@
   }
 
   function _deselect() {
-    const selectedNodes = cy.elements('node:selected');
+    const selectedNodes = readerModel.provenanceModel.cy.elements('node:selected');
     if (selectedNodes.length !== 0) {
       // We can only ever have one node selected at a time
       const selectedNode = selectedNodes[0];
@@ -184,22 +164,35 @@
   }
 
   function _clearSearch() {
+    let provSearchInput = document.getElementById("provSearchInput") as HTMLInputElement;
+    provSearchInput.value = "";
     value = "";
 
-    for (const hitID of readerModel.provenanceModel.searchHits) {
-      cy.$id(hitID).removeClass("highlighted");
-    }
-
+    readerModel.provenanceModel.cy.batch(_removeHighlight);
     readerModel.provenanceModel.searchIndex = 0;
     readerModel.provenanceModel.searchHits = [];
     readerModel.provenanceModel.searchError = null;
     readerModel._dirty();
   }
+
+  // Add the highlight class to all search hits
+  function _addHighlght() {
+    for (const hitID of readerModel.provenanceModel.searchHits) {
+      readerModel.provenanceModel.cy.$id(hitID).addClass("highlighted");
+    }
+  }
+
+  // Remove the hightlight class from all search hits
+  function _removeHighlight() {
+    for (const hitID of readerModel.provenanceModel.searchHits) {
+      readerModel.provenanceModel.cy.$id(hitID).removeClass("highlighted");
+    }
+  }
 </script>
 
 <Panel customPanelClass="p-4 bg-gray-50">
-  <form onsubmit={preventDefault(_handleProvenanceSearch)}>
-    <input class="roundInput" placeholder="Search Provenance" bind:value />
+  <form id="provSearchForm" onsubmit={preventDefault(_handleProvenanceSearch)}>
+    <input id="provSearchInput" class="roundInput" placeholder="Search Provenance" />
   </form>
   <div class="flex mt-2" style="align-items: center">
     <button
