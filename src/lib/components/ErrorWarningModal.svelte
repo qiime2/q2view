@@ -9,7 +9,6 @@
       overlay,
       content,
       title,
-      description,
       portalled,
     },
   } = createDialog({
