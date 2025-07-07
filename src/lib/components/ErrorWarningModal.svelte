@@ -43,7 +43,7 @@
           {error.name}
         </div>
       {/each}
-      <div class="mt-4 flex gap-4">
+      <div class="mt-4 flex justify-end gap-4">
         <button
           onclick={() => dismissed = true}
           class="inline-flex h-8 items-center justify-center rounded-md
