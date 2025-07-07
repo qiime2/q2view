@@ -249,12 +249,6 @@
       }
     });
 
-    // If we have high severity errors then we want to search for them by
-    // default when mounting the DAG.
-    //
-    // I am not 100% positive why we need to resize the DAG after centering on
-    // the search hits if there are high severity errors and before centering
-    // the DAG in the canvas if there aren't, but this order DOES matter.
     if (readerModel.provenanceModel.highSeverityErrors.size > 0) {
       readerModel.provenanceModel.provTab = "error";
     }
