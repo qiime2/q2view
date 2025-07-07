@@ -14,7 +14,7 @@
   import About from "$lib/components/About.svelte";
   import Error from "$lib/components/Error.svelte";
   import Loading from "$lib/components/Loading.svelte";
-    import ErrorWarningModal from "./ErrorWarningModal.svelte";
+  import ErrorWarningModal from "./ErrorWarningModal.svelte";
 
   interface Props {
     vendored?: boolean;

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import readerModel from '$lib/models/readerModel';
   import { createDialog, melt } from '@melt-ui/svelte'
 
   let dismissed: boolean = $state(false);
@@ -14,6 +15,11 @@
   } = createDialog({
     forceVisible: true,
   });
+
+  function _redirectToProv() {
+    dismissed = true;
+    history.pushState({}, "", "/provenance/" + window.location.search);
+  }
 </script>
 
 {#if !dismissed}
@@ -25,61 +31,34 @@
     </div>
     <div
       class="fixed left-1/2 top-1/2 z-50 max-h-[85vh] w-[90vw]
-            max-w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white
+            max-w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white
             p-6 shadow-lg"
       use:melt={$content}
     >
-      <h2 use:melt={$title} class="m-0 text-lg font-medium text-black">
-        Edit profile
+      <h2 use:melt={$title} class="m-0 text-lg font-medium text-black pb-2">
+        Warning: The following high severity errors were found in your provenance. Please inspect them in your "Provenance" tab.
       </h2>
-      <p use:melt={$description} class="mb-5 mt-2 leading-normal text-zinc-600">
-        Make changes to your profile here. Click save when you're done.
-      </p>
-
-      <fieldset class="mb-4 flex items-center gap-5">
-        <label class="w-[90px] text-right text-black" for="name"> Name </label>
-        <input
-          class="inline-flex h-8 w-full flex-1 items-center justify-center
-                    rounded-sm border border-solid px-3 leading-none text-black"
-          id="name"
-          value="Thomas G. Lopes"
-        />
-      </fieldset>
-      <fieldset class="mb-4 flex items-center gap-5">
-        <label class="w-[90px] text-right text-black" for="username">
-          Username
-        </label>
-        <input
-          class="inline-flex h-8 w-full flex-1 items-center justify-center
-                    rounded-sm border border-solid px-3 leading-none text-black"
-          id="username"
-          value="@thomasglopes"
-        />
-      </fieldset>
+      {#each $readerModel.provenanceModel.highSeverityErrors as error}
+        <div class="px-1 my-2 bg-gray-200 rounded-md">
+          {error.name}
+        </div>
+      {/each}
       <div class="mt-6 flex justify-end gap-4">
         <button
           onclick={() => dismissed = true}
-          class="inline-flex h-8 items-center justify-center rounded-sm
-                    bg-zinc-100 px-4 font-medium leading-none text-zinc-600"
+          class="inline-flex h-8 items-center justify-center rounded-md
+                    bg-zinc-300 px-4 font-medium leading-none text-zinc-600"
         >
-          Cancel
+          Dismiss
         </button>
         <button
-          onclick={() => dismissed = true}
-          class="inline-flex h-8 items-center justify-center rounded-sm
-                    bg-magnum-100 px-4 font-medium leading-none text-magnum-900"
+          onclick={_redirectToProv}
+          class="inline-flex h-8 items-center justify-center rounded-md
+                 bg-blue-300 px-4 font-medium leading-none"
         >
-          Save changes
+          View Errors
         </button>
       </div>
-      <button
-        onclick={() => dismissed = true}
-        aria-label="close"
-        class="absolute right-4 top-4 inline-flex h-6 w-6 appearance-none
-                items-center justify-center rounded-full p-1 text-magnum-800
-                hover:bg-magnum-100 focus:shadow-magnum-400"
-      >
-      </button>
     </div>
   </div>
 {/if}
