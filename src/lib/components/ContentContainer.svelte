@@ -14,6 +14,7 @@
   import About from "$lib/components/About.svelte";
   import Error from "$lib/components/Error.svelte";
   import Loading from "$lib/components/Loading.svelte";
+    import ErrorWarningModal from "./ErrorWarningModal.svelte";
 
   interface Props {
     vendored?: boolean;
@@ -94,6 +95,9 @@
       >
         <Metadata />
       </div>
+      {#if $readerModel.provenanceModel.highSeverityErrors.size > 0}
+        <ErrorWarningModal />
+      {/if}
     {/if}
   </div>
 </div>
