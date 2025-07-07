@@ -37,7 +37,7 @@
   {
     "name": "My other very minor fake error",
     "severity": 0,
-    "query": 'qiime2: ^"2023"',
+    "query": 'qiime2: ^"2022"',
     "date": "yyyy-mm-dd",
     "description": "Is this even an error?",
   },
