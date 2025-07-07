@@ -121,17 +121,6 @@ class ReaderModel {
       return;
     }
 
-    if (readerModel.provenanceModel.highSeverityErrors.size > 0) {
-      let errString = "Critical errors found in provenance:\n";
-
-      for (const error of readerModel.provenanceModel.highSeverityErrors) {
-        errString += error.name + "\n";
-      }
-
-      alert(errString);
-      tab = "provenance";
-    }
-
     // We set this after reading the data because sometimes which tab we go to
     // is dependent on whether we read an artifact or a visualization and we
     // don't have a great way of knowing that for certain until we've actually
