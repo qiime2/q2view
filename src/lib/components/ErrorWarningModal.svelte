@@ -31,30 +31,30 @@
     </div>
     <div
       class="fixed left-1/2 top-1/2 z-50 max-h-[85vh] w-[90vw]
-            max-w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white
-            p-6 shadow-lg"
+            max-w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white
+            p-4 shadow-lg"
       use:melt={$content}
     >
-      <h2 use:melt={$title} class="m-0 text-lg font-medium text-black pb-2">
-        Warning: The following high severity errors were found in your provenance. Please inspect them in your "Provenance" tab.
+      <h2 use:melt={$title} class="text-lg">
+        The following critical errors were found in your provenance. Please inspect them in your "Provenance" tab.
       </h2>
       {#each $readerModel.provenanceModel.highSeverityErrors as error}
-        <div class="px-1 my-2 bg-gray-200 rounded-md">
+        <div class="px-2 my-2 bg-gray-200 rounded-md">
           {error.name}
         </div>
       {/each}
-      <div class="mt-6 flex justify-end gap-4">
+      <div class="mt-4 flex gap-4">
         <button
           onclick={() => dismissed = true}
           class="inline-flex h-8 items-center justify-center rounded-md
-                    bg-zinc-300 px-4 font-medium leading-none text-zinc-600"
+                bg-zinc-300 px-4 font-medium leading-none"
         >
           Dismiss
         </button>
         <button
           onclick={_redirectToProv}
           class="inline-flex h-8 items-center justify-center rounded-md
-                 bg-blue-300 px-4 font-medium leading-none"
+                bg-blue-300 px-4 font-medium leading-none"
         >
           View Errors
         </button>
