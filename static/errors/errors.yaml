@@ -1,44 +1,64 @@
 [
   {
-    "name": "My fake error",
-    "severity": 2,
-    "query": 'qiime2: ^"2023" AND action: "denoise"',
-    "date": "yyyy-mm-dd",
-    "description": "Oh no something is wrong I guess",
+    name: "My fake error",
+    severity: 2,
+    query: 'qiime2: ^"204" AND action: "denoise"',
+    date: "yyyy-mm-dd",
+    description: "Oh no something is wrong I guess",
   },
   {
-    "name": "Bad error",
-    "severity": 2,
-    "query": 'qiime2: ^"2023" AND action: "denoise"',
-    "date": "yyyy-mm-dd",
-    "description": "Oh no something is wrong I guess",
+    name: "Bad error",
+    severity: 2,
+    query: 'qiime2: ^"2023" AND action: "denoise"',
+    date: "yyyy-mm-dd",
+    description: "Oh no something is wrong I guess",
   },
   {
-    "name": "My other fake error",
-    "severity": 1,
-    "query": 'qiime2: ^"2023" AND (action: "emp" OR type: "import")',
-    "date": "yyyy-mm-dd",
-    "description": "Oh no something is less wrong than the other one I guess",
+    name: "My other fake error",
+    severity: 1,
+    query: 'qiime2: ^"2023" AND (action: "emp" OR type: "import")',
+    date: "yyyy-mm-dd",
+    description: "Oh no something is less wrong than the other one I guess",
   },
   {
-    "name": "My very minor fake error",
-    "severity": 0,
-    "query": 'qiime2: ^"2024"',
-    "date": "yyyy-mm-dd",
-    "description": "Is this even an error?",
+    name: "My very minor fake error",
+    severity: 0,
+    query: 'qiime2: ^"2024"',
+    date: "yyyy-mm-dd",
+    description: "Is this even an error?",
   },
   {
-    "name": "My more specific pipeline error",
-    "severity": 0,
-    "query": 'qiime2: ^"2023" AND action: "rarefy"',
-    "date": "yyyy-mm-dd",
-    "description": "Is this even an error?",
+    name: "My more specific pipeline error",
+    severity: 0,
+    query: 'qiime2: ^"2023" AND action: "rarefy"',
+    date: "yyyy-mm-dd",
+    description: "Is this even an error?",
   },
   {
-    "name": "My other very minor fake error",
-    "severity": 0,
-    "query": 'qiime2: ^"2022"',
-    "date": "yyyy-mm-dd",
-    "description": "Is this even an error?",
+    name: "My other very minor fake error",
+    severity: 0,
+    query: 'qiime2: ^"2022"',
+    date: "yyyy-mm-dd",
+    description: "Is this even an error?",
+  },
+  {
+    name: "Incorrect chimera classification",
+    severity: 1,
+    query: '(plugin: "q2-vsearch" AND action: "uchime-denovo") AND (vsearch:
+            (^"2.23" OR
+             ^"2.24" OR
+             ^"2.25" OR
+             ^"2.26" OR
+             ^"2.27" OR
+             ^"2.28" OR
+             ^"2.29.0"$ OR
+             ^"2.29.1"$ OR
+             ^"2.29.2"$ OR
+             ^"2.29.3"$)))',
+    date: "2025-07-08",
+    description: "Affected versions of the vsearch dependency of q2-vsearch incorrectly
+                  report chimeric/non-chimeric sequences. The magnitude of the incorrect
+                  classifications is small. See this GitHub issue for more details:
+                  https://github.com/torognes/vsearch/issues/591"
   },
 ]
