@@ -77,12 +77,64 @@
       https://forum.qiime2.org/t/discarded-results-produced-by-q2-cutadapts-trim-paired-when-working-with-mixed-orientation-reads/17570",
   },
   {
+    name: "Faulty OpenBLAS on AVX 512 CPUs",
+    severity: 2,
+    query: 'q2-types: "2019.4.0"',
+    date: "2025-07-08",
+    description:
+      "The version of the OpenBLAS linear algebra library used to create this
+      artifact performs matrix multiplication incorrectly on CPUs that support
+      the AVX 512 instruction set. This only affects you if this Result was
+      produced on a computer with a CPU that supports AVX 512 instructions.
+      See this forum post for more details: https://forum.qiime2.org/t/qiime-2-2019-4-0-has-faulty-openblas-results-on-certain-cpus/9604",
+  },
+  {
+    name: "trim-paired swaps forward and reverse reads",
+    severity: 2,
+    query: 'plugin: "q2-cutadapt" AND action: "trim-paired" AND q2-cutadapt:
+      (^"2017.12" OR
+      ^"2018.2" OR
+      ^"2018.4")',
+    date: "2025-07-08",
+    description:
+      "Under certain circumstances, affected versions of q2-cutadapt trim-paired
+      swap the forward and reverse reads causing the forward read trimming
+      parameters to be applied to the reverse reads and vice versa. See this
+      forum post for more details: https://forum.qiime2.org/t/incorrect-results-produced-by-q2-cutadapts-trim-paired/4628",
+  },
+  {
+    name: "TAR and TDR scores swapped",
+    severity: 2,
+    query: 'plugin: "q2-quality-control" AND action: "evaluate-composition" AND q2-quality-control:
+      (^"2017" OR
+      ^"2018.2" OR
+      ^"2018.4" OR
+      ^"2018.6.0"$)',
+    date: "2025-07-08",
+    description:
+      "TAR and TDR scores produced by affected versions of q2-quality-control
+      evaluate-composition are swapped. Other metrics are not affected. See
+      this forum post for more details:
+      https://forum.qiime2.org/t/incorrect-results-produced-by-q2-quality-control-evaluate-composition/4784",
+  },
+  {
+    name: "Silva 119 Naive Bayes 515F/806R taxonomy classifier not performing correctly",
+    severity: 2,
+    query: 'uuid: 208b55a4-05e2-412b-95b4-a3c7404094d6',
+    date: "2025-07-08",
+    description:
+      "Due to an error in pre-processing, the trimming of the reference
+      sequences to the 515F/806R region was performed incorrectly and in many
+      cases the trimmed sequences only partially overlap this region of the
+      gene sequence. See this forum post for more details: https://forum.qiime2.org/t/retraction-of-silva-515f-806r-taxonomy-classifier/197",
+  },
+  {
     name: "Incorrect chimera classification",
     severity: 1,
-    query: '(plugin: "q2-vsearch" AND action: "uchime-denovo") AND (q2-vsearch:
+    query: '(plugin: "q2-vsearch" AND action: "uchime-denovo") AND q2-vsearch:
       (^"2023.9" OR
       ^"2024.2" OR
-      ^"2024.5"))',
+      ^"2024.5")',
     date: "2025-07-08",
     description:
       "Affected versions of the vsearch dependency of q2-vsearch incorrectly
