@@ -1,8 +1,18 @@
+# Higher number means higher severity
+#
+# Severity 0: Error is cosmetic or extremely minor
+#   ex. Some slider on a viz isn't working quite right
+# Severity 1: Error can cause undesirable behavior but does not invalidate result
+#   ex. Something wasn't being randomly sampled as intended, but it was still being
+#       sampled in a valid way
+# Severity 2: Error potentially renders result unusable
+#   ex. A metric was calculated incorrectly
+
 [
   {
     name: "My fake error",
     severity: 2,
-    query: 'qiime2: ^"2023" AND action: "denoise"',
+    query: 'qiime2: ^"2024" AND action: "denoise"',
     date: "yyyy-mm-dd",
     description: "Oh no something is wrong I guess",
   },
