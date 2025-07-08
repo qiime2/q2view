@@ -41,7 +41,7 @@
           The following high severity errors were found in your provenance. These may affect the validity of this Result. Please inspect them in your "Provenance" tab.
         {/if}
       </h2>
-      <div class="max-h-24 overflow-y-auto">
+      <div class="max-h-36 overflow-y-auto">
         {#each $readerModel.provenanceModel.highSeverityErrors as error}
           <div class="px-2 py-1 my-2 border border-gray-300 bg-gray-200 rounded-md">
             {error.name}
