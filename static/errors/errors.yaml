@@ -120,7 +120,7 @@
   {
     name: "Silva 119 Naive Bayes 515F/806R taxonomy classifier not performing correctly",
     severity: 2,
-    query: 'uuid: 208b55a4-05e2-412b-95b4-a3c7404094d6',
+    query: 'uuid: "208b55a4-05e2-412b-95b4-a3c7404094d6"',
     date: "2025-07-08",
     description:
       "Due to an error in pre-processing, the trimming of the reference
