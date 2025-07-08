@@ -2,7 +2,7 @@
   {
     name: "My fake error",
     severity: 2,
-    query: 'qiime2: ^"204" AND action: "denoise"',
+    query: 'qiime2: ^"2024" AND action: "denoise"',
     date: "yyyy-mm-dd",
     description: "Oh no something is wrong I guess",
   },
