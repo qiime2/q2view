@@ -46,7 +46,7 @@
         <button
           onclick={() => dismissed = true}
           class="inline-flex h-8 items-center justify-center rounded-md
-                 border boder-zinc-400 bg-zinc-300 px-4 font-medium
+                 border border-zinc-400 bg-zinc-300 px-4 font-medium
                  leading-none dismiss-button"
         >
           Dismiss
@@ -67,9 +67,11 @@
 <style lang="postcss">
   .dismiss-button:hover {
     @apply bg-zinc-400;
+    box-shadow: rgb(153, 153, 153) 0px 1px 5px;
   }
 
   .view-button:hover {
     @apply bg-blue-400;
+    box-shadow: rgb(153, 153, 153) 0px 1px 5px;
   }
 </style>
