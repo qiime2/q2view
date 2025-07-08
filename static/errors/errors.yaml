@@ -55,7 +55,7 @@
          ^"2.29.0"$ OR
          ^"2.29.1"$ OR
          ^"2.29.2"$ OR
-         ^"2.29.3"$)))',
+         ^"2.29.3"$))',
     date: "2025-07-08",
     description:
       "Affected versions of the vsearch dependency of q2-vsearch incorrectly
