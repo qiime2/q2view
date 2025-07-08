@@ -70,6 +70,6 @@
       "Affected versions of the vsearch dependency of q2-vsearch incorrectly
       report chimeric/non-chimeric sequences. The magnitude of the incorrect
       classifications is small. See this GitHub issue for more details:
-      https://github.com/torognes/vsearch/issues/591"
+      https://github.com/torognes/vsearch/issues/591",
   },
 ]
