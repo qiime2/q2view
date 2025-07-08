@@ -41,11 +41,13 @@
           The following high severity errors were found in your provenance. These may affect the validity of this Result. Please inspect them in your "Provenance" tab.
         {/if}
       </h2>
-      {#each $readerModel.provenanceModel.highSeverityErrors as error}
-        <div class="px-2 py-1 my-2 border border-gray-300 bg-gray-200 rounded-md">
-          {error.name}
-        </div>
-      {/each}
+      <div class="max-h-24 overflow-y-auto">
+        {#each $readerModel.provenanceModel.highSeverityErrors as error}
+          <div class="px-2 py-1 my-2 border border-gray-300 bg-gray-200 rounded-md">
+            {error.name}
+          </div>
+        {/each}
+      </div>
       <div class="mt-4 flex justify-end gap-4">
         <button
           onclick={() => dismissed = true}
