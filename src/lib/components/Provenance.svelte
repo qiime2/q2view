@@ -51,7 +51,7 @@
         </div>
         <div class="{$readerModel.provenanceModel.provTab === "error" ? "block" : "hidden"} px-4">
           {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2)}
-            <span class="font-bold">High Severity Errors</span><br>
+            <span class="font-bold">High Severity Errors:</span><br>
             {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
@@ -62,7 +62,7 @@
             {/each}
           {/if}
           {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(1)}
-            <span class="font-bold">Medium Severity Errors</span><br>
+            <span class="font-bold">Medium Severity Errors:</span><br>
             {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(1) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
@@ -73,7 +73,7 @@
             {/each}
           {/if}
           {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0)}
-            <span class="font-bold">Low Severity Errors</span><br>
+            <span class="font-bold">Low Severity Errors:</span><br>
             {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
               <span class="font-bold">name: </span> {error.name}<br>
@@ -125,7 +125,7 @@
         </div>
         <div class="{$readerModel.provenanceModel.provTab === "error" ? "block" : "hidden"} px-4">
           {#if readerModel.provenanceModel.highSeverityErrors.size > 0}
-            <span class="font-bold">High Severity Errors</span><br>
+            <span class="font-bold">High Severity Errors:</span><br>
             {#each readerModel.provenanceModel.highSeverityErrors as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
@@ -136,7 +136,7 @@
             {/each}
           {/if}
           {#if readerModel.provenanceModel.medSeverityErrors.size > 0}
-            <span class="font-bold">Medium Severity Errors</span><br>
+            <span class="font-bold">Medium Severity Errors:</span><br>
             {#each readerModel.provenanceModel.medSeverityErrors as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
@@ -147,7 +147,7 @@
             {/each}
           {/if}
           {#if readerModel.provenanceModel.lowSeverityErrors.size > 0}
-            <span class="font-bold">Low Severity Errors</span><br>
+            <span class="font-bold">Low Severity Errors:</span><br>
             {#each readerModel.provenanceModel.lowSeverityErrors as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
               <span class="font-bold">name: </span> {error.name}<br>
