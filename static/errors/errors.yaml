@@ -55,23 +55,12 @@
     description: "Is this even an error?",
   },
   {
-    name: "No species level results in taxonomy",
-    severity: 2,
-    query: 'plugin: "rescript" AND action: "get-gtdb-data" AND rescript: (^"2024.2" OR ^"2024.5.0"$)',
-    date: "2025-07-08",
-    description:
-      "The taxonomy is only complete from kingdom to genus level. All
-      assignments at these levels are still valid, but species level assignment
-      is missing. See this forum post for more info:
-      https://forum.qiime2.org/t/resolved-bug-in-rescript-get-gtdb-data-action-in-initial-2024-5-release/30613",
-  },
-  {
     name: "demux-paired needlessly discarding a large number of reads",
     severity: 2,
     query: 'plugin: "q2-cutadapt" AND action: "demux-paired" AND mixed_orientation: true AND q2-cutadapt: (^"2020.6" OR ^"2020.8")',
     date: "2025-07-08",
     description:
-      "Running demux-paired run with the --p-mixed-orientation flag on the
+      "Running demux-paired with the --p-mixed-orientation flag on the
       affected versions of q2-cutadapt can unnecessarily discard a significant
       portion of reads. See this forum post for more details:
       https://forum.qiime2.org/t/discarded-results-produced-by-q2-cutadapts-trim-paired-when-working-with-mixed-orientation-reads/17570",
@@ -83,7 +72,7 @@
     date: "2025-07-08",
     description:
       "The version of the OpenBLAS linear algebra library used to create this
-      artifact performs matrix multiplication incorrectly on CPUs that support
+      Result performs matrix multiplication incorrectly on CPUs that support
       the AVX 512 instruction set. This only affects you if this Result was
       produced on a computer with a CPU that supports AVX 512 instructions.
       See this forum post for more details: https://forum.qiime2.org/t/qiime-2-2019-4-0-has-faulty-openblas-results-on-certain-cpus/9604",
@@ -141,5 +130,16 @@
       report chimeric/non-chimeric sequences. The magnitude of the incorrect
       classifications is small. See this GitHub issue for more details:
       https://github.com/torognes/vsearch/issues/591",
+  },
+  {
+    name: "No species level results in taxonomy",
+    severity: 1,
+    query: 'plugin: "rescript" AND action: "get-gtdb-data" AND rescript: (^"2024.2" OR ^"2024.5.0"$)',
+    date: "2025-07-08",
+    description:
+      "The taxonomy is only complete from kingdom to genus level. All
+      assignments at these levels are still valid, but species level assignment
+      is missing. See this forum post for more info:
+      https://forum.qiime2.org/t/resolved-bug-in-rescript-get-gtdb-data-action-in-initial-2024-5-release/30613",
   },
 ]
