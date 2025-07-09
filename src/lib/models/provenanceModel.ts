@@ -64,7 +64,7 @@ export default class ProvenanceModel {
 
   // Error tracking
   nodeIDToErrors: Map<string, Map<number, ProvenanceError[]>> = new Map();
-  errors: Map<number, ProvenanceError[]> = new Map();;
+  errors: Map<number, ProvenanceError[]> = new Map();
 
   // Class attributes passed in by readerModel pertaining to currently loaded
   // Result
@@ -664,7 +664,7 @@ export default class ProvenanceModel {
 
   async getErrors(ERRORS: ProvenanceError[] | undefined, severity: number) {
     if (ERRORS === undefined) {
-      console.log(`Failed to parse provenance errors of severity ${severity}`)
+      console.log(`Failed to parse provenance errors of severity ${severity}`);
       return;
     }
 

@@ -39,7 +39,8 @@
   },
   {
     name: "TAR and TDR scores swapped",
-    query: 'plugin: "q2-quality-control" AND action: "evaluate-composition" AND q2-quality-control:
+    query:
+      'plugin: "q2-quality-control" AND action: "evaluate-composition" AND q2-quality-control:
       (^"2017" OR
       ^"2018.2" OR
       ^"2018.4" OR

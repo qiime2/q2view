@@ -5,7 +5,15 @@ import {
   setIntersection,
 } from "./util";
 import readerModel from "$lib/models/readerModel";
-import { OR, AND, _Pair, _Key, _Number, _String, QueryTransformer } from "./transformer";
+import {
+  OR,
+  AND,
+  _Pair,
+  _Key,
+  _Number,
+  _String,
+  QueryTransformer,
+} from "./transformer";
 
 const parser = get_parser();
 const myTransformer = new QueryTransformer();

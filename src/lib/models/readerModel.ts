@@ -10,7 +10,9 @@ import { handleError, readBlobAsText } from "$lib/scripts/util";
 
 import loading from "$lib/scripts/loading";
 import CitationsModel from "$lib/models/citationsModel";
-import ProvenanceModel, { type ProvenanceError } from "$lib/models/provenanceModel";
+import ProvenanceModel, {
+  type ProvenanceError,
+} from "$lib/models/provenanceModel";
 import { getFile, getYAML } from "$lib/scripts/fileutils";
 
 class ReaderModel {
@@ -319,15 +321,21 @@ class ReaderModel {
 
   async _readErrors() {
     this.LOW_SEVERITY_ERRORS = yaml.safeLoad(
-      await readBlobAsText(await (await fetch("/errors/LowSeverityErrors.yml")).blob()),
+      await readBlobAsText(
+        await (await fetch("/errors/LowSeverityErrors.yml")).blob(),
+      ),
     ) as ProvenanceError[];
 
     this.MEDIUM_SEVERITY_ERRORS = yaml.safeLoad(
-      await readBlobAsText(await (await fetch("/errors/MediumSeverityErrors.yml")).blob()),
+      await readBlobAsText(
+        await (await fetch("/errors/MediumSeverityErrors.yml")).blob(),
+      ),
     ) as ProvenanceError[];
 
     this.HIGH_SEVERITY_ERRORS = yaml.safeLoad(
-      await readBlobAsText(await (await fetch("/errors/HighSeverityErrors.yml")).blob()),
+      await readBlobAsText(
+        await (await fetch("/errors/HighSeverityErrors.yml")).blob(),
+      ),
     ) as ProvenanceError[];
   }
 
