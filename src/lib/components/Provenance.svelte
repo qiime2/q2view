@@ -17,9 +17,13 @@
   }
 
   function _sumGlobalErrors() {
-    const low = readerModel.provenanceModel.lowSeverityErrors.size;
-    const medium = readerModel.provenanceModel.medSeverityErrors.size;
-    const high = readerModel.provenanceModel.highSeverityErrors.size;
+    let low = readerModel.provenanceModel.errors.get(0)?.length;
+    let medium = readerModel.provenanceModel.errors.get(1)?.length;
+    let high = readerModel.provenanceModel.errors.get(2)?.length;
+
+    low = low === undefined ? 0 : low;
+    medium = medium === undefined ? 0 : medium;
+    high = high === undefined ? 0 : high;
 
     return low + medium + high;
   }
@@ -124,9 +128,9 @@
           <p class="pt-3 leading-5">You can also combine values with AND and OR. You must wrap these clauses in parentheses</p><span class="example">uuid: ((^"6" AND "5"$) OR "ee")</span><p class="leading-5">will match all uuids that start with 6 and end with 5 or contain "ee"</p>
         </div>
         <div class="{$readerModel.provenanceModel.provTab === "error" ? "block" : "hidden"} px-4">
-          {#if readerModel.provenanceModel.highSeverityErrors.size > 0}
+          {#if readerModel.provenanceModel.errors.get(2) !== undefined}
             <span class="font-bold">High Severity Errors:</span><br>
-            {#each readerModel.provenanceModel.highSeverityErrors as error}
+            {#each readerModel.provenanceModel.errors.get(2) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
                 <span class="font-bold">description: </span> {error.description}<br>
@@ -135,9 +139,9 @@
               </div>
             {/each}
           {/if}
-          {#if readerModel.provenanceModel.medSeverityErrors.size > 0}
+          {#if readerModel.provenanceModel.errors.get(1) !== undefined}
             <span class="font-bold">Medium Severity Errors:</span><br>
-            {#each readerModel.provenanceModel.medSeverityErrors as error}
+            {#each readerModel.provenanceModel.errors.get(1) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
                 <span class="font-bold">description: </span> {error.description}<br>
@@ -146,9 +150,9 @@
               </div>
             {/each}
           {/if}
-          {#if readerModel.provenanceModel.lowSeverityErrors.size > 0}
+          {#if readerModel.provenanceModel.errors.get(0) !== undefined}
             <span class="font-bold">Low Severity Errors:</span><br>
-            {#each readerModel.provenanceModel.lowSeverityErrors as error}
+            {#each readerModel.provenanceModel.errors.get(0) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
               <span class="font-bold">name: </span> {error.name}<br>
                 <span class="font-bold">description: </span> {error.description}<br>

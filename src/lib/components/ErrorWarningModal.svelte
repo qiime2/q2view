@@ -35,14 +35,14 @@
       use:melt={$content}
     >
       <h2 use:melt={$title} class="text-lg">
-        {#if readerModel.provenanceModel.highSeverityErrors.size === 1}
+        {#if readerModel.provenanceModel.errors.get(2)?.length === 1}
           The following high severity error was found in your provenance. This may affect the validity of this Result. Please inspect it in your "Provenance" tab.
         {:else}
           The following high severity errors were found in your provenance. These may affect the validity of this Result. Please inspect them in your "Provenance" tab.
         {/if}
       </h2>
       <div class="max-h-36 overflow-y-auto">
-        {#each $readerModel.provenanceModel.highSeverityErrors as error}
+        {#each $readerModel.provenanceModel.errors.get(2) as error}
           <div class="px-2 py-1 my-2 border border-gray-300 bg-gray-200 rounded-md">
             {error.name}
           </div>

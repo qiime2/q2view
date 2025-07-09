@@ -3,16 +3,22 @@
 // ensuring we have a file if the result is remote, unzipping the result, and
 // middle manning file requests as needed
 // ****************************************************************************
+import yaml from "js-yaml";
 import JSZip from "jszip";
 
-import { handleError } from "$lib/scripts/util";
+import { handleError, readBlobAsText } from "$lib/scripts/util";
 
 import loading from "$lib/scripts/loading";
 import CitationsModel from "$lib/models/citationsModel";
-import ProvenanceModel from "$lib/models/provenanceModel";
+import ProvenanceModel, { type ProvenanceError } from "$lib/models/provenanceModel";
 import { getFile, getYAML } from "$lib/scripts/fileutils";
 
 class ReaderModel {
+  errors_read = false;
+  LOW_SEVERITY_ERRORS: ProvenanceError[] | undefined = undefined;
+  MEDIUM_SEVERITY_ERRORS: ProvenanceError[] | undefined = undefined;
+  HIGH_SEVERITY_ERRORS: ProvenanceError[] | undefined = undefined;
+
   error = "";
   errorMessage = "";
 
@@ -299,9 +305,30 @@ class ReaderModel {
 
     // Set Provenance
     loading.setMessage("Loading Provenance");
+    // Only read the errors from yaml the first time they drop in a result
+    if (!this.errors_read) {
+      await this._readErrors();
+      this.errors_read = true;
+    }
     this.provenanceModel.init(this.uuid, zip);
     await this.provenanceModel.getProvenanceTree();
-    await this.provenanceModel.getErrors();
+    await this.provenanceModel.getErrors(this.LOW_SEVERITY_ERRORS, 0);
+    await this.provenanceModel.getErrors(this.MEDIUM_SEVERITY_ERRORS, 1);
+    await this.provenanceModel.getErrors(this.HIGH_SEVERITY_ERRORS, 2);
+  }
+
+  async _readErrors() {
+    this.LOW_SEVERITY_ERRORS = yaml.safeLoad(
+      await readBlobAsText(await (await fetch("/errors/LowSeverityErrors.yml")).blob()),
+    ) as ProvenanceError[];
+
+    this.MEDIUM_SEVERITY_ERRORS = yaml.safeLoad(
+      await readBlobAsText(await (await fetch("/errors/MediumSeverityErrors.yml")).blob()),
+    ) as ProvenanceError[];
+
+    this.HIGH_SEVERITY_ERRORS = yaml.safeLoad(
+      await readBlobAsText(await (await fetch("/errors/HighSeverityErrors.yml")).blob()),
+    ) as ProvenanceError[];
   }
 
   attachToServiceWorker() {

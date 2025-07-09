@@ -4,12 +4,12 @@
 </script>
 
 <!-- TODO: Clean up functionality and styling here -->
-{#if $readerModel.provenanceModel.highSeverityErrors.size !== 0}
-  <ErrorDropdown errors={$readerModel.provenanceModel.highSeverityErrors} svgPath={"/images/hi-severity-error.svg"} />
+{#if $readerModel.provenanceModel.errors.get(2) !== undefined}
+  <ErrorDropdown errors={$readerModel.provenanceModel.errors.get(2)} svgPath={"/images/hi-severity-error.svg"} />
 {/if}
-{#if $readerModel.provenanceModel.medSeverityErrors.size !== 0}
-  <ErrorDropdown errors={$readerModel.provenanceModel.medSeverityErrors} svgPath={"/images/medium-severity-error.svg"} />
+{#if $readerModel.provenanceModel.errors.get(1) !== undefined}
+  <ErrorDropdown errors={$readerModel.provenanceModel.errors.get(1)} svgPath={"/images/medium-severity-error.svg"} />
 {/if}
-{#if $readerModel.provenanceModel.lowSeverityErrors.size !== 0}
-  <ErrorDropdown errors={$readerModel.provenanceModel.lowSeverityErrors} svgPath={"/images/low-severity-error.svg"} />
+{#if $readerModel.provenanceModel.errors.get(0) !== undefined}
+  <ErrorDropdown errors={$readerModel.provenanceModel.errors.get(0)} svgPath={"/images/low-severity-error.svg"} />
 {/if}

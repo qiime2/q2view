@@ -95,7 +95,7 @@
       >
         <Metadata />
       </div>
-      {#if $readerModel.provenanceModel.highSeverityErrors.size > 0}
+      {#if $readerModel.provenanceModel.errors.get(2) !== undefined}
         <ErrorWarningModal />
       {/if}
     {/if}

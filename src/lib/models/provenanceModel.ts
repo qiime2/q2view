@@ -2,13 +2,12 @@
 // This model is responsible for parsing and storing the provenance of the
 // result
 // ****************************************************************************
-import yaml from "js-yaml";
 import JSZip from "jszip";
 
 import { getYAML } from "$lib/scripts/fileutils";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
 import { searchProvenance, transformQuery } from "$lib/scripts/provSearchUtils";
-import { setUnion, readBlobAsText } from "$lib/scripts/util";
+import { setUnion } from "$lib/scripts/util";
 import cytoscape from "cytoscape";
 
 const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
@@ -21,7 +20,6 @@ currentMetadataStore.subscribe((value) => {
 
 export interface ProvenanceError {
   name: string;
-  severity: number;
   query: string;
   date: string;
   description: string;
@@ -66,9 +64,7 @@ export default class ProvenanceModel {
 
   // Error tracking
   nodeIDToErrors: Map<string, Map<number, ProvenanceError[]>> = new Map();
-  lowSeverityErrors: Set<ProvenanceError> = new Set();
-  medSeverityErrors: Set<ProvenanceError> = new Set();
-  highSeverityErrors: Set<ProvenanceError> = new Set();
+  errors: Map<number, ProvenanceError[]> = new Map();;
 
   // Class attributes passed in by readerModel pertaining to currently loaded
   // Result
@@ -666,15 +662,9 @@ export default class ProvenanceModel {
     );
   }
 
-  async getErrors() {
-    const ERRORS = yaml.safeLoad(
-      await readBlobAsText(await (await fetch("/errors/errors.yaml")).blob()),
-    );
-
+  async getErrors(ERRORS: ProvenanceError[] | undefined, severity: number) {
     if (ERRORS === undefined) {
-      console.log(
-        "Failed to parse provenance errors, provenance error tracking not active.",
-      );
+      console.log(`Failed to parse provenance errors of severity ${severity}`)
       return;
     }
 
@@ -686,28 +676,22 @@ export default class ProvenanceModel {
       // If we got any error hits, add this error to the list of overall errors
       // seen
       if (errorHits.length !== 0) {
-        switch (error.severity) {
-          case 0:
-            this.lowSeverityErrors.add(error);
-            break;
-          case 1:
-            this.medSeverityErrors.add(error);
-            break;
-          case 2:
-            this.highSeverityErrors.add(error);
-            break;
+        if (this.errors.get(severity) === undefined) {
+          this.errors.set(severity, []);
         }
+
+        this.errors.get(severity)?.push(error);
 
         for (const hit of errorHits) {
           if (this.nodeIDToErrors.get(hit) === undefined) {
             this.nodeIDToErrors.set(hit, new Map());
           }
 
-          if (this.nodeIDToErrors.get(hit)?.get(error.severity) === undefined) {
-            this.nodeIDToErrors.get(hit)?.set(error.severity, []);
+          if (this.nodeIDToErrors.get(hit)?.get(severity) === undefined) {
+            this.nodeIDToErrors.get(hit)?.set(severity, []);
           }
 
-          this.nodeIDToErrors.get(hit)?.get(error.severity)?.push(error);
+          this.nodeIDToErrors.get(hit)?.get(severity)?.push(error);
         }
       }
     }

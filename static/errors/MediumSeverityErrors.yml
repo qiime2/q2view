@@ -1,0 +1,28 @@
+# This file is for medium severity errors that can have a meaningful effect on
+# a Result but do not render it unusable
+
+[
+  {
+    name: "Incorrect chimera classification",
+    query: '(plugin: "q2-vsearch" AND action: "uchime-denovo") AND q2-vsearch:
+      (^"2023.9" OR
+      ^"2024.2" OR
+      ^"2024.5")',
+    date: "2025-07-08",
+    description:
+      "Affected versions of the vsearch dependency of q2-vsearch incorrectly
+      report chimeric/non-chimeric sequences. The magnitude of the incorrect
+      classifications is small. See this GitHub issue for more details:
+      https://github.com/torognes/vsearch/issues/591",
+  },
+  {
+    name: "No species level results in taxonomy",
+    query: 'plugin: "rescript" AND action: "get-gtdb-data" AND rescript: (^"2024.2" OR ^"2024.5.0"$)',
+    date: "2025-07-08",
+    description:
+      "The taxonomy is only complete from kingdom to genus level. All
+      assignments at these levels are still valid, but species level assignment
+      is missing. See this forum post for more info:
+      https://forum.qiime2.org/t/resolved-bug-in-rescript-get-gtdb-data-action-in-initial-2024-5-release/30613",
+  },
+]
