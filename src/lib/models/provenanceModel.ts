@@ -626,8 +626,10 @@ export default class ProvenanceModel {
   getProvenanceAction(uuid: string) {
     // If we requested the uuid of the currently loaded Result, then we load our
     // own action.yaml
+    let action;
+
     if (this.uuid === uuid) {
-      return getYAML(
+      action = getYAML(
         "provenance/action/action.yaml",
         this.uuid,
         this.zipReader,
@@ -635,11 +637,21 @@ export default class ProvenanceModel {
     }
 
     // Otherwise we need to go through the Artifacts in our provenance
-    return getYAML(
+    action = getYAML(
       `provenance/artifacts/${uuid}/action/action.yaml`,
       this.uuid,
       this.zipReader,
     );
+
+    // Make this "-" to match q2-<plugin>
+    if (action.action.action !== undefined) {
+      action.action.action = action.action.action.replaceAll(
+        "_",
+        "-",
+      );
+    }
+
+    return action;
   }
 
   /**
