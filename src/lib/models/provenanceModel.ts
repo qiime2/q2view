@@ -158,7 +158,7 @@ export default class ProvenanceModel {
         // adding this result to it
         return this.heightMap.get(sourceActionUUID);
       }
-    } else if (await this._handleResult(resultUUID)) {
+    } else if (await this._handleResult(resultUUID, sourceAction)) {
       // If we have already seen this Result then short circuit
       return this.heightMap.get(sourceActionUUID);
     }
@@ -331,16 +331,19 @@ export default class ProvenanceModel {
    * _recurseUpTree will already have short circuited
    *
    * @param {string} resultUUID - The UUID of the Result we are currently parsing
+   * @param {any} sourceAction - The parsed json of the provenance of the Action
+   * that produced this Result.
    *
    * @returns {Promise<boolean>} Whether we have seen this Result yet or not. If
    * we have, we can short circuit in _recurseUpTree
    */
-  async _handleResult(resultUUID: string): Promise<boolean> {
+  async _handleResult(resultUUID: string, sourceAction: any): Promise<boolean> {
     if (this.nodeIDToJSON.has(resultUUID)) {
       return true;
     }
 
     let result = await this.getProvenanceArtifact(resultUUID);
+    result["environment"] = sourceAction["environment"];
     this.nodeIDToJSON.set(resultUUID, result);
 
     return false;
