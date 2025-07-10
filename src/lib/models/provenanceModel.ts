@@ -113,14 +113,6 @@ export default class ProvenanceModel {
     const depths: number[] = [];
     let maxDepth = 1;
 
-    // Make this "-" to match q2-<plugin>
-    if (sourceAction.action.action !== undefined) {
-      sourceAction.action.action = sourceAction.action.action.replaceAll(
-        "_",
-        "-",
-      );
-    }
-
     // Need a set of all input/parameter artifacts to the pipeline so can
     // recurse up from any pipeline aliased artifact until all inputs are a
     // subset of that set.
@@ -623,20 +615,20 @@ export default class ProvenanceModel {
    *
    * @returns {JSON} JSON representing the .yaml file that was loaded
    */
-  getProvenanceAction(uuid: string) {
+  async getProvenanceAction(uuid: string) {
     // If we requested the uuid of the currently loaded Result, then we load our
     // own action.yaml
     let action;
 
     if (this.uuid === uuid) {
-      action = getYAML(
+      action = await getYAML(
         "provenance/action/action.yaml",
         this.uuid,
         this.zipReader,
       );
     } else {
       // Otherwise we need to go through the Artifacts in our provenance
-      action = getYAML(
+      action = await getYAML(
         `provenance/artifacts/${uuid}/action/action.yaml`,
         this.uuid,
         this.zipReader,
