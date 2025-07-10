@@ -59,9 +59,9 @@
             {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
-                <span class="font-bold">description: </span> {error.description}<br>
-                <span class="font-bold">discovery date: </span> {error.date}<br>
+                <span class="font-bold">date catalogued: </span> {error.date}<br>
                 <span class="font-bold">query: </span> {error.query}<br>
+                <span class="font-bold">description: </span> {error.description}<br>
               </div>
             {/each}
           {/if}
@@ -70,9 +70,9 @@
             {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(1) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
-                <span class="font-bold">description: </span> {error.description}<br>
-                <span class="font-bold">discovery date: </span> {error.date}<br>
+                <span class="font-bold">date catalogued: </span> {error.date}<br>
                 <span class="font-bold">query: </span> {error.query}<br>
+                <span class="font-bold">description: </span> {error.description}<br>
               </div>
             {/each}
           {/if}
@@ -80,10 +80,10 @@
             <span class="font-bold">Low Severity Errors:</span><br>
             {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
-              <span class="font-bold">name: </span> {error.name}<br>
-                <span class="font-bold">description: </span> {error.description}<br>
-                <span class="font-bold">discovery date: </span> {error.date}<br>
+                <span class="font-bold">name: </span> {error.name}<br>
+                <span class="font-bold">date catalogued: </span> {error.date}<br>
                 <span class="font-bold">query: </span> {error.query}<br>
+                <span class="font-bold">description: </span> {error.description}<br>
               </div>
             {/each}
           {/if}
@@ -133,9 +133,9 @@
             {#each readerModel.provenanceModel.errors.get(2) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
-                <span class="font-bold">description: </span> {error.description}<br>
-                <span class="font-bold">discovery date: </span> {error.date}<br>
+                <span class="font-bold">date catalogued: </span> {error.date}<br>
                 <span class="font-bold">query: </span> {error.query}<br>
+                <span class="font-bold">description: </span> {error.description}<br>
               </div>
             {/each}
           {/if}
@@ -144,9 +144,9 @@
             {#each readerModel.provenanceModel.errors.get(1) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
-                <span class="font-bold">description: </span> {error.description}<br>
-                <span class="font-bold">discovery date: </span> {error.date}<br>
+                <span class="font-bold">date catalogued: </span> {error.date}<br>
                 <span class="font-bold">query: </span> {error.query}<br>
+                <span class="font-bold">description: </span> {error.description}<br>
               </div>
             {/each}
           {/if}
@@ -154,10 +154,10 @@
             <span class="font-bold">Low Severity Errors:</span><br>
             {#each readerModel.provenanceModel.errors.get(0) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
-              <span class="font-bold">name: </span> {error.name}<br>
-                <span class="font-bold">description: </span> {error.description}<br>
-                <span class="font-bold">discovery date: </span> {error.date}<br>
+                <span class="font-bold">name: </span> {error.name}<br>
+                <span class="font-bold">date catalogued: </span> {error.date}<br>
                 <span class="font-bold">query: </span> {error.query}<br>
+                <span class="font-bold">description: </span> {error.description}<br>
               </div>
             {/each}
           {/if}
