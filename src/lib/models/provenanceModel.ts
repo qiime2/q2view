@@ -634,14 +634,14 @@ export default class ProvenanceModel {
         this.uuid,
         this.zipReader,
       );
+    } else {
+      // Otherwise we need to go through the Artifacts in our provenance
+      action = getYAML(
+        `provenance/artifacts/${uuid}/action/action.yaml`,
+        this.uuid,
+        this.zipReader,
+      );
     }
-
-    // Otherwise we need to go through the Artifacts in our provenance
-    action = getYAML(
-      `provenance/artifacts/${uuid}/action/action.yaml`,
-      this.uuid,
-      this.zipReader,
-    );
 
     // Make this "-" to match q2-<plugin>
     if (action.action.action !== undefined) {
