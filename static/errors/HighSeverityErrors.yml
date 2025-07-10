@@ -62,4 +62,14 @@
       cases the trimmed sequences only partially overlap this region of the
       gene sequence. See this forum post for more details: https://forum.qiime2.org/t/retraction-of-silva-515f-806r-taxonomy-classifier/197",
   },
+  {
+    name: "Only entries from last artifact in MANIFEST",
+    query: 'plugin: "q2-types" AND action: "collate-sample-data-mags" AND q2-types: ^"2024.10"',
+    date: "2025-07-10",
+    description:
+      "There was a bug causing MANIFESTs to overwrite prior ones instead of
+      being collated. In affected Results the MANIFEST file will only contain
+      entries from the last artifact. See this GitHub PR for more details:
+      https://github.com/qiime2/q2-types/pull/352",
+  },
 ]
