@@ -33,4 +33,37 @@
       plot in a newer version of QIIME 2. See this GitHub issue for more info:
       https://github.com/qiime2/q2-composition/pull/117",
   },
+  {
+    name: "Index with name #SampleID in output vector",
+    query:
+      'plugin: "q2-diversity-lib" AND action: "faith-pd" AND q2-diversity-lib:
+      (^"2022.8" OR
+      ^"2022.11" OR
+      ^"2023" OR
+      ^"2024.2" OR
+      ^"2024.5")',
+    date: "2025-07-10",
+    description:
+      "Affected versions of this output have #SampleID as the index name which
+      doesn't matter for QIME 2 but can break some downstream steps if you
+      choose to export the artifact. See this GitHub issue for more info:
+      https://github.com/qiime2/q2-diversity-lib/issues/57",
+  },
+  {
+    name: "Metadata and distance matrix axes incorrectly labeled",
+    query:
+      'plugin: "q2-diversity" AND action: "beta-correlation" AND q2-diversity:
+      (^"2018" OR
+      ^"2019" OR
+      ^"2020" OR
+      ^"2021" OR
+      ^"2022" OR
+      ^"2023" OR
+      ^"2024.2")',
+    date: "2025-07-10",
+    description: "The metadata and distance matrix axes were labeled
+      incorrectly in affected versions of q2-diversity. This error is
+      negligable hence it not being discovered for so long. See this GitHub PR
+      for more info: https://github.com/qiime2/q2-diversity/pull/358",
+  },
 ]
