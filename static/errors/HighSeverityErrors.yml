@@ -1,6 +1,7 @@
-# This file is for high severity errors that render the Result unusable. A user
-# dropped a result with any of these errors in its provenance into q2view will
-# have a pop-up alert them of the presence of high severity errors.
+# This file is for high severity errors that render the Result unusable. If a
+# user drops a result with any of these errors in its provenance into q2view
+# there will be a pop-up informing them of the potential unusability of their
+# Result
 
 [
   {
