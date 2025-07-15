@@ -75,4 +75,13 @@
       present in the Artifact. See this GitHub PR for more details:
       https://github.com/qiime2/q2-types/pull/352",
   },
+  {
+    name: "Sequencing depth data missing",
+    query: 'plugin: "q2-diversity" AND action: "alpha-rarefaction" AND q2-diversity: ^"2024.5.0"$',
+    date: "2025-07-15",
+    description: "Due to an updated version of the pandas dependency, the
+      alpha-rarefaction action in q2-diversity 2024.5.0 is missing the
+      sequencing depth data that should be on its x-axis rendering the viz
+      unusable. See this GitHub issue for more details: https://github.com/qiime2/q2-diversity/issues/359",
+  },
 ]
