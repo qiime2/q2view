@@ -637,10 +637,7 @@ export default class ProvenanceModel {
 
     // Make this "-" to match q2-<plugin>
     if (action.action.action !== undefined) {
-      action.action.action = action.action.action.replaceAll(
-        "_",
-        "-",
-      );
+      action.action.action = action.action.action.replaceAll("_", "-");
     }
 
     return action;
