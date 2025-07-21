@@ -8,7 +8,7 @@ import BiMap from "$lib/scripts/biMap";
 import { getYAML } from "$lib/scripts/fileutils";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
 
-const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
+const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline", "report"];
 
 let currentMetadata: Set<string>;
 
@@ -155,11 +155,13 @@ export default class ProvenanceModel {
         sourceActionUUID,
         depths,
       );
-      await this._handleParameterArtifacts(
-        sourceAction.action.parameters,
-        sourceActionUUID,
-        depths,
-      );
+      if (sourceAction.action.parameters) {
+        await this._handleParameterArtifacts(
+          sourceAction.action.parameters,
+          sourceActionUUID,
+          depths,
+        );
+      }
     }
 
     // Get the maxDepth of this node by taking the max of the depths set by the
