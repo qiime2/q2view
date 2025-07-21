@@ -1,6 +1,7 @@
-# This file is for high severity errors that render the Result unusable. A user
-# dropped a result with any of these errors in its provenance into q2view will
-# have a pop-up alert them of the presence of high severity errors.
+# This file is for high severity errors that render the Result unusable. If a
+# user drops a result with any of these errors in its provenance into q2view
+# there will be a pop-up informing them of the potential unusability of their
+# Result
 
 [
   {
@@ -64,12 +65,23 @@
   },
   {
     name: "Only entries from last artifact in MANIFEST",
-    query: 'plugin: "q2-types" AND action: "collate-sample-data-mags" AND q2-types: ^"2024.10"',
+    query: 'plugin: "q2-types" AND action: "collate-sample-data-mags" AND q2-types: ^"2024"',
     date: "2025-07-10",
     description:
       "There was a bug causing MANIFESTs to overwrite prior ones instead of
       being collated. In affected Results the MANIFEST file will only contain
-      entries from the last artifact. See this GitHub PR for more details:
+      entries from the last artifact. This will cause actions to believe the
+      Result only contains a handful of samples even though all samples are
+      present in the Artifact. See this GitHub PR for more details:
       https://github.com/qiime2/q2-types/pull/352",
+  },
+  {
+    name: "Sequencing depth data missing",
+    query: 'plugin: "q2-diversity" AND action: "alpha-rarefaction" AND q2-diversity: ^"2024.5.0"$',
+    date: "2025-07-15",
+    description: "Due to an updated version of the pandas dependency, the
+      alpha-rarefaction action in q2-diversity 2024.5.0 is missing the
+      sequencing depth data that should be on its x-axis rendering the viz
+      unusable. See this GitHub issue for more details: https://github.com/qiime2/q2-diversity/issues/359",
   },
 ]
