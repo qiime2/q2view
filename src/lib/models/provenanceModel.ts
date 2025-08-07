@@ -142,6 +142,21 @@ export default class ProvenanceModel {
         ? resultUUID
         : `${paramName}:${destinationActionUUID}:${sourceActionUUID}`;
 
+    // Push the edge if we have a destination
+    if (destinationActionUUID !== undefined) {
+      this.elements.push({
+        data: {
+          id: `${paramName}_${resultID}_to_${destinationActionUUID}`,
+          param: paramName,
+          source: resultID,
+          target: destinationActionUUID,
+        },
+      });
+    }
+
+    // Track any metadata this result might have
+    this._handleMetadata(sourceAction, resultUUID);
+
     // Handle the Result we are currently parsing
     if (collectionKey !== undefined) {
       // If this Result is in a Collection, handle that
@@ -194,21 +209,6 @@ export default class ProvenanceModel {
         row: maxDepth,
       },
     });
-
-    // Push the edge if we have a destination
-    if (destinationActionUUID !== undefined) {
-      this.elements.push({
-        data: {
-          id: `${paramName}_${resultID}_to_${destinationActionUUID}`,
-          param: paramName,
-          source: resultID,
-          target: destinationActionUUID,
-        },
-      });
-    }
-
-    // Track any metadata this result might have
-    this._handleMetadata(sourceAction, resultUUID);
 
     // Return our current maxDepth
     return maxDepth;
