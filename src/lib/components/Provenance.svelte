@@ -43,7 +43,7 @@
             Provenance
           </button>
           <button onclick={() => readerModel.provenanceModel.provTab = "error"} class="nav-button float-right mx-auto w-1/2 pb-0.5 {readerModel.provenanceModel.provTab === "error" ? "selected-nav-button" : ""}">
-            Errors <span class="nav-button-child border border-gray-500 border-solid px-1.5 rounded-full">{_sumErrorsOnSelectedNode()}</span>
+            Alerts <span class="nav-button-child border border-gray-500 border-solid px-1.5 rounded-full">{_sumErrorsOnSelectedNode()}</span>
           </button>
         </div>
         <div class="JSONTree {readerModel.provenanceModel.provTab === "provenance" ? "block" : "hidden"} px-4">
@@ -55,7 +55,7 @@
         </div>
         <div class="{$readerModel.provenanceModel.provTab === "error" ? "block" : "hidden"} px-4">
           {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2)}
-            <span class="font-bold">High Severity Errors:</span><br>
+            <span class="font-bold">Errors:</span><br>
             {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(2) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
@@ -66,7 +66,7 @@
             {/each}
           {/if}
           {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(1)}
-            <span class="font-bold">Medium Severity Errors:</span><br>
+            <span class="font-bold">Warnings:</span><br>
             {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(1) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
@@ -77,7 +77,7 @@
             {/each}
           {/if}
           {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0)}
-            <span class="font-bold">Low Severity Errors:</span><br>
+            <span class="font-bold">Notes:</span><br>
             {#each readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.get(0) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
@@ -101,10 +101,10 @@
       {#if readerModel.provenanceModel.nodeIDToErrors.size > 0}
         <div class="flex border-b border-solid border-gray-300 pb-2 pt-4 px-4 mb-4">
           <button onclick={() => readerModel.provenanceModel.provTab = "provenance"} class="nav-button float-left mx-auto w-1/2 pb-0.5 {readerModel.provenanceModel.provTab === "provenance" ? "selected-nav-button" : ""}">
-            Provenance
+            Instructions
           </button>
           <button onclick={() => readerModel.provenanceModel.provTab = "error"} class="nav-button float-right mx-auto w-1/2 pb-0.5 {readerModel.provenanceModel.provTab === "error" ? "selected-nav-button" : ""}">
-            Errors <span class="nav-button-child border border-gray-500 border-solid px-1.5 rounded-full">{_sumGlobalErrors()}</span>
+            Alerts <span class="nav-button-child border border-gray-500 border-solid px-1.5 rounded-full">{_sumGlobalErrors()}</span>
           </button>
         </div>
         <div class="text-gray-700 text-sm {readerModel.provenanceModel.provTab === "provenance" ? "block" : "hidden"} px-4">
@@ -129,7 +129,7 @@
         </div>
         <div class="{$readerModel.provenanceModel.provTab === "error" ? "block" : "hidden"} px-4">
           {#if readerModel.provenanceModel.errors.get(2) !== undefined}
-            <span class="font-bold">High Severity Errors:</span><br>
+            <span class="font-bold">Errors:</span><br>
             {#each readerModel.provenanceModel.errors.get(2) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
@@ -140,7 +140,7 @@
             {/each}
           {/if}
           {#if readerModel.provenanceModel.errors.get(1) !== undefined}
-            <span class="font-bold">Medium Severity Errors:</span><br>
+            <span class="font-bold">Warnings:</span><br>
             {#each readerModel.provenanceModel.errors.get(1) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
@@ -151,7 +151,7 @@
             {/each}
           {/if}
           {#if readerModel.provenanceModel.errors.get(0) !== undefined}
-            <span class="font-bold">Low Severity Errors:</span><br>
+            <span class="font-bold">Notes:</span><br>
             {#each readerModel.provenanceModel.errors.get(0) as error}
               <div class="mb-2 bg-gray-200 rounded-lg p-2">
                 <span class="font-bold">name: </span> {error.name}<br>
