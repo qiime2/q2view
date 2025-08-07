@@ -165,6 +165,7 @@
         </div>
       {:else}
         <div class="text-gray-700 text-sm p-4">
+          <p class="pb-3 leading-5">Squares in the graph represent QIIME 2 Actions. The circles within the squares represent the QIIME 2 Results produced by those actions. The arrows indicate the Result they are originating from was used as an input to the Action they are pointing to. The label on the arrow is the name of the input the Result was used as.</p>
           <p class="pb-3 leading-5">Click on an element of the Provenance Graph to learn more. Alternatively, you can search the graph for actions and results matching specific criteria</p>
           <p class="font-bold text-lg">Search Query Instructions:</p>
           <p class="leading-5">To search for a given key with a given value use the 'key: value' syntax</p><span class="example">sampling_depth: 1000</span>
