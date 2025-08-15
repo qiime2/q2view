@@ -605,7 +605,6 @@ export default class ProvenanceModel {
     }
 
     this.elements.push(...this.resultNodes);
-    console.log(this.elements)
   }
 
   /**
