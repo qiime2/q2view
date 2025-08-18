@@ -16,7 +16,6 @@ import ProvenanceModel, {
 import { getFile, getYAML } from "$lib/scripts/fileutils";
 
 class ReaderModel {
-  errors_read = false;
   LOW_SEVERITY_ERRORS: ProvenanceError[] | undefined = undefined;
   MEDIUM_SEVERITY_ERRORS: ProvenanceError[] | undefined = undefined;
   HIGH_SEVERITY_ERRORS: ProvenanceError[] | undefined = undefined;
@@ -308,9 +307,9 @@ class ReaderModel {
     // Set Provenance
     loading.setMessage("Loading Provenance");
     // Only read the errors from yaml the first time they drop in a result
-    if (!this.errors_read) {
+    if ([this.LOW_SEVERITY_ERRORS, this.MEDIUM_SEVERITY_ERRORS,
+         this.HIGH_SEVERITY_ERRORS].every(e => e === undefined)) {
       await this._readErrors();
-      this.errors_read = true;
     }
     this.provenanceModel.init(this.uuid, zip);
     await this.provenanceModel.getProvenanceTree();
