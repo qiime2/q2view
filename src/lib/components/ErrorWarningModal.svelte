@@ -35,7 +35,7 @@
       use:melt={$content}
     >
       <h2 use:melt={$title} class="text-lg">
-        {#if readerModel.provenanceModel.errors.get(2)?.length === 1}
+        {#if readerModel.provenanceModel.errors.get(2)!.length === 1}
           The following high severity error was found in your provenance. This may affect the validity of this Result. Please inspect it in your "Provenance" tab.
         {:else}
           The following high severity errors were found in your provenance. These may affect the validity of this Result. Please inspect them in your "Provenance" tab.
