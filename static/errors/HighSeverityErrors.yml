@@ -1,0 +1,87 @@
+# This file is for high severity errors that render the Result unusable. If a
+# user drops a result with any of these errors in its provenance into q2view
+# there will be a pop-up informing them of the potential unusability of their
+# Result
+
+[
+  {
+    name: "demux-paired needlessly discarding a large number of reads",
+    query: 'plugin: "q2-cutadapt" AND action: "demux-paired" AND mixed_orientation: true AND q2-cutadapt: (^"2020.6" OR ^"2020.8")',
+    date: "2025-07-08",
+    description:
+      "Running demux-paired with the --p-mixed-orientation flag on the
+      affected versions of q2-cutadapt can unnecessarily discard a significant
+      portion of reads. See this forum post for more details:
+      https://forum.qiime2.org/t/discarded-results-produced-by-q2-cutadapts-trim-paired-when-working-with-mixed-orientation-reads/17570",
+  },
+  {
+    name: "Faulty OpenBLAS on AVX 512 CPUs",
+    query: 'q2-types: "2019.4.0"',
+    date: "2025-07-08",
+    description:
+      "The version of the OpenBLAS linear algebra library used to create this
+      Result performs matrix multiplication incorrectly on CPUs that support
+      the AVX 512 instruction set. This only affects you if this Result was
+      produced on a computer with a CPU that supports AVX 512 instructions.
+      See this forum post for more details: https://forum.qiime2.org/t/qiime-2-2019-4-0-has-faulty-openblas-results-on-certain-cpus/9604",
+  },
+  {
+    name: "trim-paired swaps forward and reverse reads",
+    query: 'plugin: "q2-cutadapt" AND action: "trim-paired" AND q2-cutadapt:
+      (^"2017.12" OR
+      ^"2018.2" OR
+      ^"2018.4")',
+    date: "2025-07-08",
+    description:
+      "Under certain circumstances, affected versions of q2-cutadapt trim-paired
+      swap the forward and reverse reads causing the forward read trimming
+      parameters to be applied to the reverse reads and vice versa. See this
+      forum post for more details: https://forum.qiime2.org/t/incorrect-results-produced-by-q2-cutadapts-trim-paired/4628",
+  },
+  {
+    name: "TAR and TDR scores swapped",
+    query:
+      'plugin: "q2-quality-control" AND action: "evaluate-composition" AND q2-quality-control:
+      (^"2017" OR
+      ^"2018.2" OR
+      ^"2018.4" OR
+      ^"2018.6.0"$)',
+    date: "2025-07-08",
+    description:
+      "TAR and TDR scores produced by affected versions of q2-quality-control
+      evaluate-composition are swapped. Other metrics are not affected. See
+      this forum post for more details:
+      https://forum.qiime2.org/t/incorrect-results-produced-by-q2-quality-control-evaluate-composition/4784",
+  },
+  {
+    name: "Silva 119 Naive Bayes 515F/806R taxonomy classifier not performing correctly",
+    query: 'uuid: "208b55a4-05e2-412b-95b4-a3c7404094d6"',
+    date: "2025-07-08",
+    description:
+      "Due to an error in pre-processing, the trimming of the reference
+      sequences to the 515F/806R region was performed incorrectly and in many
+      cases the trimmed sequences only partially overlap this region of the
+      gene sequence. See this forum post for more details: https://forum.qiime2.org/t/retraction-of-silva-515f-806r-taxonomy-classifier/197",
+  },
+  {
+    name: "Only entries from last artifact in MANIFEST",
+    query: 'plugin: "q2-types" AND action: "collate-sample-data-mags" AND q2-types: ^"2024"',
+    date: "2025-07-10",
+    description:
+      "There was a bug causing MANIFESTs to overwrite prior ones instead of
+      being collated. In affected Results the MANIFEST file will only contain
+      entries from the last artifact. This will cause actions to believe the
+      Result only contains a handful of samples even though all samples are
+      present in the Artifact. See this GitHub PR for more details:
+      https://github.com/qiime2/q2-types/pull/352",
+  },
+  {
+    name: "Sequencing depth data missing",
+    query: 'plugin: "q2-diversity" AND action: "alpha-rarefaction" AND q2-diversity: ^"2024.5.0"$',
+    date: "2025-07-15",
+    description: "Due to an updated version of the pandas dependency, the
+      alpha-rarefaction action in q2-diversity 2024.5.0 is missing the
+      sequencing depth data that should be on its x-axis rendering the viz
+      unusable. See this GitHub issue for more details: https://github.com/qiime2/q2-diversity/issues/359",
+  },
+]

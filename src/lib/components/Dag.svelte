@@ -5,14 +5,16 @@
   import cytoscape from "cytoscape";
   import ProvDAGControls from "$lib/components/ProvDAGControls.svelte";
   import { HEIGHT_MULTIPLIER_PIXELS, getScrollBarWidth } from "$lib/scripts/util";
+  import ProvErrors from "./ProvErrors.svelte";
 
   let self: HTMLDivElement = $state();
-  let cy: cytoscape.Core = $state();
+
+  const NODE_ERROR_BG_COLORS = ["rgb(254, 230, 133)", "rgb(255, 184, 106)", "rgb(255, 100, 103)"]
 
   // Center on selected node. Places it centered horizontally and just below
   // the control panel vertically
   function centerOnSelected() {
-    let selectedNodes = cy.elements('node:selected');
+    let selectedNodes = readerModel.provenanceModel.cy.elements('node:selected');
     let selectedNode;
 
     if (selectedNodes.length === 0) {
@@ -23,7 +25,7 @@
 
       // No selected node BUT we have a search hit, so we select that
       const hitID = readerModel.provenanceModel.searchHits[readerModel.provenanceModel.searchIndex];
-      selectedNode = cy.$id(hitID);
+      selectedNode = readerModel.provenanceModel.cy.$id(hitID);
       selectedNode.select();
     } else {
       // If we got selected nodes, there will only be one
@@ -32,15 +34,15 @@
 
     // Make sure we can get the container height, should always be doable but
     // guard anyway
-    const containerHeight = cy.container()?.offsetHeight;
+    const containerHeight = readerModel.provenanceModel.cy.container()?.offsetHeight;
     if (containerHeight === undefined) {
       console.warn("Unable to get height of container");
       return;
     }
 
     // Center on node then pan it to the top of the viewport
-    cy.center(selectedNode);
-    cy.panBy({
+    readerModel.provenanceModel.cy.center(selectedNode);
+    readerModel.provenanceModel.cy.panBy({
       x: 0,
       y: -((containerHeight / 2) - (1.5 * HEIGHT_MULTIPLIER_PIXELS)),
     });
@@ -62,9 +64,9 @@
       return;
     }
 
-    cy.center();
-    cy.pan({
-      x: cy.pan().x,
+    readerModel.provenanceModel.cy.center();
+    readerModel.provenanceModel.cy.pan({
+      x: readerModel.provenanceModel.cy.pan().x,
       y: provDAGControlsHeight - HEIGHT_MULTIPLIER_PIXELS,
     });
   }
@@ -107,7 +109,22 @@
           "padding-right": "10px",
           "text-valign": "top",
           "text-halign": "center",
-          "background-color": "#bbb"
+          "background-color": function(node) {
+            const nodeID = node.id();
+            const currentErrors = readerModel.provenanceModel.nodeIDToErrors.get(nodeID);
+
+            if (currentErrors !== undefined) {
+              if (currentErrors.get(2)) {
+                return NODE_ERROR_BG_COLORS[2];
+              } else if (currentErrors.get(1)) {
+                return NODE_ERROR_BG_COLORS[1];
+              } else {
+                return NODE_ERROR_BG_COLORS[0];
+              }
+            }
+
+            return "#bbb";
+          }
         }
       },
       {
@@ -145,10 +162,6 @@
     readerModel._dirty();
   }
 
-  // TODO: The way this works causes the $readerModel.provenanceModel.provData
-  // to flicker undefined briefly when clicking between nodes which looks bad.
-  // Additionally, something is causing the dag and info columns to jitter
-  // around in Chrome
   function clearSelection() {
     readerModel.provenanceModel.provData = undefined;
     readerModel._dirty();
@@ -170,13 +183,13 @@
     let lock = false; // used to prevent recursive event storms
     let selectedExists = false;
 
-    cy = cytoscape({
+    readerModel.provenanceModel.cy = cytoscape({
       ...cytoscapeConfig,
       container: document.getElementById("cy"),
       elements: readerModel.provenanceModel.elements
     });
 
-    cy.on("select", "node, edge", (event) => {
+    readerModel.provenanceModel.cy.on("select", "node, edge", (event) => {
       if (!lock) {
         selectedExists = true;
         lock = true;
@@ -198,7 +211,7 @@
         }
 
         const edges = node.edgesTo("node");
-        cy.elements("node, edge").unselect();
+        readerModel.provenanceModel.cy.elements("node, edge").unselect();
         node.select();
         edges.select();
 
@@ -206,23 +219,29 @@
       }
     });
 
-    cy.on("unselect", "node, edge", (event) => {  // eslint-disable-line no-unused-vars
-      cy.elements("node, edge").unselect();
+    readerModel.provenanceModel.cy.on("unselect", "node, edge", (event) => {  // eslint-disable-line no-unused-vars
+      readerModel.provenanceModel.cy.elements("node, edge").unselect();
       if (!lock && selectedExists) {
         clearSelection();
         selectedExists = false;
       }
     });
 
-    // Now we set the container height to 100% of parent height before centering.
+    if (readerModel.provenanceModel.errors.get(2) !== undefined) {
+      readerModel.provenanceModel.provTab = "error";
+    }
+
     self.style.setProperty("height", "100%");
     centerAndPan();
-  }
+}
 </script>
 
 <div>
   <div id="provDAGControls" class="absolute z-10 {getScrollBarWidth() == 0 ? "left-2": ""}">
-    <ProvDAGControls {cy} {centerOnSelected} {centerAndPan} {mount}/>
+    <ProvDAGControls {centerOnSelected} {centerAndPan} {mount}/>
+  </div>
+  <div id="errorSymbols" class="absolute z-10 {getScrollBarWidth() == 0 ? "left-2": ""} bottom-0">
+    <ProvErrors />
   </div>
   <div
     bind:this={self}

@@ -1,0 +1,69 @@
+# This file is for low severity errors that are cosmetic or have little to no
+# effect on the usability of the Result
+
+[
+  {
+    name: "NaNs in summarize viz",
+    query: 'plugin: "q2-demux" AND action: "summarize" AND q2-demux: ^"2023.9.0"$',
+    date: "2025-07-09",
+    description:
+      "demux summarize visualizations produced with q2-demux 2023.9.0 are
+      invalid and likely to be full of NaNs. Please regenerate this viz with a
+      different version of QIIME 2. See this forum post for more detials:
+      https://forum.qiime2.org/t/nan-values-in-demultiplexed-sequence-counts-summary/28006",
+  },
+  {
+    name: "Nondeterministic inclusion of poor alignments",
+    query: 'plugin: "q2-feature-classifier" AND action: "extract-reads"',
+    date: "2025-07-09",
+    description:
+      "q2-feature-classifier extract-reads nondeterministically includes very
+      poor alignments for sequences that have no good alignments. This can be
+      largely resolved by using a higher identity. From 2025.4 onwards the poor
+      alignments will still be included, but deterministically now. See this
+      GitHub PR for more info: https://github.com/qiime2/q2-feature-classifier/pull/210",
+  },
+  {
+    name: "Cannot open subplots if there are spaces in the metadata value",
+    query: 'plugin: "q2-composition" AND action: "da-barplot" AND q2-composition: ^"2023.2"',
+    date: "2025-07-09",
+    description:
+      "The links that open subplots in the da-barplot break in q2-composition
+      2023.2 if they contain spaces. This can be resolved by regenerating the
+      plot in a newer version of QIIME 2. See this GitHub issue for more info:
+      https://github.com/qiime2/q2-composition/pull/117",
+  },
+  {
+    name: "Index with name #SampleID in output vector",
+    query:
+      'plugin: "q2-diversity-lib" AND action: "faith-pd" AND q2-diversity-lib:
+      (^"2022.8" OR
+      ^"2022.11" OR
+      ^"2023" OR
+      ^"2024.2" OR
+      ^"2024.5")',
+    date: "2025-07-10",
+    description:
+      "Affected versions of this output have #SampleID as the index name which
+      doesn't matter for QIME 2 but can break some downstream steps if you
+      choose to export the artifact. See this GitHub issue for more info:
+      https://github.com/qiime2/q2-diversity-lib/issues/57",
+  },
+  {
+    name: "Metadata and distance matrix axes incorrectly labeled",
+    query:
+      'plugin: "q2-diversity" AND action: "beta-correlation" AND q2-diversity:
+      (^"2018" OR
+      ^"2019" OR
+      ^"2020" OR
+      ^"2021" OR
+      ^"2022" OR
+      ^"2023" OR
+      ^"2024.2")',
+    date: "2025-07-10",
+    description: "The metadata and distance matrix axes were labeled
+      incorrectly in affected versions of q2-diversity. This error is
+      negligable hence it not being discovered for so long. See this GitHub PR
+      for more info: https://github.com/qiime2/q2-diversity/pull/358",
+  },
+]
