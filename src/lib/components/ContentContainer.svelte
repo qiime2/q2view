@@ -4,6 +4,7 @@
   import url from "$lib/scripts/url-store";
   import loading from "$lib/scripts/loading";
 
+  import Data from "$lib/components/Data.svelte";
   import Iframe from "$lib/components/Iframe.svelte";
   import Gallery from "$lib/components/Gallery.svelte";
   import Citations from "$lib/components/Citations.svelte";
@@ -70,6 +71,14 @@
           : "hidden-tab"}
       >
         <Iframe />
+      </div>
+    {:else}
+      <div
+        class={$url.pathname.replaceAll("/", "") === "data" && $loading.status !== "LOADING"
+          ? "tab"
+          : "hidden-tab"}
+      >
+        <Data/>
       </div>
     {/if}
     {#if $readerModel.rawSrc}

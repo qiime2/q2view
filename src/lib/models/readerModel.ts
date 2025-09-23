@@ -14,6 +14,7 @@ import ProvenanceModel, {
   type ProvenanceError,
 } from "$lib/models/provenanceModel";
 import { getFile, getYAML } from "$lib/scripts/fileutils";
+import type { TreeItem } from "melt/builders";
 
 class ReaderModel {
   LOW_SEVERITY_ERRORS: ProvenanceError[] | undefined = undefined;
@@ -36,6 +37,8 @@ class ReaderModel {
   port: string | null = null;
 
   metadata: object = {};
+
+  fileTree: TreeItem[] = [];
 
   session: string;
 
@@ -88,6 +91,8 @@ class ReaderModel {
     this.port = null;
 
     this.metadata = {};
+
+    this.fileTree = [];
 
     this.provenanceModel = new ProvenanceModel();
     this.citationsModel = new CitationsModel();
@@ -205,7 +210,7 @@ class ReaderModel {
   _getTab() {
     // If we have an index path we are a visualization and auto redirect to that
     // tab otherwise we are an artifact and auto redirect to the citations tab
-    return this.indexPath ? "visualization" : "citations";
+    return this.indexPath ? "visualization" : "data";
   }
 
   async _getRemoteFile(url: string): Promise<Blob> {
@@ -251,10 +256,37 @@ class ReaderModel {
     // 2) UUID dir has a file named `VERSION`
     const files = Object.keys(zip.files);
     const parsedPaths = [];
+
     files.forEach((f) => {
       const fileParts = f.split("/");
-      for (let i = 1; i <= fileParts.length; i += 1) {
-        parsedPaths.push(fileParts.slice(0, i).join("/"));
+      let last = this.fileTree;
+
+      for (let i = 0; i < fileParts.length; i += 1) {
+        let current = {icon: 'folder'};
+        let found = false;
+
+        for (const child of last) {
+          if (child['title'] == fileParts[i]) {
+            current = child;
+            found = true;
+            break;
+          }
+        }
+
+        if (!found) {
+          current['title'] = fileParts[i];
+          last.push(current);
+        }
+
+        parsedPaths.push(fileParts.slice(0, i + 1).join("/"));
+
+        if (i < fileParts.length - 1) {
+          if (!current.hasOwnProperty('children')) {
+            current['children'] = [];
+          }
+
+          last = current['children'];
+        }
       }
     });
     const uniquePaths = parsedPaths.filter(

@@ -13,6 +13,16 @@
       Visualization
     </button>
   </li>
+{:else if $readerModel.rawSrc}
+  <li>
+    <button
+        class={$url.pathname.replaceAll("/", "") === "data" ? "selected-nav-button nav-button" : "nav-button"}
+        onclick={() => (history.pushState({}, "", "/data/"+window.location.search))}
+        title='data'
+    >
+      Data
+    </button>
+  </li>
 {/if}
 {#if $readerModel.rawSrc}
   <li>
