@@ -4,12 +4,17 @@
     icon: string;
 
     children?: TreeItem[];
+    path?: string;
   };
 </script>
 
 <script lang="ts">
   import { melt, type TreeView } from '@melt-ui/svelte';
   import { getContext } from 'svelte';
+  import closedArrow from '$lib/icons/closedArrow.svelte';
+  import openArrow from '$lib/icons/openArrow.svelte';
+  import { getFile } from "$lib/scripts/fileutils";
+  import readerModel from "$lib/models/readerModel";
 
   export let treeItems;
   export let level = 1;
@@ -18,9 +23,14 @@
     elements: { item, group },
     helpers: { isExpanded, isSelected },
   } = getContext<TreeView>('tree');
+
+  const icons = {
+    folder: closedArrow,
+    folderOpen: openArrow
+  };
 </script>
 
-{#each treeItems as { title, icon, children }, i}
+{#each treeItems as { title, icon, children, path }, i}
   {@const itemId = `${title}-${i}`}
   {@const hasChildren = !!children?.length}
 
@@ -30,20 +40,40 @@
       use:melt={$item({
         id: itemId,
         hasChildren,
-      })}
-    >
+      })}>
       <!-- Add icon. -->
       {#if icon === 'folder' && hasChildren && $isExpanded(itemId)}
-        <svelte:component this={() => 'a'} class="h-4 w-4" />
+        <svelte:component this={icons['folderOpen']} class="h-4 w-4" />
       {:else}
-        <svelte:component this={() => 'b'} class="h-4 w-4" />
+        <svelte:component this={icons[icon]} class="h-4 w-4" />
       {/if}
 
-      <span class="select-none">{title}</span>
+      {#if hasChildren}
+        <span class="select-none">{title}</span>
+      {:else}
+        <!-- svelte-ignore node_invalid_placement_ssr -->
+        <button onclick={async () => {
+          const split  = path.split('/');
+          const uuid = split[0]
+          const newPath = split.slice(1).join('/');
 
-      <!-- Selected icon. -->
-      {#if $isSelected(itemId)}
-        <svelte:component this={() => 'c'} class="h-4 w-4" />
+          const file = await getFile(
+            newPath,
+            uuid,
+            readerModel.provenanceModel.zipReader).then(
+              (data) => new Blob(
+                [data.byteArray],
+                { type: data.type }
+              )
+            )
+          const link = document.createElement('a');
+
+          link.href = URL.createObjectURL(file);
+          link.download = newPath;
+          link.click();
+          URL.revokeObjectURL(link.href);
+        }
+      }>{title}</button>
       {/if}
     </button>
 

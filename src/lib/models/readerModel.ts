@@ -262,7 +262,7 @@ class ReaderModel {
       let last = this.fileTree;
 
       for (let i = 0; i < fileParts.length; i += 1) {
-        let current = {icon: 'folder'};
+        let current = {icon: 'none'};
         let found = false;
 
         for (const child of last) {
@@ -278,14 +278,18 @@ class ReaderModel {
           last.push(current);
         }
 
-        parsedPaths.push(fileParts.slice(0, i + 1).join("/"));
+        let path = fileParts.slice(0, i + 1).join("/");
+        parsedPaths.push(path);
 
         if (i < fileParts.length - 1) {
           if (!current.hasOwnProperty('children')) {
             current['children'] = [];
+            current['icon'] = 'folder';
           }
 
           last = current['children'];
+        } else {
+          current['path'] = path;
         }
       }
     });
