@@ -84,10 +84,3 @@
     {/if}
   </li>
 {/each}
-
-<style>
-  /* Remove docs' focus box-shadow styling. */
-  li:focus {
-    box-shadow: none !important;
-  }
-</style>
