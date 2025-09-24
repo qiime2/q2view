@@ -31,18 +31,17 @@
 </script>
 
 {#each treeItems as { title, icon, children, path }, i}
-  {@const itemId = `${title}-${i}`}
   {@const hasChildren = !!children?.length}
 
   <li class={level !== 1 ? 'pl-4' : ''}>
     <button
       class="flex items-center gap-1 rounded-md p-1"
       use:melt={$item({
-        id: itemId,
+        id: title,
         hasChildren,
       })}>
       <!-- Add icon. -->
-      {#if icon === 'folder' && hasChildren && $isExpanded(itemId)}
+      {#if icon === 'folder' && hasChildren && $isExpanded(title)}
         <svelte:component this={icons['folderOpen']} class="h-4 w-4" />
       {:else}
         <svelte:component this={icons[icon]} class="h-4 w-4" />
@@ -78,7 +77,7 @@
     </button>
 
     {#if children}
-      <ul use:melt={$group({ id: itemId })}>
+      <ul use:melt={$group({ id: title })}>
         <svelte:self treeItems={children} level={level + 1} />
       </ul>
     {/if}

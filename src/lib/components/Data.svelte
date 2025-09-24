@@ -6,7 +6,7 @@
   import readerModel from '$lib/models/readerModel';
 
   const ctx = createTreeView({
-    defaultExpanded: ['lib-0', 'tree-0'],
+    defaultExpanded: ['data'],
   });
   setContext('tree', ctx);
 
@@ -24,8 +24,8 @@
   </div>
 
   <ul class="overflow-auto px-4 pb-4 pt-2" {...$tree}>
-    {#key $readerModel.fileTree}
-      <Tree treeItems={readerModel.fileTree} />
-    {/key}
-    </ul>
+    {#if $readerModel.fileTree.length > 0}
+      <Tree treeItems={readerModel.fileTree[0].children} />
+    {/if}
+  </ul>
 </div>
