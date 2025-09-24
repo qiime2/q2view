@@ -53,27 +53,27 @@
       {:else}
         <!-- svelte-ignore node_invalid_placement_ssr -->
         <button onclick={async () => {
-          const split  = path.split('/');
-          const uuid = split[0]
-          const newPath = split.slice(1).join('/');
+            const split  = path.split('/');
+            const uuid = split[0]
+            const newPath = split.slice(1).join('/');
 
-          const file = await getFile(
-            newPath,
-            uuid,
-            readerModel.provenanceModel.zipReader).then(
-              (data) => new Blob(
-                [data.byteArray],
-                { type: data.type }
+            const file = await getFile(
+              newPath,
+              uuid,
+              readerModel.provenanceModel.zipReader).then(
+                (data) => new Blob(
+                  [data.byteArray],
+                  { type: data.type }
+                )
               )
-            )
-          const link = document.createElement('a');
+            const link = document.createElement('a');
 
-          link.href = URL.createObjectURL(file);
-          link.download = newPath;
-          link.click();
-          URL.revokeObjectURL(link.href);
-        }
-      }>{title}</button>
+            link.href = URL.createObjectURL(file);
+            link.download = newPath;
+            link.click();
+            URL.revokeObjectURL(link.href);
+          }
+        }>{title}</button>
       {/if}
     </button>
 

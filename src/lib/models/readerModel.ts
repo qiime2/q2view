@@ -262,11 +262,11 @@ class ReaderModel {
       let last = this.fileTree;
 
       for (let i = 0; i < fileParts.length; i += 1) {
-        let current = {icon: 'none'};
+        let current = { icon: "none" };
         let found = false;
 
         for (const child of last) {
-          if (child['title'] == fileParts[i]) {
+          if (child["title"] == fileParts[i]) {
             current = child;
             found = true;
             break;
@@ -274,7 +274,7 @@ class ReaderModel {
         }
 
         if (!found) {
-          current['title'] = fileParts[i];
+          current["title"] = fileParts[i];
           last.push(current);
         }
 
@@ -282,14 +282,14 @@ class ReaderModel {
         parsedPaths.push(path);
 
         if (i < fileParts.length - 1) {
-          if (!current.hasOwnProperty('children')) {
-            current['children'] = [];
-            current['icon'] = 'folder';
+          if (!current.hasOwnProperty("children")) {
+            current["children"] = [];
+            current["icon"] = "folder";
           }
 
-          last = current['children'];
+          last = current["children"];
         } else {
-          current['path'] = path;
+          current["path"] = path;
         }
       }
     });
@@ -343,8 +343,13 @@ class ReaderModel {
     // Set Provenance
     loading.setMessage("Loading Provenance");
     // Only read the errors from yaml the first time they drop in a result
-    if ([this.LOW_SEVERITY_ERRORS, this.MEDIUM_SEVERITY_ERRORS,
-         this.HIGH_SEVERITY_ERRORS].every(e => e === undefined)) {
+    if (
+      [
+        this.LOW_SEVERITY_ERRORS,
+        this.MEDIUM_SEVERITY_ERRORS,
+        this.HIGH_SEVERITY_ERRORS,
+      ].every((e) => e === undefined)
+    ) {
       await this._readErrors();
     }
     this.provenanceModel.init(this.uuid, zip);
