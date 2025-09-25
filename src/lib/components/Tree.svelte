@@ -35,7 +35,7 @@
 
   <li class={level !== 1 ? 'pl-4' : ''}>
     <button
-      class="flex items-center gap-1 rounded-md p-1"
+      class="flex items-center gap-1 rounded-md p-1 hover:text-gray-600"
       use:melt={$item({
         id: title,
         hasChildren,
