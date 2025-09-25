@@ -72,7 +72,7 @@
             link.click();
             URL.revokeObjectURL(link.href);
           }
-        }>{title}</button>
+        } class="text-blue-700 hover:text-gray-600">{title}</button>
       {/if}
     </button>
 
