@@ -39,6 +39,7 @@ class ReaderModel {
   metadata: object = {};
 
   fileTree: TreeItem[] = [];
+  filePreviewText: string = "Click a file on the left to see a preview of its contents.";
 
   session: string;
 
@@ -93,6 +94,7 @@ class ReaderModel {
     this.metadata = {};
 
     this.fileTree = [];
+    this.filePreviewText = "Click a file on the left to see a preview of its contents.";
 
     this.provenanceModel = new ProvenanceModel();
     this.citationsModel = new CitationsModel();

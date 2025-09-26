@@ -16,8 +16,7 @@
   import { getFile } from "$lib/scripts/fileutils";
   import readerModel from "$lib/models/readerModel";
 
-  export let treeItems;
-  export let level = 1;
+  let { treeItems, level } = $props();
 
   const {
     elements: { item, group },
@@ -30,7 +29,7 @@
   };
 </script>
 
-{#each treeItems as { title, icon, children, path }, i}
+{#each treeItems as { title, icon, children, path }}
   {@const hasChildren = !!children?.length}
 
   <li class={level !== 1 ? 'pl-4' : ''}>
@@ -68,9 +67,13 @@
             const link = document.createElement('a');
 
             link.href = URL.createObjectURL(file);
-            link.download = newPath;
-            link.click();
-            URL.revokeObjectURL(link.href);
+
+            await fetch(link.href)
+              .then((res) => res.text())
+              .then((text) => {
+                readerModel.filePreviewText = text;
+                readerModel._dirty();
+              });
           }
         } class="text-blue-700 hover:text-gray-600">{title}</button>
       {/if}
