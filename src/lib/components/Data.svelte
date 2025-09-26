@@ -15,7 +15,7 @@
   } = ctx;
 </script>
 
-<div class="grid grid-cols-2 gap-4">
+<div class="grid grid-cols-2 gap-4" style="height: 85vh">
   <div
     class="flex overflow-y-auto flex-col border rounded-md"
   >
