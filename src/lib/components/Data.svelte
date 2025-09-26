@@ -30,7 +30,7 @@
       {/if}
     </ul>
   </div>
-  <pre class="border rounded-md p-2 overflow-auto">
+  <pre class="border rounded-md p-2 overflow-auto text-sm">
 {$readerModel.filePreviewText}
   </pre>
 </div>
