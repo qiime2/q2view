@@ -13,6 +13,7 @@
   import { getContext } from 'svelte';
   import closedArrow from '$lib/icons/closedArrow.svelte';
   import openArrow from '$lib/icons/openArrow.svelte';
+  import selectedArrow from '$lib/icons/selectedArrow.svelte';
   import { getFile } from "$lib/scripts/fileutils";
   import readerModel from "$lib/models/readerModel";
 
@@ -25,7 +26,8 @@
 
   const icons = {
     folder: closedArrow,
-    folderOpen: openArrow
+    folderOpen: openArrow,
+    selected: selectedArrow,
   };
 </script>
 
@@ -76,6 +78,11 @@
               });
           }
         } class="text-blue-700 hover:text-gray-600">{title}</button>
+      {/if}
+
+      <!-- Selected icon. -->
+      {#if $isSelected(title) && !hasChildren}
+        <svelte:component this={icons['selected']} class="h-4 w-4" />
       {/if}
     </button>
 
