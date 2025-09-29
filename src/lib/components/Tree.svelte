@@ -52,7 +52,6 @@
       {#if hasChildren}
         <span class="select-none">{title}</span>
       {:else}
-        <!-- svelte-ignore node_invalid_placement_ssr -->
         <button onclick={async () => {
             const file = await getFile(
               path,
