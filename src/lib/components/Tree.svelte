@@ -38,11 +38,11 @@
     <button
       class="flex items-center gap-1 rounded-md p-1 hover:text-gray-600"
       use:melt={$item({
-        id: title,
+        id: path,
         hasChildren,
       })}>
       <!-- Add icon. -->
-      {#if icon === 'folder' && hasChildren && $isExpanded(title)}
+      {#if icon === 'folder' && hasChildren && $isExpanded(path)}
         <svelte:component this={icons['folderOpen']} class="h-4 w-4" />
       {:else}
         <svelte:component this={icons[icon]} class="h-4 w-4" />
@@ -53,13 +53,9 @@
       {:else}
         <!-- svelte-ignore node_invalid_placement_ssr -->
         <button onclick={async () => {
-            const split  = path.split('/');
-            const uuid = split[0]
-            const newPath = split.slice(1).join('/');
-
             const file = await getFile(
-              newPath,
-              uuid,
+              path,
+              readerModel.uuid,
               readerModel.provenanceModel.zipReader).then(
                 (data) => new Blob(
                   [data.byteArray],
@@ -81,13 +77,13 @@
       {/if}
 
       <!-- Selected icon. -->
-      {#if $isSelected(title) && !hasChildren}
+      {#if $isSelected(path) && !hasChildren}
         <svelte:component this={icons['selected']} class="h-4 w-4" />
       {/if}
     </button>
 
     {#if children}
-      <ul use:melt={$group({ id: title })}>
+      <ul use:melt={$group({ id: path })}>
         <svelte:self treeItems={children} level={level + 1} />
       </ul>
     {/if}

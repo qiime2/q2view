@@ -282,6 +282,7 @@ class ReaderModel {
 
         let path = fileParts.slice(0, i + 1).join("/");
         parsedPaths.push(path);
+        path = fileParts.slice(1, i + 1).join("/");
 
         if (i < fileParts.length - 1) {
           if (!current.hasOwnProperty("children")) {
@@ -290,9 +291,10 @@ class ReaderModel {
           }
 
           last = current["children"];
-        } else {
-          current["path"] = path;
+          path += '/';
         }
+
+        current["path"] = path;
       }
     });
     const uniquePaths = parsedPaths.filter(
