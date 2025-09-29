@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
   export type TreeItem = {
     title: string;
     icon: string;
@@ -16,6 +16,7 @@
   import selectedArrow from '$lib/icons/selectedArrow.svelte';
   import { getFile } from "$lib/scripts/fileutils";
   import readerModel from "$lib/models/readerModel";
+  import Tree from "./Tree.svelte";
 
   let { treeItems, level } = $props();
 
@@ -43,9 +44,9 @@
       })}>
       <!-- Add icon. -->
       {#if icon === 'folder' && hasChildren && $isExpanded(path)}
-        <svelte:component this={icons['folderOpen']} class="h-4 w-4" />
+        <component this={icons['folderOpen']} class="h-4 w-4"></component>
       {:else}
-        <svelte:component this={icons[icon]} class="h-4 w-4" />
+        <component this={icons[icon]} class="h-4 w-4"></component>
       {/if}
 
       {#if hasChildren}
@@ -78,13 +79,13 @@
 
       <!-- Selected icon. -->
       {#if $isSelected(path) && !hasChildren}
-        <svelte:component this={icons['selected']} class="h-4 w-4" />
+        <component this={icons['selected']} class="h-4 w-4"></component>
       {/if}
     </button>
 
     {#if children}
       <ul use:melt={$group({ id: path })}>
-        <svelte:self treeItems={children} level={level + 1} />
+        <Tree treeItems={children} level={level + 1} />
       </ul>
     {/if}
   </li>
