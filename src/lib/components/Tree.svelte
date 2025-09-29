@@ -78,7 +78,7 @@
 
       <!-- Selected icon. -->
       {#if $isSelected(path) && !hasChildren}
-        <component this={icons['selected']} class="h-4 w-4"></component>
+        <svelte:component this={icons['selected']} class="h-4 w-4" />
       {/if}
     </button>
 
