@@ -75,8 +75,8 @@
     {:else}
       <div
         class={$url.pathname.replaceAll("/", "") === "data" && $loading.status !== "LOADING"
-          ? "tab"
-          : "hidden-tab"}
+          ? "tab data"
+          : "hidden-tab data"}
       >
         <Data/>
       </div>
@@ -149,6 +149,16 @@
     @apply lg:absolute
     lg:grid
     lg:grid-cols-[70%_30%]
+    w-screen
+    h-full;
+  }
+
+  .data {
+    left: 0%;
+    @apply absolute
+    grid
+    grid-cols-[30%_70%]
+    gap-2
     w-screen
     h-full;
   }
