@@ -15,7 +15,6 @@
   } = ctx;
 </script>
 
-<!-- <div class="grid grid-cols-2 gap-4" style="height: 85vh"> -->
 <div
   class="flex overflow-y-auto flex-col border rounded-md mb-2 ml-2"
 >
@@ -33,4 +32,3 @@
 <pre class="border rounded-md p-2 overflow-auto text-sm mb-2 mr-2">
 {$readerModel.filePreviewText}
 </pre>
-<!-- </div> -->
