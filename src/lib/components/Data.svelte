@@ -6,7 +6,7 @@
   import readerModel from '$lib/models/readerModel';
 
   const ctx = createTreeView({
-    defaultExpanded: ['data/'],
+    defaultExpanded: ['data'],
   });
   setContext('tree', ctx);
 

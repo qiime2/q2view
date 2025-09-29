@@ -264,9 +264,17 @@ class ReaderModel {
       let last = this.fileTree;
 
       for (let i = 0; i < fileParts.length; i += 1) {
+        const pathWithUUID = fileParts.slice(0, i + 1).join("/");
+        parsedPaths.push(pathWithUUID);
+
+        // We don't actually care about the leading UUID for the paths for the
+        // data view. We know all our paths are under the root UUID.
+        const pathWithoutUUID = fileParts.slice(1, i + 1).join("/");
+
         let current = { icon: "none" };
         let found = false;
 
+        // Determine if we have already seen this path up to this point
         for (const child of last) {
           if (child["title"] == fileParts[i]) {
             current = child;
@@ -275,15 +283,15 @@ class ReaderModel {
           }
         }
 
+        // Create this TreeItem if we haven't been here yet
         if (!found) {
           current["title"] = fileParts[i];
+          current["path"] = pathWithoutUUID;
           last.push(current);
         }
 
-        let path = fileParts.slice(0, i + 1).join("/");
-        parsedPaths.push(path);
-        path = fileParts.slice(1, i + 1).join("/");
-
+        // If we aren't at the end of the path yet, this is another folder with
+        // children
         if (i < fileParts.length - 1) {
           if (!current.hasOwnProperty("children")) {
             current["children"] = [];
@@ -291,12 +299,10 @@ class ReaderModel {
           }
 
           last = current["children"];
-          path += '/';
         }
-
-        current["path"] = path;
       }
     });
+
     const uniquePaths = parsedPaths.filter(
       (value, index, self) => self.indexOf(value) === index,
     );
