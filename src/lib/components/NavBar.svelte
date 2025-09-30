@@ -1,6 +1,4 @@
 <script lang="ts">
-  import "../../app.css";
-
   import readerModel from "$lib/models/readerModel";
   import loading from "$lib/scripts/loading"
 

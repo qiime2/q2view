@@ -1,6 +1,4 @@
 <script lang="ts">
-  // Global styling
-  import "../../app.css";
   import readerModel from "$lib/models/readerModel";
 
   import url from "$lib/scripts/url-store";
@@ -9,7 +7,7 @@
   import NavBar from "$lib/components/NavBar.svelte";
   import ContentContainer from "$lib/components/ContentContainer.svelte";
 
-  const uuid4Regex = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/;
+  const uuid4Regex = /^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/;
 
   onMount(() => {
     checkBrowserCompatibility();
