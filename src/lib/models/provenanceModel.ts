@@ -10,7 +10,8 @@ import { searchProvenance, transformQuery } from "$lib/scripts/provSearchUtils";
 import { setUnion } from "$lib/scripts/util";
 import cytoscape from "cytoscape";
 
-const ACTION_TYPES_WITH_HISTORY = ["method", "visualizer", "pipeline"];
+// No ancestors
+const ROOT_ACTIONS = ["import"]
 
 let currentMetadata: Set<string>;
 
@@ -176,18 +177,20 @@ export default class ProvenanceModel {
     // upstream of them. We don't need to recurse up the tree on them either
     if (
       !(await this._handleAction(sourceActionUUID, sourceAction)) &&
-      ACTION_TYPES_WITH_HISTORY.includes(sourceAction.action.type)
+      !ROOT_ACTIONS.includes(sourceAction.action.type)
     ) {
       await this._handleInputArtifacts(
         sourceAction.action.inputs,
         sourceActionUUID,
         depths,
       );
-      await this._handleParameterArtifacts(
-        sourceAction.action.parameters,
-        sourceActionUUID,
-        depths,
-      );
+      if (sourceAction.action.parameters) {
+        await this._handleParameterArtifacts(
+          sourceAction.action.parameters,
+          sourceActionUUID,
+          depths,
+        );
+      }
 
       maxDepth = depths.length === 0 ? 1 : Math.max(...depths);
     } else {
@@ -244,7 +247,7 @@ export default class ProvenanceModel {
         artifactUnion,
         sourceAction.action["alias-of"],
       );
-    } else if (ACTION_TYPES_WITH_HISTORY.includes(sourceAction.action.type)) {
+    } else if (!ROOT_ACTIONS.includes(sourceAction.action.type)) {
       const sourceInputArtifacts = this._getInputArtifacts(sourceAction);
       const sourceParameterArtifacts =
         this._getParameterArtifacts(sourceAction);
