@@ -69,6 +69,12 @@
             await fetch(link.href)
               .then((res) => res.text())
               .then((text) => {
+                // Make sure their data was a plaintext file not a binary
+                try {
+                  text = decodeURIComponent(escape(text));
+                } catch(e) {
+                  text = "File is in a binary format and cannot be displayed in text."
+                }
                 readerModel.filePreviewText = text;
                 readerModel._dirty();
               });
