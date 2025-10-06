@@ -44,9 +44,9 @@
       })}>
       <!-- Add icon. -->
       {#if icon === 'folder' && hasChildren && $isExpanded(path)}
-        <component this={icons['folderOpen']} class="h-4 w-4"></component>
+        <svelte:component this={icons['folderOpen']} class="h-4 w-4" />
       {:else}
-        <component this={icons[icon]} class="h-4 w-4"></component>
+        <svelte:component this={icons[icon]} class="h-4 w-4" />
       {/if}
 
       {#if hasChildren}
