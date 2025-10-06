@@ -41,6 +41,7 @@ class ReaderModel {
   fileTree: TreeItem[] = [];
   filePreviewText: string =
     "Click a file on the left to see a preview of its contents.";
+  selectedFile: string = "";
 
   session: string;
 
@@ -97,6 +98,7 @@ class ReaderModel {
     this.fileTree = [];
     this.filePreviewText =
       "Click a file on the left to see a preview of its contents.";
+    this.selectedFile = "";
 
     this.provenanceModel = new ProvenanceModel();
     this.citationsModel = new CitationsModel();
@@ -266,12 +268,8 @@ class ReaderModel {
       let last = this.fileTree;
 
       for (let i = 0; i < fileParts.length; i += 1) {
-        const pathWithUUID = fileParts.slice(0, i + 1).join("/");
-        parsedPaths.push(pathWithUUID);
-
-        // We don't actually care about the leading UUID for the paths for the
-        // data view. We know all our paths are under the root UUID.
-        const pathWithoutUUID = fileParts.slice(1, i + 1).join("/");
+        const path = fileParts.slice(0, i + 1).join("/");
+        parsedPaths.push(path);
 
         let current = { icon: "none" };
         let found = false;
@@ -288,7 +286,7 @@ class ReaderModel {
         // Create this TreeItem if we haven't been here yet
         if (!found) {
           current["title"] = fileParts[i];
-          current["path"] = pathWithoutUUID;
+          current["path"] = path;
           last.push(current);
         }
 

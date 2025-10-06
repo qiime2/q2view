@@ -53,8 +53,11 @@
         <span class="select-none">{title}</span>
       {:else}
         <button onclick={async () => {
+            const split = path.split('/');
+            const pathWithoutUUID = split.slice(1).join('/');
+
             const file = await getFile(
-              path,
+              pathWithoutUUID,
               readerModel.uuid,
               readerModel.provenanceModel.zipReader).then(
                 (data) => new Blob(
@@ -75,6 +78,7 @@
                 } catch(e) {
                   text = "File is in a binary format and cannot be displayed in text."
                 }
+                readerModel.selectedFile = path;
                 readerModel.filePreviewText = text;
                 readerModel._dirty();
               });
