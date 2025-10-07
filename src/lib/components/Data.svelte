@@ -10,10 +10,7 @@
     defaultExpanded: ['data', $readerModel.uuid],
   });
   setContext('tree', ctx);
-
-  const {
-    elements: { tree },
-  } = ctx;
+  const tree = ctx.elements.tree;
 
   let selectedTab = $state('Data');
 </script>
