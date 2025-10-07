@@ -30,6 +30,38 @@
     folderOpen: openArrow,
     selected: selectedArrow,
   };
+
+  async function _previewFile(path: string) {
+    const split = path.split('/');
+    const pathWithoutUUID = split.slice(1).join('/');
+
+    const file = await getFile(
+      pathWithoutUUID,
+      readerModel.uuid,
+      readerModel.provenanceModel.zipReader).then(
+        (data) => new Blob(
+          [data.byteArray],
+          { type: data.type }
+        )
+      )
+    const link = document.createElement('a');
+
+    link.href = URL.createObjectURL(file);
+
+    await fetch(link.href)
+      .then((res) => res.text())
+      .then((text) => {
+        // Make sure their data was a plaintext file not a binary
+        try {
+          text = decodeURIComponent(escape(text));
+        } catch(e) {
+          text = "File is in a binary format and cannot be displayed in text."
+        }
+        readerModel.selectedFile = path;
+        readerModel.filePreviewText = text;
+        readerModel._dirty();
+      });
+  }
 </script>
 
 {#each treeItems as { title, icon, children, path }}
@@ -42,7 +74,6 @@
         id: path,
         hasChildren,
       })}>
-      <!-- Add icon. -->
       {#if icon === 'folder' && hasChildren && $isExpanded(path)}
         <svelte:component this={icons['folderOpen']} class="h-4 w-4" />
       {:else}
@@ -52,42 +83,14 @@
       {#if hasChildren}
         <span class="select-none">{title}</span>
       {:else}
-        <button onclick={async () => {
-            const split = path.split('/');
-            const pathWithoutUUID = split.slice(1).join('/');
-
-            const file = await getFile(
-              pathWithoutUUID,
-              readerModel.uuid,
-              readerModel.provenanceModel.zipReader).then(
-                (data) => new Blob(
-                  [data.byteArray],
-                  { type: data.type }
-                )
-              )
-            const link = document.createElement('a');
-
-            link.href = URL.createObjectURL(file);
-
-            await fetch(link.href)
-              .then((res) => res.text())
-              .then((text) => {
-                // Make sure their data was a plaintext file not a binary
-                try {
-                  text = decodeURIComponent(escape(text));
-                } catch(e) {
-                  text = "File is in a binary format and cannot be displayed in text."
-                }
-                readerModel.selectedFile = path;
-                readerModel.filePreviewText = text;
-                readerModel._dirty();
-              });
-          }
-        } class="text-blue-700 hover:text-gray-600">{title}</button>
+        <span class="text-blue-700 hover:text-gray-600">{title}</span>
       {/if}
 
-      <!-- Selected icon. -->
       {#if $isSelected(path) && !hasChildren}
+       <!-- This is formatted as an anonymous function that is immediately
+        called so the return will be void which gets us the side effect of the
+        function without stuffing a return value into the DOM to render -->
+        {(() => {_previewFile(path)})()}
         <svelte:component this={icons['selected']} class="h-4 w-4" />
       {/if}
     </button>
