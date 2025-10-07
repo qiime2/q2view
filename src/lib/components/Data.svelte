@@ -31,7 +31,6 @@
   </div>
 
   {#if $readerModel.fileTree.length > 0}
-    {console.log(readerModel.fileTree[0].children)}
     {#if selectedTab === "Data"}
       <ul class="overflow-auto px-4 pb-4 pt-2 text-lg" {...$tree}>
         <Tree treeItems={readerModel.fileTree[0].children?.find((element) => element.path === `${readerModel.uuid}/data`)?.children} level={1} />
