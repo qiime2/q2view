@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createTreeView } from '@melt-ui/svelte';
-  import { onMount, setContext } from 'svelte';
+  import { setContext } from 'svelte';
   import { getFile } from '$lib/scripts/fileutils';
 
   import Tree from '$lib/components/Tree.svelte';
@@ -9,9 +9,7 @@
   let ctx;
   let tree;
 
-  onMount(() => {
-    _getTree();
-  })
+  _getTree();
 
   function _getTree() {
     ctx = createTreeView({
