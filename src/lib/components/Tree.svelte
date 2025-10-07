@@ -55,7 +55,7 @@
         try {
           text = decodeURIComponent(escape(text));
         } catch(e) {
-          text = "File is in a binary format and cannot be displayed in text."
+          text = "This file is in a binary format and cannot be displayed in text."
         }
         readerModel.selectedFile = path;
         readerModel.filePreviewText = text;
