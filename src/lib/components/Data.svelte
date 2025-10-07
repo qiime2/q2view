@@ -37,45 +37,47 @@
   {#if $readerModel.fileTree.length > 0}
     {_getTree()}
     {#if readerModel.selectedTab === "data"}
-      <ul class="overflow-auto px-4 pb-4 pt-2 text-lg" {...$tree}>
+      <ul class="overflow-auto px-4 pb-4 text-lg" {...$tree}>
         <Tree treeItems={readerModel.fileTree[0].children?.find((element) => element.path === `${readerModel.uuid}/data`)?.children} level={1} />
       </ul>
     {:else if readerModel.selectedTab === "artifact"}
-      <ul class="overflow-auto px-4 pb-4 pt-2 text-lg" {...$tree}>
+      <ul class="overflow-auto px-4 pb-4 text-lg" {...$tree}>
         <Tree treeItems={readerModel.fileTree} level={1} />
       </ul>
     {/if}
   {/if}
 </div>
 <div class="border rounded-md overflow-auto mb-2 mr-2">
-  <div class="flex border-b border-solid border-gray-300 pb-2 pt-4 px-4 mb-4">
-    <div class="float-left">
-      Filepath: {$readerModel.selectedFile}
-    </div>
-    <button class="download-button float-right ml-auto my-auto mr-2" onclick={async () => {
-        const split = readerModel.selectedFile.split('/');
-        const pathWithoutUUID = split.slice(1).join('/');
+  {#if $readerModel.selectedFile !== ""}
+    <div class="flex border-b border-solid border-gray-300 pb-2 pt-4 px-4 mb-4">
+      <div class="float-left">
+        Filepath: {$readerModel.selectedFile}
+      </div>
+      <button class="download-button float-right ml-auto my-auto mr-2" onclick={async () => {
+          const split = readerModel.selectedFile.split('/');
+          const pathWithoutUUID = split.slice(1).join('/');
 
-        const file = await getFile(
-          pathWithoutUUID,
-          readerModel.uuid,
-          readerModel.provenanceModel.zipReader).then(
-            (data) => new Blob(
-              [data.byteArray],
-              { type: data.type }
+          const file = await getFile(
+            pathWithoutUUID,
+            readerModel.uuid,
+            readerModel.provenanceModel.zipReader).then(
+              (data) => new Blob(
+                [data.byteArray],
+                { type: data.type }
+              )
             )
-          )
-        const link = document.createElement('a');
+          const link = document.createElement('a');
 
-        link.href = URL.createObjectURL(file);
-        link.download = pathWithoutUUID;
-        link.click();
-        URL.revokeObjectURL(link.href);
-      }
-    }>Download
-    </button>
-  </div>
-  <pre class="pl-2">
+          link.href = URL.createObjectURL(file);
+          link.download = pathWithoutUUID;
+          link.click();
+          URL.revokeObjectURL(link.href);
+        }
+      }>Download
+      </button>
+    </div>
+  {/if}
+  <pre class="pl-2 {readerModel.selectedFile === "" ? "pt-2" : ""}">
 {$readerModel.filePreviewText}
   </pre>
 </div>
