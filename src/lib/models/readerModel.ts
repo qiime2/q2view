@@ -42,6 +42,7 @@ class ReaderModel {
   filePreviewText: string =
     "Click a file on the left to see a preview of its contents.";
   selectedFile: string = "";
+  selectedTab: string = "data";
 
   session: string;
 
@@ -99,6 +100,7 @@ class ReaderModel {
     this.filePreviewText =
       "Click a file on the left to see a preview of its contents.";
     this.selectedFile = "";
+    this.selectedTab = "data";
 
     this.provenanceModel = new ProvenanceModel();
     this.citationsModel = new CitationsModel();
