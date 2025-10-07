@@ -1,16 +1,25 @@
 <script lang="ts">
   import { createTreeView } from '@melt-ui/svelte';
-  import { setContext } from 'svelte';
+  import { onMount, setContext } from 'svelte';
   import { getFile } from '$lib/scripts/fileutils';
 
   import Tree from '$lib/components/Tree.svelte';
   import readerModel from '$lib/models/readerModel';
 
-  const ctx = createTreeView({
-    defaultExpanded: ['data', $readerModel.uuid],
-  });
-  setContext('tree', ctx);
-  const tree = ctx.elements.tree;
+  let ctx;
+  let tree;
+
+  onMount(() => {
+    _getTree();
+  })
+
+  function _getTree() {
+    ctx = createTreeView({
+      defaultExpanded: [$readerModel.uuid, `${readerModel.uuid}/data`],
+    });
+    setContext('tree', ctx);
+    tree = ctx.elements.tree;
+  }
 </script>
 
 <div
@@ -26,6 +35,7 @@
   </div>
 
   {#if $readerModel.fileTree.length > 0}
+    {_getTree()}
     {#if readerModel.selectedTab === "data"}
       <ul class="overflow-auto px-4 pb-4 pt-2 text-lg" {...$tree}>
         <Tree treeItems={readerModel.fileTree[0].children?.find((element) => element.path === `${readerModel.uuid}/data`)?.children} level={1} />
