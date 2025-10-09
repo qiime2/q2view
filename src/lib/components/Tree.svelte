@@ -91,6 +91,9 @@
         called so the return will be void which gets us the side effect of the
         function without stuffing a return value into the DOM to render -->
         {(() => {_previewFile(path)})()}
+      {/if}
+
+      {#if $readerModel.selectedFile === path}
         <svelte:component this={icons['selected']} class="h-4 w-4" />
       {/if}
     </button>
