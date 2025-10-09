@@ -49,14 +49,15 @@
     link.href = URL.createObjectURL(file);
 
     await fetch(link.href)
-      .then((res) => res.text())
-      .then((text) => {
+      .then((res) => res.arrayBuffer())
+      .then((buffer) => {
+        let text = "This file is in a binary format and cannot be displayed in text.";
+
         // Make sure their data was a plaintext file not a binary
         try {
-          text = decodeURIComponent(escape(text));
-        } catch(e) {
-          text = "This file is in a binary format and cannot be displayed in text."
-        }
+          text = new TextDecoder("utf8", { fatal: true }).decode(buffer);
+        } catch(e) {}
+
         readerModel.selectedFile = path;
         readerModel.filePreviewText = text;
         readerModel._dirty();
