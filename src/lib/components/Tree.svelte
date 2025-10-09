@@ -87,13 +87,15 @@
       {/if}
 
       {#if $isSelected(path) && !hasChildren}
-       <!-- This is formatted as an anonymous function that is immediately
+        <!-- This is formatted as an anonymous function that is immediately
         called so the return will be void which gets us the side effect of the
         function without stuffing a return value into the DOM to render -->
         {(() => {_previewFile(path)})()}
       {/if}
 
       {#if $readerModel.selectedFile === path}
+        <!-- We want to maintain our selected icon on the file that is being
+        previewed -->
         <svelte:component this={icons['selected']} class="h-4 w-4" />
       {/if}
     </button>
