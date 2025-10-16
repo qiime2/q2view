@@ -21,7 +21,7 @@
 </script>
 
 <div
-  class="flex overflow-y-auto flex-col border rounded-md mb-2 ml-2"
+  class="flex flex-col border rounded-md mb-2 ml-2 overflow-auto"
 >
   <div class="flex border-b border-solid border-gray-300 pb-2 pt-4 px-4 mb-4">
     <button onclick={() => readerModel.selectedTab = "data"} class="nav-button float-left mx-auto w-1/2 pb-0.5 {readerModel.selectedTab === "data" ? "selected-nav-button" : ""}">
@@ -45,7 +45,7 @@
     {/if}
   {/if}
 </div>
-<div class="border rounded-md overflow-auto mb-2 mr-2">
+<div class="flex flex-col border rounded-md mb-2 mr-2 overflow-auto">
   {#if $readerModel.selectedFile !== ""}
     <div class="flex border-b border-solid border-gray-300 pb-2 pt-4 px-4 mb-4">
       <div class="float-left">
@@ -75,7 +75,7 @@
       </button>
     </div>
   {/if}
-  <pre class="pl-2 {readerModel.selectedFile === "" ? "pt-2" : ""}">
+  <pre class="pl-2 overflow-auto {readerModel.selectedFile === "" ? "pt-2" : ""}">
 {$readerModel.filePreviewText}
   </pre>
 </div>
