@@ -14,6 +14,7 @@ import ProvenanceModel, {
   type ProvenanceError,
 } from "$lib/models/provenanceModel";
 import { getFile, getYAML } from "$lib/scripts/fileutils";
+import type { TreeItem } from "melt/builders";
 
 class ReaderModel {
   LOW_SEVERITY_ERRORS: ProvenanceError[] | undefined = undefined;
@@ -36,6 +37,12 @@ class ReaderModel {
   port: string | null = null;
 
   metadata: object = {};
+
+  fileTree: TreeItem[] = [];
+  filePreviewText: string =
+    "Click a file on the left to see a preview of its contents.";
+  selectedFile: string = "";
+  selectedTab: string = "data";
 
   session: string;
 
@@ -88,6 +95,12 @@ class ReaderModel {
     this.port = null;
 
     this.metadata = {};
+
+    this.fileTree = [];
+    this.filePreviewText =
+      "Click a file on the left to see a preview of its contents.";
+    this.selectedFile = "";
+    this.selectedTab = "data";
 
     this.provenanceModel = new ProvenanceModel();
     this.citationsModel = new CitationsModel();
@@ -205,7 +218,7 @@ class ReaderModel {
   _getTab() {
     // If we have an index path we are a visualization and auto redirect to that
     // tab otherwise we are an artifact and auto redirect to the citations tab
-    return this.indexPath ? "visualization" : "citations";
+    return this.indexPath ? "visualization" : "data";
   }
 
   async _getRemoteFile(url: string): Promise<Blob> {
@@ -251,12 +264,47 @@ class ReaderModel {
     // 2) UUID dir has a file named `VERSION`
     const files = Object.keys(zip.files);
     const parsedPaths = [];
+
     files.forEach((f) => {
       const fileParts = f.split("/");
-      for (let i = 1; i <= fileParts.length; i += 1) {
-        parsedPaths.push(fileParts.slice(0, i).join("/"));
+      let last = this.fileTree;
+
+      for (let i = 0; i < fileParts.length; i += 1) {
+        const path = fileParts.slice(0, i + 1).join("/");
+        parsedPaths.push(path);
+
+        let current = { icon: "none" };
+        let found = false;
+
+        // Determine if we have already seen this path up to this point
+        for (const child of last) {
+          if (child["title"] == fileParts[i]) {
+            current = child;
+            found = true;
+            break;
+          }
+        }
+
+        // Create this TreeItem if we haven't been here yet
+        if (!found) {
+          current["title"] = fileParts[i];
+          current["path"] = path;
+          last.push(current);
+        }
+
+        // If we aren't at the end of the path yet, this is another folder with
+        // children
+        if (i < fileParts.length - 1) {
+          if (!current.hasOwnProperty("children")) {
+            current["children"] = [];
+            current["icon"] = "folder";
+          }
+
+          last = current["children"];
+        }
       }
     });
+
     const uniquePaths = parsedPaths.filter(
       (value, index, self) => self.indexOf(value) === index,
     );
@@ -307,8 +355,13 @@ class ReaderModel {
     // Set Provenance
     loading.setMessage("Loading Provenance");
     // Only read the errors from yaml the first time they drop in a result
-    if ([this.LOW_SEVERITY_ERRORS, this.MEDIUM_SEVERITY_ERRORS,
-         this.HIGH_SEVERITY_ERRORS].every(e => e === undefined)) {
+    if (
+      [
+        this.LOW_SEVERITY_ERRORS,
+        this.MEDIUM_SEVERITY_ERRORS,
+        this.HIGH_SEVERITY_ERRORS,
+      ].every((e) => e === undefined)
+    ) {
       await this._readErrors();
     }
     this.provenanceModel.init(this.uuid, zip);

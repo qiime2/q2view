@@ -4,6 +4,7 @@
   import url from "$lib/scripts/url-store";
   import loading from "$lib/scripts/loading";
 
+  import Data from "$lib/components/Data.svelte";
   import Iframe from "$lib/components/Iframe.svelte";
   import Gallery from "$lib/components/Gallery.svelte";
   import Citations from "$lib/components/Citations.svelte";
@@ -70,6 +71,14 @@
           : "hidden-tab"}
       >
         <Iframe />
+      </div>
+    {:else}
+      <div
+        class={$url.pathname.replaceAll("/", "") === "data" && $loading.status !== "LOADING"
+          ? "tab data"
+          : "hidden-tab data"}
+      >
+        <Data/>
       </div>
     {/if}
     {#if $readerModel.rawSrc}
@@ -140,6 +149,16 @@
     @apply lg:absolute
     lg:grid
     lg:grid-cols-[70%_30%]
+    w-screen
+    h-full;
+  }
+
+  .data {
+    left: 0%;
+    @apply absolute
+    grid
+    grid-cols-[30%_70%]
+    gap-2
     w-screen
     h-full;
   }
