@@ -17,7 +17,7 @@
     "@melt-ui/svelte": "^0.86.6",
     "@sveltejs/adapter-auto": "^3.0.0",
     "@sveltejs/adapter-static": "^3.0.0",
-    "@sveltejs/kit": "^2.5.27",
+    "@sveltejs/kit": "^2.49.5",
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "@types/cytoscape": "^3.21.8",
     "@types/js-yaml": "^3.12.10",
