@@ -84,4 +84,18 @@
       sequencing depth data that should be on its x-axis rendering the viz
       unusable. See this GitHub issue for more details: https://github.com/qiime2/q2-diversity/issues/359",
   },
+  {
+    name: "cutadapt over-cuts when batch-size is passed",
+    query:
+      'plugin: "q2-cutadapt" AND action: ("demux-paired" OR "demux-single") AND q2-cutadapt:
+      (^"2024" OR ^"2025") AND (cut: >0 OR forward_cut: >0 OR reverse_cut: >0) AND batch_size: >0',
+    date: "2026-01-23",
+    description:
+      "The --p-batch-size flag enables demuxing samples in batches to avoid out-of-memory errors.
+      When we added the cut parameter, we added cut every batch, so samples that don't get demultiplexed
+      in the first batch will be cut again in the second batch, cut again in the third batch, and so on.
+      Theoretically, overcutting into the barcode and causing sequences to be marked as untrimmed/un-demuxed.
+      See this QIIME 2 forum post for more information:
+      https://forum.qiime2.org/t/possible-bug-in-qiime-cutadapt-demux-paired-2024-10/33928",
+  },
 ]
