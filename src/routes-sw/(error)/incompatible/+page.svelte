@@ -8,7 +8,7 @@
   <div  class="row" style="margin-bottom: 50px;">
     <div class="col-md-12">
       Sorry, your current browser does not support the latest web-technologies
-      that this site needs.
+      that this site needs or this site has been embedded (with an iframe) in an insecure-context.
     </div>
   </div>
   <div class="row show-grid">
