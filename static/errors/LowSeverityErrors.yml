@@ -14,7 +14,16 @@
   },
   {
     name: "Nondeterministic inclusion of poor alignments",
-    query: 'plugin: "q2-feature-classifier" AND action: "extract-reads"',
+    query:
+      'plugin: "q2-feature-classifier" AND action: "extract-reads" AND q2-feature-classifier:
+      (^"2017" OR
+      ^"2018" OR
+      ^"2019" OR
+      ^"2020" OR
+      ^"2021" OR
+      ^"2022" OR
+      ^"2023" OR
+      ^"2024")',
     date: "2025-07-09",
     description:
       "q2-feature-classifier extract-reads nondeterministically includes very
