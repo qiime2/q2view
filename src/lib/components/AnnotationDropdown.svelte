@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { read } from "$app/server";
   import readerModel from "$lib/models/readerModel";
 
   import { createDropdownMenu, melt } from "@melt-ui/svelte";
@@ -16,7 +15,7 @@
     provSearchInput.value = annotationQuery;
     provSearchForm.requestSubmit();
 
-    // readerModel.provenanceModel.provTab = "error";
+    readerModel.provenanceModel.provTab = "annotation";
   }
 
   function _buildAnnotationQuery() {
