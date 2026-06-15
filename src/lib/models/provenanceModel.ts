@@ -760,7 +760,6 @@ export default class ProvenanceModel {
 
       this.nodeIDToAnnotations.get(annotation["root_result_uuid"])?.push(annotation);
     }
-    console.log(this.nodeIDToAnnotations)
 
     readerModel._dirty();
   }
