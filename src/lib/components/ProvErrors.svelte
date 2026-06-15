@@ -1,9 +1,12 @@
 <script lang="ts">
   import readerModel from "$lib/models/readerModel";
+  import AnnotationDropdown from "./AnnotationDropdown.svelte";
   import ErrorDropdown from "./ErrorDropdown.svelte";
 </script>
 
-<!-- TODO: Clean up functionality and styling here -->
+{#if $readerModel.provenanceModel.nodeIDToAnnotations.size !== 0}
+  <AnnotationDropdown annotations={$readerModel.provenanceModel.nodeIDToAnnotations.size} svgPath={"/images/annotation.svg"} />
+{/if}
 {#if $readerModel.provenanceModel.errors.get(2) !== undefined}
   <ErrorDropdown errors={$readerModel.provenanceModel.errors.get(2)} svgPath={"/images/hi-severity-error.svg"} />
 {/if}
