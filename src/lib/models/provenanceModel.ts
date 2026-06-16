@@ -34,7 +34,7 @@ export interface Annotation {
   created_at: string;
   root_result_uuid: string;
   referenced_result_uuid: string;
-  contents: string;
+  contents: string | null;
 }
 
 /**
