@@ -4,17 +4,30 @@
   import { createDropdownMenu, melt } from "@melt-ui/svelte";
   import { fly } from "svelte/transition";
 
-  export let errors;
+  export let numAnnotations;
   export let svgPath;
 
-  function _searchProvForError(errorQuery: string) {
+  function _searchProvForAnnotations() {
     let provSearchForm = document.getElementById("provSearchForm") as HTMLFormElement;
     let provSearchInput = document.getElementById("provSearchInput") as HTMLInputElement;
+    const annotationQuery = _buildAnnotationQuery();
 
-    provSearchInput.value = errorQuery;
+    provSearchInput.value = annotationQuery;
     provSearchForm.requestSubmit();
 
-    readerModel.provenanceModel.provTab = "error";
+    readerModel.provenanceModel.provTab = "annotation";
+  }
+
+  function _buildAnnotationQuery() {
+    const keys = [...readerModel.provenanceModel.nodeIDToAnnotations.keys()];
+    let query = `uuid: ("${keys[0]}"`
+
+    for (let i = 1; i < keys.length; i++) {
+      query += ` OR "${keys[i]}"`;
+    }
+
+    query += ")";
+    return query
   }
 
   const {
@@ -26,19 +39,17 @@
 <button use:melt={$triggerDropdown} class="flex p-0.5">
   <img height="36px" width="36px" src="{svgPath}" alt="{svgPath}"/>
   <div class="float-right flex items-center pl-2 text-2xl font-bold">
-    {errors.length}
+    {numAnnotations}
   </div>
 </button>
 {#if $openDropdown}
   <div use:melt={$menu} transition:fly id="dropdown">
     <div>
-      Search Provenance for Error:
+      Search Provenance for Annotations:
     </div>
-    {#each errors as error}
     <div>
-      <button onclick={() => _searchProvForError(error.query)} class="roundButton textButton my-1">{error.name}</button>
+      <button onclick={() => _searchProvForAnnotations()} class="roundButton textButton my-1">Annotations</button>
     </div>
-    {/each}
   </div>
 {/if}
 

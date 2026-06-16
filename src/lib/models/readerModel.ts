@@ -369,6 +369,7 @@ class ReaderModel {
     await this.provenanceModel.getErrors(this.LOW_SEVERITY_ERRORS, 0);
     await this.provenanceModel.getErrors(this.MEDIUM_SEVERITY_ERRORS, 1);
     await this.provenanceModel.getErrors(this.HIGH_SEVERITY_ERRORS, 2);
+    await this.provenanceModel.getAnnotations();
   }
 
   async _readErrors() {

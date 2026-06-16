@@ -2,13 +2,14 @@
 // This model is responsible for parsing and storing the provenance of the
 // result
 // ****************************************************************************
-import JSZip from "jszip";
+import JSZip, { JSZipObject } from "jszip";
 
-import { getYAML } from "$lib/scripts/fileutils";
+import { getFile, getYAML } from "$lib/scripts/fileutils";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
 import { searchProvenance, transformQuery } from "$lib/scripts/provSearchUtils";
-import { setUnion } from "$lib/scripts/util";
+import { setUnion, readBlobAsText } from "$lib/scripts/util";
 import cytoscape from "cytoscape";
+import readerModel from "./readerModel";
 
 // No ancestors
 const ROOT_ACTIONS = ["import"]
@@ -24,6 +25,16 @@ export interface ProvenanceError {
   query: string;
   date: string;
   description: string;
+}
+
+export interface Annotation {
+  id: string;
+  name: string;
+  type: string;
+  created_at: string;
+  root_result_uuid: string;
+  referenced_result_uuid: string;
+  contents: string | null;
 }
 
 /**
@@ -66,6 +77,9 @@ export default class ProvenanceModel {
   // Error tracking
   nodeIDToErrors: Map<string, Map<number, ProvenanceError[]>> = new Map();
   errors: Map<number, ProvenanceError[]> = new Map();
+
+  // Annotation tracking
+  nodeIDToAnnotations: Map<string, Annotation[]> = new Map();
 
   // Class attributes passed in by readerModel pertaining to currently loaded
   // Result
@@ -702,5 +716,50 @@ export default class ProvenanceModel {
         }
       }
     }
+  }
+
+  async getAnnotations() {
+    const annotationsFolder = this.zipReader.folder(`${this.uuid}/annotations`);
+
+    // No annotations which is fine
+    if (annotationsFolder === null) {
+      return;
+    }
+
+    const annotationPaths = annotationsFolder.file(/metadata/);
+
+    // Warn if we have an empty annotations folder
+    if (annotationPaths.length === 0) {
+      console.warn(
+        `Found an annotations folder with no annotations in ${this.uuid}`
+      )
+
+      return;
+    }
+
+    for (let annotationPath of annotationPaths) {
+      // NOTE: This is lame. Might want a helper that gets this file with a
+      // different signature
+      const relpath = annotationPath.name.split(`${this.uuid}/`)[1];
+      let annotation = await getYAML(relpath, this.uuid, this.zipReader);
+
+      if (this.nodeIDToAnnotations.get(annotation["root_result_uuid"]) === undefined) {
+        this.nodeIDToAnnotations.set(annotation["root_result_uuid"], []);
+      }
+
+      // If we have a note we want to load the contents of the note. Otherwise
+      // probably don't load the contents
+      if (annotation["type"] === "Note") {
+        annotation.contents = await getFile(`annotations/${annotation["id"]}/note.txt`, this.uuid, this.zipReader)
+          .then((data) => new Blob([data.byteArray], { type: data.type }))
+          .then(readBlobAsText);
+      } else {
+        annotation.contents = null;
+      }
+
+      this.nodeIDToAnnotations.get(annotation["root_result_uuid"])?.push(annotation);
+    }
+
+    readerModel._dirty();
   }
 }

@@ -37,14 +37,23 @@
   <div class="{getScrollBarWidth() == 0 ? "rounded-md" : ""} mb-2 border border-gray-300 overflow-y-auto bg-gray-50"
        style="margin-right: {getScrollBarWidth()}px">
     {#if readerModel.provenanceModel.provData !== undefined}
-      {#if readerModel.provenanceModel.cy.elements('node:selected').length > 0 && readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())}
+      {#if readerModel.provenanceModel.cy.elements('node:selected').length > 0 &&
+          (readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id()) ||
+           readerModel.provenanceModel.nodeIDToAnnotations.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id()))}
         <div class="flex border-b border-solid border-gray-300 pb-2 pt-4 px-4 mb-4">
           <button onclick={() => readerModel.provenanceModel.provTab = "provenance"} class="nav-button float-left mx-auto w-1/2 pb-0.5 {readerModel.provenanceModel.provTab === "provenance" ? "selected-nav-button" : ""}">
             Provenance
           </button>
-          <button onclick={() => readerModel.provenanceModel.provTab = "error"} class="nav-button float-right mx-auto w-1/2 pb-0.5 {readerModel.provenanceModel.provTab === "error" ? "selected-nav-button" : ""}">
-            Alerts <span class="nav-button-child border border-gray-500 border-solid px-1.5 rounded-full">{_sumErrorsOnSelectedNode()}</span>
-          </button>
+          {#if readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())}
+            <button onclick={() => readerModel.provenanceModel.provTab = "error"} class="nav-button float-right mx-auto w-1/2 pb-0.5 {readerModel.provenanceModel.provTab === "error" ? "selected-nav-button" : ""}">
+              Alerts <span class="nav-button-child border border-gray-500 border-solid px-1.5 rounded-full">{_sumErrorsOnSelectedNode()}</span>
+            </button>
+          {/if}
+          {#if readerModel.provenanceModel.nodeIDToAnnotations.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())}
+            <button onclick={() => readerModel.provenanceModel.provTab = "annotation"} class="nav-button float-right mx-auto w-1/2 pb-0.5 {readerModel.provenanceModel.provTab === "annotation" ? "selected-nav-button" : ""}">
+              Annotations <span class="nav-button-child border border-gray-500 border-solid px-1.5 rounded-full">{readerModel.provenanceModel.nodeIDToAnnotations.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id())?.length}</span>
+            </button>
+          {/if}
         </div>
         <div class="JSONTree {readerModel.provenanceModel.provTab === "provenance" ? "block" : "hidden"} px-4">
           <JSONTree
@@ -88,6 +97,21 @@
             {/each}
           {/if}
         </div>
+        <div class="{$readerModel.provenanceModel.provTab === "annotation" ? "block" : "hidden"} px-4">
+          {#each readerModel.provenanceModel.nodeIDToAnnotations.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id()) as annotation}
+            <div class="mb-2 bg-gray-200 rounded-lg p-2">
+              <span class="font-bold">id: </span> {annotation.id}<br>
+              <span class="font-bold">name: </span> {annotation.name}<br>
+              <span class="font-bold">type: </span> {annotation.type}<br>
+              <span class="font-bold">created at: </span> {annotation.created_at}<br>
+              <span class="font-bold">root result uuid: </span> {annotation.root_result_uuid}<br>
+              <span class="font-bold">referenced result uuid: </span> {annotation.referenced_result_uuid}<br>
+              {#if annotation.type === "Note"}
+                <span class="font-bold">contents: </span> {annotation.contents}<br>
+              {/if}
+            </div>
+          {/each}
+        </div>
       {:else}
         <div class="JSONTree p-4">
           <JSONTree
@@ -98,14 +122,21 @@
         </div>
       {/if}
     {:else}
-      {#if readerModel.provenanceModel.nodeIDToErrors.size > 0}
+      {#if readerModel.provenanceModel.nodeIDToErrors.size > 0 || readerModel.provenanceModel.nodeIDToAnnotations.size > 0}
         <div class="flex border-b border-solid border-gray-300 pb-2 pt-4 px-4 mb-4">
           <button onclick={() => readerModel.provenanceModel.provTab = "provenance"} class="nav-button float-left mx-auto w-1/2 pb-0.5 {readerModel.provenanceModel.provTab === "provenance" ? "selected-nav-button" : ""}">
             Instructions
           </button>
-          <button onclick={() => readerModel.provenanceModel.provTab = "error"} class="nav-button float-right mx-auto w-1/2 pb-0.5 {readerModel.provenanceModel.provTab === "error" ? "selected-nav-button" : ""}">
-            Alerts <span class="nav-button-child border border-gray-500 border-solid px-1.5 rounded-full">{_sumGlobalErrors()}</span>
-          </button>
+          {#if readerModel.provenanceModel.nodeIDToErrors.size > 0}
+            <button onclick={() => readerModel.provenanceModel.provTab = "error"} class="nav-button float-right mx-auto w-1/2 pb-0.5 {readerModel.provenanceModel.provTab === "error" ? "selected-nav-button" : ""}">
+              Alerts <span class="nav-button-child border border-gray-500 border-solid px-1.5 rounded-full">{_sumGlobalErrors()}</span>
+            </button>
+          {/if}
+          {#if readerModel.provenanceModel.nodeIDToAnnotations.size > 0}
+            <button onclick={() => readerModel.provenanceModel.provTab = "annotation"} class="nav-button float-right mx-auto w-1/2 pb-0.5 {readerModel.provenanceModel.provTab === "annotation" ? "selected-nav-button" : ""}">
+              Annotations <span class="nav-button-child border border-gray-500 border-solid px-1.5 rounded-full">{readerModel.provenanceModel.nodeIDToAnnotations.size}</span>
+            </button>
+          {/if}
         </div>
         <div class="text-gray-700 text-sm {readerModel.provenanceModel.provTab === "provenance" ? "block" : "hidden"} px-4">
           <p class="pb-3 leading-5">Squares in the graph represent QIIME 2 Actions. The circles within the squares represent the QIIME 2 Results produced by those actions. The arrows indicate the Result they are originating from was used as an input to the Action they are pointing to. The label on the arrow is the name of the input the Result was used as.</p>
@@ -162,6 +193,24 @@
               </div>
             {/each}
           {/if}
+        </div>
+        <div class="{$readerModel.provenanceModel.provTab === "annotation" ? "block" : "hidden"} px-4">
+          {#each readerModel.provenanceModel.nodeIDToAnnotations.keys() as key}
+            <span class="font-bold">On Result {key}:</span><br>
+            {#each readerModel.provenanceModel.nodeIDToAnnotations.get(key) as annotation}
+              <div class="mb-2 bg-gray-200 rounded-lg p-2">
+                <span class="font-bold">id: </span> {annotation.id}<br>
+                <span class="font-bold">name: </span> {annotation.name}<br>
+                <span class="font-bold">type: </span> {annotation.type}<br>
+                <span class="font-bold">created at: </span> {annotation.created_at}<br>
+                <span class="font-bold">root result uuid: </span> {annotation.root_result_uuid}<br>
+                <span class="font-bold">referenced result uuid: </span> {annotation.referenced_result_uuid}<br>
+                {#if annotation.type === "Note"}
+                  <span class="font-bold">contents: </span> {annotation.contents}<br>
+                {/if}
+              </div>
+            {/each}
+          {/each}
         </div>
       {:else}
         <div class="text-gray-700 text-sm p-4">
