@@ -4,7 +4,7 @@
   import { createDropdownMenu, melt } from "@melt-ui/svelte";
   import { fly } from "svelte/transition";
 
-  export let annotations;
+  export let numAnnotations;
   export let svgPath;
 
   function _searchProvForAnnotations() {
@@ -39,7 +39,7 @@
 <button use:melt={$triggerDropdown} class="flex p-0.5">
   <img height="36px" width="36px" src="{svgPath}" alt="{svgPath}"/>
   <div class="float-right flex items-center pl-2 text-2xl font-bold">
-    {annotations.size}
+    {numAnnotations}
   </div>
 </button>
 {#if $openDropdown}

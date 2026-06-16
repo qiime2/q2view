@@ -5,7 +5,7 @@
 </script>
 
 {#if $readerModel.provenanceModel.nodeIDToAnnotations.size !== 0}
-  <AnnotationDropdown annotations={$readerModel.provenanceModel.nodeIDToAnnotations.size} svgPath={"/images/annotation.svg"} />
+  <AnnotationDropdown numAnnotations={$readerModel.provenanceModel.nodeIDToAnnotations.size} svgPath={"/images/annotation.svg"} />
 {/if}
 {#if $readerModel.provenanceModel.errors.get(2) !== undefined}
   <ErrorDropdown errors={$readerModel.provenanceModel.errors.get(2)} svgPath={"/images/hi-severity-error.svg"} />

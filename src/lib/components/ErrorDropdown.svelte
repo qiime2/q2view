@@ -26,7 +26,7 @@
 <button use:melt={$triggerDropdown} class="flex p-0.5">
   <img height="36px" width="36px" src="{svgPath}" alt="{svgPath}"/>
   <div class="float-right flex items-center pl-2 text-2xl font-bold">
-    {errors.size}
+    {errors.length}
   </div>
 </button>
 {#if $openDropdown}
