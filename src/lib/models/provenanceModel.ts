@@ -728,8 +728,7 @@ export default class ProvenanceModel {
 
     const annotationPaths = annotationsFolder.file(/metadata/);
 
-    // TODO: If we have an annotationsFolder but no annotations here, that's
-    // probably a warning
+    // Warn if we have an empty annotations folder
     if (annotationPaths.length === 0) {
       console.warn(
         `Found an annotations folder with no annotations in ${this.uuid}`
@@ -739,7 +738,7 @@ export default class ProvenanceModel {
     }
 
     for (let annotationPath of annotationPaths) {
-      // TODO: This is lame. Probably want a helper that gets this file with a
+      // NOTE: This is lame. Might want a helper that gets this file with a
       // different signature
       const relpath = annotationPath.name.split(`${this.uuid}/`)[1];
       let annotation = await getYAML(relpath, this.uuid, this.zipReader);
