@@ -3,28 +3,28 @@
   import url from "$lib/scripts/url-store";
 </script>
 
-{#if $readerModel.indexPath}
-  <li>
-    <button
-        class={$url.pathname.replaceAll("/", "") === "visualization" ? "selected-nav-button nav-button" : "nav-button"}
-        onclick={() => (history.pushState({}, "", "/visualization/"+window.location.search))}
-        title='Visualization'
-    >
-      Visualization
-    </button>
-  </li>
-{:else if $readerModel.rawSrc}
-  <li>
-    <button
-        class={$url.pathname.replaceAll("/", "") === "data" ? "selected-nav-button nav-button" : "nav-button"}
-        onclick={() => (history.pushState({}, "", "/data/"+window.location.search))}
-        title='data'
-    >
-      Data
-    </button>
-  </li>
-{/if}
 {#if $readerModel.rawSrc}
+  {#if $readerModel.indexPath}
+    <li>
+      <button
+          class={$url.pathname.replaceAll("/", "") === "visualization" ? "selected-nav-button nav-button" : "nav-button"}
+          onclick={() => (history.pushState({}, "", "/visualization/"+window.location.search))}
+          title='Visualization'
+      >
+        Visualization
+      </button>
+    </li>
+  {:else}
+    <li>
+      <button
+          class={$url.pathname.replaceAll("/", "") === "data" ? "selected-nav-button nav-button" : "nav-button"}
+          onclick={() => (history.pushState({}, "", "/data/"+window.location.search))}
+          title='data'
+      >
+        Data
+      </button>
+    </li>
+  {/if}
   <li>
     <button
         class={$url.pathname.replaceAll("/", "") === "citations" ? "selected-nav-button nav-button" : "nav-button"}
