@@ -571,7 +571,7 @@ export default class ProvenanceModel {
   _getParameterArtifacts(sourceAction) {
     const parameterArtifacts = new Set();
 
-    for (const paramMap of sourceAction.action.parameters) {
+    for (const paramMap of sourceAction.action.parameters || []) {
       const paramValue = Object.values(paramMap)[0];
 
       if (
