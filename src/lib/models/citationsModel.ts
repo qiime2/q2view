@@ -82,17 +82,22 @@ export default class CitationsModel {
     return URL.createObjectURL(blob);
   }
 
+  // The Citations tab formats these once when it mounts, so the readerModel
+  // needs to be able to wait on this
   getCitations() {
-    this._getCitations().then((citations) => {
-      // If citations === null then we don't have citaions for this result
-      // which is fine
-      if (citations !== null) {
-        this.citations = this._dedup(citations);
-        this.formatter = new Cite(this.citations);
+    return this._getCitations()
+      .then((citations) => {
+        // If citations === null then we don't have citaions for this result
+        // which is fine
+        if (citations !== null) {
+          this.citations = this._dedup(citations);
+          this.formatter = new Cite(this.citations);
 
-        readerModel._dirty();
-      }
-    });
+          readerModel._dirty();
+        }
+      })
+      // Bad citations shouldn't stop the rest of the Result from loading
+      .catch((err) => console.error(err));
   }
 
   _getCitations() {

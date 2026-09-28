@@ -251,17 +251,9 @@ function searchJSONMap(
     const mapID = entry[0];
     const json = entry[1];
 
-    const jsonKeys: Array<Array<string>> = [];
-
-    // NOTE: This works fast enough that we can just do it on demand, but it
-    // may be worth it to memoize it.
-    getAllObjectKeyPathsRecursively(json, [], jsonKeys);
-    for (const jsonKey of jsonKeys) {
-      // Get the end bit of the key in the json
-      const terminal = jsonKey.slice(-searchKey.length);
-
+    for (const jsonKey of _getKeyPaths(json)) {
       // If the end of the key path matches the provided key
-      if (JSON.stringify(terminal) === JSON.stringify(searchKey)) {
+      if (_keyPathEndsWith(jsonKey, searchKey)) {
         if (searchValue === undefined) {
           // We had a key with no value, so we only search the key
           hits.add(mapID);
@@ -298,6 +290,43 @@ function searchJSONMap(
   }
 
   return hits;
+}
+
+// Getting every key path of the json is the slow part of searching, and we
+// search all of provenance once per error we check for, so only do it once per
+// json. Provenance is only searched once it is fully parsed, so the json won't
+// change after we cache its key paths
+const keyPathCache: WeakMap<object, Array<Array<string>>> = new WeakMap();
+
+function _getKeyPaths(json: object): Array<Array<string>> {
+  let keyPaths = keyPathCache.get(json);
+
+  if (keyPaths === undefined) {
+    keyPaths = [];
+    getAllObjectKeyPathsRecursively(json, [], keyPaths);
+    keyPathCache.set(json, keyPaths);
+  }
+
+  return keyPaths;
+}
+
+function _keyPathEndsWith(
+  keyPath: Array<string>,
+  searchKey: Array<string>,
+): boolean {
+  const offset = keyPath.length - searchKey.length;
+
+  if (offset < 0) {
+    return false;
+  }
+
+  for (let i = 0; i < searchKey.length; i++) {
+    if (keyPath[offset + i] !== searchKey[i]) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 function _matchString(searchValue: _String, value: string): boolean {
