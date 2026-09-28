@@ -1,6 +1,7 @@
 <script lang="ts">
   import JSONTree from "svelte-json-tree";
   import Dag from "./Dag.svelte";
+  import Loading from "./Loading.svelte";
   import readerModel from "$lib/models/readerModel";
   import { getScrollBarWidth } from "$lib/scripts/util";
 
@@ -29,13 +30,28 @@
   }
 </script>
 
-{#key $readerModel.provenanceModel.uuid}
-  <Dag />
-{/key}
+<!-- Provenance is parsed in the background, so it may not be ready yet -->
+{#if $readerModel.provenanceModel.loading}
+  <div class="relative px-4">
+    <Loading message="Provenance (this can take a while if the provenance is large)" />
+  </div>
+{:else if $readerModel.provenanceModel.loadError}
+  <div class="self-start m-4 border border-red-300 rounded-md bg-red-100 py-1 px-3">
+    Failed to parse provenance: {$readerModel.provenanceModel.loadError}
+  </div>
+{:else}
+  {#key $readerModel.provenanceModel.uuid}
+    <Dag />
+  {/key}
+{/if}
 {#key $readerModel.provenanceModel.provData}
   <!-- If there is a visibile scrollbar then the rounding clips awkwardly -->
   <div class="{getScrollBarWidth() == 0 ? "rounded-md" : ""} mb-2 border border-gray-300 overflow-y-auto bg-gray-50"
        style="margin-right: {getScrollBarWidth()}px">
+    <!-- This panel mostly reads the model non-reactively, so rebuild it when
+     the provenance finishes parsing to pick up any errors and annotations.
+     This is inside the scrolling div so rebuilding it keeps the scroll -->
+    {#key $readerModel.provenanceModel.loading}
     {#if readerModel.provenanceModel.provData !== undefined}
       {#if readerModel.provenanceModel.cy.elements('node:selected').length > 0 &&
           (readerModel.provenanceModel.nodeIDToErrors.get(readerModel.provenanceModel.cy.elements('node:selected')[0].id()) ||
@@ -236,6 +252,7 @@
         </div>
       {/if}
     {/if}
+    {/key}
   </div>
 {/key}
 

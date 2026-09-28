@@ -7,7 +7,7 @@ import JSZip, { JSZipObject } from "jszip";
 import { getFile, getYAML } from "$lib/scripts/fileutils";
 import { currentMetadataStore } from "$lib/scripts/currentMetadataStore";
 import { searchProvenance, transformQuery } from "$lib/scripts/provSearchUtils";
-import { setUnion, readBlobAsText } from "$lib/scripts/util";
+import { setUnion, readBlobAsText, yieldToBrowser } from "$lib/scripts/util";
 import cytoscape from "cytoscape";
 import readerModel from "./readerModel";
 
@@ -81,6 +81,14 @@ export default class ProvenanceModel {
   // Annotation tracking
   nodeIDToAnnotations: Map<string, Annotation[]> = new Map();
 
+  // Provenance is parsed in the background while the rest of the Result is
+  // viewable, so we track whether that parsing is done or has failed
+  loading: boolean = true;
+  loadError: string = "";
+  // Set when this model is replaced mid-parse so we stop parsing a Result that
+  // is no longer loaded
+  cancelled: boolean = false;
+
   // Class attributes passed in by readerModel pertaining to currently loaded
   // Result
   uuid: string = "";
@@ -96,6 +104,20 @@ export default class ProvenanceModel {
   init(uuid: string, zipReader: JSZip) {
     this.uuid = uuid;
     this.zipReader = zipReader;
+  }
+
+  /**
+   * Stop parsing the provenance of this Result. Any parsing currently in
+   * progress will throw the next time it checks for cancellation.
+   */
+  cancel() {
+    this.cancelled = true;
+  }
+
+  _throwIfCancelled() {
+    if (this.cancelled) {
+      throw new Error(`Provenance parsing of ${this.uuid} was cancelled`);
+    }
   }
 
   /**
@@ -593,6 +615,12 @@ export default class ProvenanceModel {
    * class state to represent the tree.
    */
   async getProvenanceTree() {
+    // A cancelled parse of another Result may have left metadata in here that
+    // it never got to handle
+    currentMetadataStore.set({
+      currentMetadata: new Set(),
+    });
+
     this.height = await this._recurseUpTree(
       this.uuid,
       undefined,
@@ -633,6 +661,10 @@ export default class ProvenanceModel {
    * @returns {JSON} JSON representing the .yaml file that was loaded
    */
   async getProvenanceAction(uuid: string) {
+    // Every step up the tree comes through here, so this is where we bail out
+    // of the recursion if this model was cancelled
+    this._throwIfCancelled();
+
     // If we requested the uuid of the currently loaded Result, then we load our
     // own action.yaml
     let action;
@@ -715,6 +747,11 @@ export default class ProvenanceModel {
           this.nodeIDToErrors.get(hit)?.get(severity)?.push(error);
         }
       }
+
+      // Searching all of provenance is slow for large Results, and the page is
+      // interactive while we do this, so don't hog the main thread
+      await yieldToBrowser();
+      this._throwIfCancelled();
     }
   }
 
