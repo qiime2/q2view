@@ -26,6 +26,11 @@ export const timeoutAt = (timeout, reason = "Timed out") =>
     }, timeout);
   });
 
+// Let the browser handle input and render before continuing. Awaiting this
+// breaks up long running work so it doesn't freeze the page
+export const yieldToBrowser = () =>
+  new Promise((resolve) => setTimeout(resolve, 0));
+
 export const waitUntil = (condition) =>
   new Promise((resolve, reject) => {
     // eslint-disable-line no-unused-vars

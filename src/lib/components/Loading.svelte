@@ -1,14 +1,21 @@
 <script lang="ts">
   import loading from '$lib/scripts/loading'
+
+  interface Props {
+    // Show this instead of the global loading message
+    message?: string;
+  }
+
+  let { message }: Props = $props();
 </script>
 
 <h2 class="mt-5">
-  Loading: {$loading.message}
+  Loading: {message ?? $loading.message}
 </h2>
-<div id="loader"></div>
+<div class="loader"></div>
 
 <style lang="postcss">
-  #loader {
+  .loader {
     position: absolute;
     border: 16px solid;
     border-top: 16px solid;

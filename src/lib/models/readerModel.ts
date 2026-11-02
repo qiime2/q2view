@@ -102,6 +102,8 @@ class ReaderModel {
     this.selectedFile = "";
     this.selectedTab = "data";
 
+    // The old provenance may still be parsing in the background
+    this.provenanceModel.cancel();
     this.provenanceModel = new ProvenanceModel();
     this.citationsModel = new CitationsModel();
 
@@ -353,43 +355,67 @@ class ReaderModel {
     await this.citationsModel.getCitations();
 
     // Set Provenance
-    loading.setMessage("Loading Provenance");
-    // Only read the errors from yaml the first time they drop in a result
-    if (
-      [
-        this.LOW_SEVERITY_ERRORS,
-        this.MEDIUM_SEVERITY_ERRORS,
-        this.HIGH_SEVERITY_ERRORS,
-      ].every((e) => e === undefined)
-    ) {
-      await this._readErrors();
-    }
+    //
+    // This is deliberately not awaited. Parsing large provenance can take a
+    // long time, so we let the rest of the Result load while it runs, and the
+    // provenance dependent views show a loading message until it's done
     this.provenanceModel.init(this.uuid, zip);
-    await this.provenanceModel.getProvenanceTree();
-    await this.provenanceModel.getErrors(this.LOW_SEVERITY_ERRORS, 0);
-    await this.provenanceModel.getErrors(this.MEDIUM_SEVERITY_ERRORS, 1);
-    await this.provenanceModel.getErrors(this.HIGH_SEVERITY_ERRORS, 2);
-    await this.provenanceModel.getAnnotations();
+    this._loadProvenance(this.provenanceModel);
+  }
+
+  async _loadProvenance(provenanceModel: ProvenanceModel) {
+    try {
+      // Only read the errors from yaml the first time they drop in a result
+      if (
+        [
+          this.LOW_SEVERITY_ERRORS,
+          this.MEDIUM_SEVERITY_ERRORS,
+          this.HIGH_SEVERITY_ERRORS,
+        ].every((e) => e === undefined)
+      ) {
+        await this._readErrors();
+      }
+      await provenanceModel.getProvenanceTree();
+      await provenanceModel.getErrors(this.LOW_SEVERITY_ERRORS, 0);
+      await provenanceModel.getErrors(this.MEDIUM_SEVERITY_ERRORS, 1);
+      await provenanceModel.getErrors(this.HIGH_SEVERITY_ERRORS, 2);
+      await provenanceModel.getAnnotations();
+
+      // Open the provenance tab on the high severity errors, so they are the
+      // first thing people see there
+      if (provenanceModel.errors.get(2) !== undefined) {
+        provenanceModel.provTab = "error";
+      }
+    } catch (err: any) {
+      // If this model was cancelled then it has already been replaced, and
+      // nobody will see it, so there is nothing to report
+      if (!provenanceModel.cancelled) {
+        console.error(err);
+        provenanceModel.loadError = String(err);
+      }
+    }
+
+    provenanceModel.loading = false;
+    this._dirty();
   }
 
   async _readErrors() {
-    this.LOW_SEVERITY_ERRORS = yaml.safeLoad(
-      await readBlobAsText(
-        await (await fetch("/errors/LowSeverityErrors.yml")).blob(),
-      ),
-    ) as ProvenanceError[];
+    const readErrorFile = async (fileName: string) =>
+      yaml.safeLoad(
+        await readBlobAsText(await (await fetch(`/errors/${fileName}`)).blob()),
+      ) as ProvenanceError[];
 
-    this.MEDIUM_SEVERITY_ERRORS = yaml.safeLoad(
-      await readBlobAsText(
-        await (await fetch("/errors/MediumSeverityErrors.yml")).blob(),
-      ),
-    ) as ProvenanceError[];
-
-    this.HIGH_SEVERITY_ERRORS = yaml.safeLoad(
-      await readBlobAsText(
-        await (await fetch("/errors/HighSeverityErrors.yml")).blob(),
-      ),
-    ) as ProvenanceError[];
+    // Set these all at once. Another Result can start loading its provenance
+    // while we are reading these, and it only reads them if they are all unset
+    [
+      this.LOW_SEVERITY_ERRORS,
+      this.MEDIUM_SEVERITY_ERRORS,
+      this.HIGH_SEVERITY_ERRORS,
+    ] = await Promise.all([
+      readErrorFile("LowSeverityErrors.yml"),
+      readErrorFile("MediumSeverityErrors.yml"),
+      readErrorFile("HighSeverityErrors.yml"),
+    ]);
   }
 
   attachToServiceWorker() {

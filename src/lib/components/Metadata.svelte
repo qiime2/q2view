@@ -1,6 +1,7 @@
 <script lang="ts">
   import { getFile } from "$lib/scripts/fileutils";
   import Panel from "./Panel.svelte";
+  import Loading from "./Loading.svelte";
   import readerModel from "$lib/models/readerModel";
 </script>
 
@@ -23,6 +24,15 @@
     before use with QIIME 2.
   </p>
 </Panel>
+<!-- The metadata is found while parsing provenance, which happens in the
+ background, so it may not be ready yet -->
+{#if $readerModel.provenanceModel.loading}
+<Loading message="Metadata (waiting on provenance to finish parsing)" />
+{:else if $readerModel.provenanceModel.loadError}
+<div class="border border-red-300 rounded-md bg-red-100 py-1 px-3">
+  Unable to find metadata because provenance failed to parse. See the Provenance tab for details.
+</div>
+{:else}
 <table class="w-full">
   <tbody>
     <tr class="border-b border-gray-400 text-gray-800">
@@ -73,3 +83,4 @@
     {/each}
   </tbody>
 </table>
+{/if}
