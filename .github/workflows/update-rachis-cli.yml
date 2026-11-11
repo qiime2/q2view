@@ -2,10 +2,10 @@ name: Update q2view in rachis-cli
 
 on:
   push:
-    branches: [rachis_cli_update_workflow]
+    branches: [main]
+  workflow_dispatch:
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: update-rachis-cli-q2view
@@ -13,5 +13,7 @@ concurrency:
 
 jobs:
   update-pin:
-    if: github.repository == 'VinzentRisch/q2view' && github.ref == 'refs/heads/rachis_cli_update_workflow'
-    uses: VinzentRisch/distributions/.github/workflows/update-rachis-cli-q2view.yaml@codex/update-rachis-cli-q2view
+    if: github.repository == 'qiime2/q2view' && github.ref == 'refs/heads/main'
+    uses: qiime2/distributions/.github/workflows/update-rachis-cli-q2view.yaml@dev
+    secrets:
+      BOT_PAT: ${{ secrets.BOT_PAT }}
