@@ -13,7 +13,6 @@ concurrency:
 
 jobs:
   update-pin:
-    if: github.repository == 'qiime2/q2view' && github.ref == 'refs/heads/main'
     uses: qiime2/distributions/.github/workflows/update-rachis-cli-q2view.yaml@dev
     secrets:
       BOT_PAT: ${{ secrets.BOT_PAT }}
